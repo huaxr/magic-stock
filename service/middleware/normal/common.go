@@ -2,6 +2,7 @@ package normal
 
 import (
 	"fmt"
+	"log"
 	"magic/stock/model"
 	"magic/stock/service/wechat"
 	"net/http"
@@ -23,6 +24,7 @@ func LoginRequired() gin.HandlerFunc {
 			authentication := check.Authentication.JudgeApi(c)
 			if authentication.Err != nil {
 				// 注意: c.json 会对 & unicode 编码
+				log.Println("没有登录， 跳转下面url")
 				c.String(400, wechat.WechatGlobal.GetCodeUrl())
 				c.Abort()
 				return
