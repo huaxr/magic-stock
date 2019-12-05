@@ -1,0 +1,20 @@
+// @Contact:    huaxinrui
+// @Time:       2019/10/20 下午5:54
+
+package platform
+
+import "magic/stock/control"
+
+func (r *Router) bindRouters() {
+	r.addRouters()
+}
+
+func (r *Router) addRouters() {
+	router := r.Router.Group("/api")
+	router.GET("/user", control.UserControlGlobal.GetUserInfo)
+	router.GET("/wx_login", control.UserControlGlobal.LoginByWeChat)
+	router.POST("/jsapi_pay", control.UserControlGlobal.PayByWeChat)
+	router.GET("/callback/:order_id", control.UserControlGlobal.TradeCallBack)
+
+	router.GET("/predicts", control.PredictControlGlobal.GetPredict)
+}

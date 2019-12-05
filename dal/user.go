@@ -1,0 +1,26 @@
+// @Time:       2019/11/27 下午7:53
+
+package dal
+
+import (
+	"github.com/jinzhu/gorm"
+)
+
+type User struct {
+	gorm.Model
+	OpenId   string `json:"open_id"`   // openid
+	UserName string `json:"user_name"` // 姓名
+	Avatar   string `json:"avatar"`    // 头像
+	Address  string `json:"address"`   // 住址
+	Sex      int    `json:"sex"`       // 性别  1==male
+	City     string `json:"city"`      // 城市
+	Province string `json:"province"`  // 省份
+	Country  string `json:"country"`   // 国家
+	Phone    string `json:"phone"`     // 电话 (下单前必填)
+	Exp      int    `json:"exp"`       // 经验值
+	IsMember bool   `json:"is_member"` // 是否会员
+}
+
+func (User) TableName() string {
+	return "magic_stock_core_user"
+}
