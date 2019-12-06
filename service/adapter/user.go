@@ -102,7 +102,7 @@ func (u *UserService) LoginWx(code string) (*dal.User, error) {
 
 func (u *UserService) PayWx(authentication *model.AuthResult) (*anypay.WeResJsApi, error) {
 	user, _ := u.Query("id = ?", []interface{}{authentication.Uid})
-	payment := wechat.WechatGlobal.JSApiPay(user.OpenId, strconv.Itoa(int(30*100)))
+	payment := wechat.WechatGlobal.JSApiPay(user.OpenId, strconv.Itoa(int(1)))
 	if payment == nil {
 		return nil, errors.New("唤起支付调用失败")
 	}
