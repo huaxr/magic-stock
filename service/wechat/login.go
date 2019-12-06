@@ -5,6 +5,7 @@ package wechat
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"magic/stock/service/check"
 	"magic/stock/service/conf"
 	"net/url"
@@ -12,6 +13,7 @@ import (
 
 func (w *WeChat) GetAccessTokenByCode(code string) (string, string) {
 	res := check.Authentication.HttpGetWithToken(fmt.Sprintf(OpenIdUrl, code, WX_APPID, WX_APPSECRET, GrantType), "")
+	log.Println("GetAccessTokenByCode", string(res))
 	var response map[string]interface{}
 	json.Unmarshal(res, &response)
 	openid, access_token := response["openid"], response["access_token"]

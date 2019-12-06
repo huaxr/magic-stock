@@ -3,6 +3,7 @@
 package control
 
 import (
+	"log"
 	"magic/stock/dal"
 	"magic/stock/model"
 	"magic/stock/service/adapter"
@@ -53,6 +54,7 @@ func (d *PredictControl) Response(c *gin.Context, data interface{}, err error) {
 func (d *PredictControl) GetPredict(c *gin.Context) {
 	offset, limit := check.ParamParse.GetPagination(c)
 	where, args := check.ParamParse.ParseParamsToWhereArgs(c, []string{"condition"}, true)
+	log.Println(where, args)
 	pres, _ := d.QueryAll(where, args, offset, limit)
 	d.Response(c, pres, nil)
 }
