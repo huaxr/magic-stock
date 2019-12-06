@@ -20,6 +20,7 @@ type UserIF interface {
 	Exist(where string, args []interface{}) bool
 	GetUserInfo(c *gin.Context)
 	LoginByWeChat(c *gin.Context)
+	// 充值会员
 	PayByWeChat(c *gin.Context)
 	TradeCallBack(c *gin.Context)
 	Response(c *gin.Context, data interface{}, err error)
@@ -60,7 +61,10 @@ func (d *UserControl) LoginByWeChat(c *gin.Context) {
 	if code == "" {
 		d.Response(c, nil, errors.New("code为空"))
 	}
-	user := adapter.UserServiceGlobal.LoginWx(code)
+	user, err := adapter.UserServiceGlobal.LoginWx(code)
+	if err != nil {
+		d.Response(c, nil, err)
+	}
 	session := sessions.Default(c)
 	session.Set("user", user.UserName)
 	session.Set("uid", int(user.ID))

@@ -27,7 +27,7 @@ type UserServiceIF interface {
 	QueryAll(where string, args []interface{}, offset, limit int) (*[]dal.User, error)
 	Count(where string, args []interface{}) (int, error)
 	CreateUserIfNotExist(user *dal.User) (us *dal.User, err error)
-	LoginWx(code string) *dal.User
+	LoginWx(code string) (*dal.User, error)
 	PayWx(authentication *model.AuthResult) (*anypay.WeResJsApi, error)
 }
 
@@ -76,22 +76,28 @@ func (u *UserService) CreateUserIfNotExist(user *dal.User) (us *dal.User, err er
 	return user_obj, err
 }
 
-func (u *UserService) LoginWx(code string) *dal.User {
+func (u *UserService) LoginWx(code string) (*dal.User, error) {
+	login_response, err := wechat.WechatGlobal.GetAccessTokenByCode(code)
+	if err != nil {
+		return nil, err
+	}
+	res := check.Authentication.HttpGetWithToken(fmt.Sprintf(wechat.UserInfoUrl, login_response.AccessToken, login_response.Openid), "")
 	var user_info model.WxUserInfo
-	openid, access_token := wechat.WechatGlobal.GetAccessTokenByCode(code)
-	res := check.Authentication.HttpGetWithToken(fmt.Sprintf(wechat.UserInfoUrl, access_token, openid), "")
-	json.Unmarshal(res, &user_info)
+	err = json.Unmarshal(res, &user_info)
+	if err != nil {
+		return nil, errors.New("获取用户信息失败")
+	}
 	avatar := user_info.Headimgurl
 	sex := user_info.Sex
 	city := user_info.City
 	province := user_info.Province
 	country := user_info.Country
 	username := user_info.Nickname
-	openid = user_info.OpenId
-	user := dal.User{OpenId: openid, UserName: username, Avatar: avatar, Sex: sex, City: city, Province: province, Country: country}
+	openid := user_info.OpenId
+	user := dal.User{OpenId: openid, UserName: username, Avatar: avatar, Sex: sex, City: city, Province: province, Country: country, IsMember: false}
 	log.Println(user)
 	obj, _ := u.CreateUserIfNotExist(&user)
-	return obj
+	return obj, nil
 }
 
 func (u *UserService) PayWx(authentication *model.AuthResult) (*anypay.WeResJsApi, error) {

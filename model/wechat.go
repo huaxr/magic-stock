@@ -22,3 +22,12 @@ type WxUserInfo struct {
 	Country    string `json:"country"`
 	Headimgurl string `json:"headimgurl"`
 }
+
+// 微信登录获取access_token 结果
+type AccessTokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	ExpiresIn    int    `json:"expires_in"`
+	RefreshToken string `json:"refresh_token"`
+	Openid       string `json:"openid"`
+	Scope        string `json:"scope"`
+}

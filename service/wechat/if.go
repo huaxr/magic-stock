@@ -3,13 +3,14 @@
 package wechat
 
 import (
+	"magic/stock/model"
 	"regexp"
 
 	"github.com/panghu1024/anypay"
 )
 
 type WechatServiceIF interface {
-	GetAccessTokenByCode(code string) (openid, access_token string)
+	GetAccessTokenByCode(code string) (*model.AccessTokenResponse, error)
 	GetCodeUrl() string
 	JSApiPay(openid string, money string) *anypay.WeResJsApi
 }
