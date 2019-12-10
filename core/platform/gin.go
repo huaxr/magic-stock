@@ -76,5 +76,5 @@ func (r *Router) bindOnline() {
 	r.Router.Use(normal.DebugCORS())
 	r.Router.Use(normal.LoginRequired())
 	r.bindRouters()
-	r.Router.Run(":8081")
+	r.Router.Run("0.0.0.0:8081")
 }
