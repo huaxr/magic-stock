@@ -92,3 +92,34 @@ func TestCalcWeekPrice(t *testing.T) {
 		CrawlerGlobal.CalcPercentTicketWeekly(i.Code)
 	}
 }
+
+// 获取基本面信息
+func TestGetStockProfit(t *testing.T) {
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2000 and id >= 735").Find(&code)
+		for _, i := range code {
+			CrawlerGlobal.GetStockProfit(i.Code, true)
+			time.Sleep(1 * time.Second)
+			CrawlerGlobal.GetStockLiabilities(i.Code, true)
+			time.Sleep(1 * time.Second)
+			CrawlerGlobal.GetStockCashFlow(i.Code, true)
+			time.Sleep(1 * time.Second)
+		}
+	}()
+
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 3163").Find(&code)
+		for _, i := range code {
+			CrawlerGlobal.GetStockProfit(i.Code, false)
+			time.Sleep(1 * time.Second)
+			CrawlerGlobal.GetStockLiabilities(i.Code, false)
+			time.Sleep(1 * time.Second)
+			CrawlerGlobal.GetStockCashFlow(i.Code, false)
+			time.Sleep(1 * time.Second)
+		}
+	}()
+
+	select {}
+}

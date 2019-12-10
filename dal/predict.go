@@ -7,7 +7,7 @@ type Predict struct {
 	Code        string
 	Name        string
 	Date        string
-	Condition   string
+	Condition   string  `sql:"type:text"`
 	RealPercent float64 // 真实的涨跌情况， 用来判断准确性
 	FundCount   int     // 一共几只基金持有
 	SMCount     int     // 私募数量

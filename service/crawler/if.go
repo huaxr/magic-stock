@@ -28,7 +28,12 @@ type CrawlerIF interface {
 	GetTopStockholder(code, namer string, proxy bool)
 	// 获取股票历史记录
 	GetSignalTicket(code, name string, proxy bool) error
-
+	// 获取股票的 收益表 数据
+	GetStockProfit(code string, proxy bool)
+	// 获取股票的 资产负债表 数据
+	GetStockLiabilities(code string, proxy bool)
+	// 获取股票的 现金流量表 数据
+	GetStockCashFlow(code string, proxy bool)
 	// 生成周线表
 	GenerateWeekHistory(code string)
 	// 计算周线表百分比

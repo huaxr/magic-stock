@@ -3,6 +3,7 @@
 package crawler
 
 import (
+	"fmt"
 	"magic/stock/core/store"
 	"magic/stock/dal"
 	"magic/stock/model"
@@ -20,5 +21,16 @@ func TestGetData(t *testing.T) {
 			continue
 		}
 		CrawlerGlobal.Analyze(y, i.Code, i.Name)
+	}
+}
+
+func TestMultiQuery(t *testing.T) {
+	var c []dal.Predict
+	err := store.MysqlClient.GetDB().Model(&dal.Predict{}).
+		Where("`condition` regexp ?", "募持仓").
+		Find(&c).Error
+	fmt.Println(err)
+	for _, i := range c {
+		fmt.Println(i.Code)
 	}
 }

@@ -53,7 +53,8 @@ func init() {
 		},
 	}
 	go db.AutoMigrate(&dal.Code{}, &dal.Stockholder{}, &dal.FundHoldRank{},
-		&dal.Predict{}, &dal.TicketHistoryWeekly{}, &dal.FundRank{}, dal.TicketHistory{}, &dal.User{}, &dal.Pay{})
+		&dal.Predict{}, &dal.TicketHistoryWeekly{}, &dal.FundRank{}, dal.TicketHistory{}, &dal.User{}, &dal.Pay{},
+		&dal.StockCashFlow{}, &dal.StockProfit{}, &dal.StockLiabilities{}, &dal.Conditions{})
 	MysqlClient = e
 }
 

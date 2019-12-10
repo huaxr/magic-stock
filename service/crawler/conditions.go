@@ -82,5 +82,5 @@ func (craw *Crawler) CalcResultWithDefined(params *model.Params) *model.CalcResu
 	recent_ave_count_1 := craw.getRecentAvePriceByNum(recent_daily.RecentCount, params.AverageCount1, 10)
 	recent_ave_count_2 := craw.getRecentAvePriceByNum(recent_daily.RecentCount, params.AverageCount2, 10)
 
-	return &model.CalcResult{recent_daily, recent_week, &model.RecentAverage{recent_ave_price_1, recent_ave_price_2, recent_ave_price_3, recent_ave_price_1_weekly, recent_ave_price_2_weekly, recent_ave_count_1, recent_ave_count_2}}
+	return &model.CalcResult{RecentDailyData: recent_daily, RecentWeeklyData: recent_week, RecentAverage: &model.RecentAverage{recent_ave_price_1, recent_ave_price_2, recent_ave_price_3, recent_ave_price_1_weekly, recent_ave_price_2_weekly, recent_ave_count_1, recent_ave_count_2}}
 }

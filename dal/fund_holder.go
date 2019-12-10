@@ -11,7 +11,6 @@ type FundHoldRank struct {
 	Code      string `gorm:"index"`
 	Name      string
 	Percent   float64
-	Concept   string
 	Time      string
 }
 

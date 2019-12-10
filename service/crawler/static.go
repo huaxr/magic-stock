@@ -4,6 +4,7 @@ package crawler
 
 import (
 	"fmt"
+	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
 	"magic/stock/utils"
@@ -241,6 +242,128 @@ func (craw *Crawler) GetTopStockholder(code, namer string, proxy bool) {
 		fmt.Println(name, count, percent, change1, change2, change3)
 		h := dal.Stockholder{Code: code, Name: namer, HolderName: name, Count: count, Percent: percent, Change: change}
 		store.MysqlClient.GetDB().Save(&h)
+	}
+}
+
+func (craw *Crawler) GetStockProfit(code string, proxy bool) {
+	var doc *goquery.Document
+	if !proxy {
+		doc, _ = craw.NewDocument(fmt.Sprintf("http://vip.stock.finance.sina.com.cn/corp/go.php/vFD_ProfitStatement/stockid/%s/ctrl/part/displaytype/4.phtml", code))
+	} else {
+		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://vip.stock.finance.sina.com.cn/corp/go.php/vFD_ProfitStatement/stockid/%s/ctrl/part/displaytype/4.phtml", code))
+	}
+	for i := 2; i <= 6; i++ {
+		date := strings.TrimSpace(doc.Find(fmt.Sprintf("#ProfitStatementNewTable0 > tbody > tr:nth-child(1) > td:nth-child(%d)", i)).Text())
+		shouyi := strings.TrimSpace(doc.Find(fmt.Sprintf("#ProfitStatementNewTable0 > tbody > tr:nth-child(5) > td:nth-child(%d)", i)).Text())
+		sy, err := strconv.ParseFloat(strings.Replace(shouyi, ",", "", -1), 64)
+		if err != nil {
+			sy = 0
+		}
+		chengben := strings.TrimSpace(doc.Find(fmt.Sprintf("#ProfitStatementNewTable0 > tbody > tr:nth-child(5) > td:nth-child(%d)", i)).Text())
+		cb, err := strconv.ParseFloat(strings.Replace(chengben, ",", "", -1), 64)
+		if err != nil {
+			cb = 0
+		}
+		jinglirun := strings.TrimSpace(doc.Find(fmt.Sprintf("#ProfitStatementNewTable0 > tbody > tr:nth-child(23) > td:nth-child(%d)", i)).Text())
+		hlr, err := strconv.ParseFloat(strings.Replace(jinglirun, ",", "", -1), 64)
+		if err != nil {
+			hlr = 0
+		}
+		profit := dal.StockProfit{Code: code, GrossTradingIncome: sy, TotalOperatingCost: cb, NetProfit: hlr, Date: date}
+		store.MysqlClient.GetDB().Save(&profit)
+		log.Println("公司利润表", profit)
+	}
+
+}
+
+func (craw *Crawler) GetStockLiabilities(code string, proxy bool) {
+	var doc *goquery.Document
+	if !proxy {
+		doc, _ = craw.NewDocument(fmt.Sprintf("http://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/%s/ctrl/part/displaytype/4.phtml", code))
+	} else {
+		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://money.finance.sina.com.cn/corp/go.php/vFD_BalanceSheet/stockid/%s/ctrl/part/displaytype/4.phtml", code))
+	}
+	for i := 2; i <= 6; i++ {
+		date := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(1) > td:nth-child(%d)", i)).Text())
+		// 流动资产
+		liudongzichan := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(23) > td:nth-child(%d)", i)).Text())
+		ldzc, err := strconv.ParseFloat(strings.Replace(liudongzichan, ",", "", -1), 64)
+		if err != nil {
+			ldzc = 0
+		}
+		// 非流动资产
+		feiliudongzichan := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(47) > td:nth-child(%d)", i)).Text())
+		fldzc, err := strconv.ParseFloat(strings.Replace(feiliudongzichan, ",", "", -1), 64)
+		if err != nil {
+			fldzc = 0
+		}
+		// 资产总计
+		zichanziji := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(48) > td:nth-child(%d)", i)).Text())
+		zctotal, err := strconv.ParseFloat(strings.Replace(zichanziji, ",", "", -1), 64)
+		if err != nil {
+			zctotal = 0
+		}
+		// 流动负债
+		liudongfuzhai := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(68) > td:nth-child(%d)", i)).Text())
+		ldfztotal, err := strconv.ParseFloat(strings.Replace(liudongfuzhai, ",", "", -1), 64)
+		if err != nil {
+			ldfztotal = 0
+		}
+		// 非流动负债
+		feiliudongfuzhai := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(81) > td:nth-child(%d)", i)).Text())
+		fldfztotal, err := strconv.ParseFloat(strings.Replace(feiliudongfuzhai, ",", "", -1), 64)
+		if err != nil {
+			fldfztotal = 0
+		}
+		// 负债总数
+		fuzhaitotal := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(82) > td:nth-child(%d)", i)).Text())
+		fztotal, err := strconv.ParseFloat(strings.Replace(fuzhaitotal, ",", "", -1), 64)
+		if err != nil {
+			fztotal = 0
+		}
+		profit := dal.StockLiabilities{Code: code, CurrentAssets: ldzc, NotCurrentAssets: fldzc, TotalAssets: zctotal, CurrentLiabilities: ldfztotal, NotCurrentLiabilities: fldfztotal, TotalLiabilities: fztotal, Date: date}
+		store.MysqlClient.GetDB().Save(&profit)
+		log.Println("资产负债表", code, profit)
+	}
+}
+
+func (craw *Crawler) GetStockCashFlow(code string, proxy bool) {
+	var doc *goquery.Document
+	if !proxy {
+		doc, _ = craw.NewDocument(fmt.Sprintf("http://money.finance.sina.com.cn/corp/go.php/vFD_CashFlow/stockid/%s/ctrl/part/displaytype/4.phtml", code))
+	} else {
+		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://money.finance.sina.com.cn/corp/go.php/vFD_CashFlow/stockid/%s/ctrl/part/displaytype/4.phtml", code))
+	}
+	for i := 2; i <= 6; i++ {
+		date := strings.TrimSpace(doc.Find(fmt.Sprintf("#ProfitStatementNewTable0 > tbody > tr:nth-child(1) > td:nth-child(%d)", i)).Text())
+
+		// 经营活动产生的现金流量净额
+		jingyinghuodong := strings.TrimSpace(doc.Find(fmt.Sprintf("#ProfitStatementNewTable0 > tbody > tr:nth-child(13) > td:nth-child(%d)", i)).Text())
+		jy, err := strconv.ParseFloat(strings.Replace(jingyinghuodong, ",", "", -1), 64)
+		if err != nil {
+			jy = 0
+		}
+		// 投资活动产生的现金流量净额
+		touzihuodong := strings.TrimSpace(doc.Find(fmt.Sprintf("#ProfitStatementNewTable0 > tbody > tr:nth-child(26) > td:nth-child(%d)", i)).Text())
+		tz, err := strconv.ParseFloat(strings.Replace(touzihuodong, ",", "", -1), 64)
+		if err != nil {
+			tz = 0
+		}
+		// 募集活动产生的现金流量金额
+		mujihuodong := strings.TrimSpace(doc.Find(fmt.Sprintf("#ProfitStatementNewTable0 > tbody > tr:nth-child(39) > td:nth-child(%d)", i)).Text())
+		mj, err := strconv.ParseFloat(strings.Replace(mujihuodong, ",", "", -1), 64)
+		if err != nil {
+			mj = 0
+		}
+		// 期末现金及现金等价物余额
+		qimo := strings.TrimSpace(doc.Find(fmt.Sprintf("#ProfitStatementNewTable0 > tbody > tr:nth-child(43) > td:nth-child(%d)", i)).Text())
+		qm, err := strconv.ParseFloat(strings.Replace(qimo, ",", "", -1), 64)
+		if err != nil {
+			qm = 0
+		}
+		cash_flow := dal.StockCashFlow{Code: code, ManageCashFlow: jy, InvestCashFlow: tz, FundraisingCashFlow: mj, CashRemain: qm, Date: date}
+		store.MysqlClient.GetDB().Save(&cash_flow)
+		log.Println("现金流量表", code, cash_flow)
 	}
 }
 

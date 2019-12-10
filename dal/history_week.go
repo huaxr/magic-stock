@@ -3,12 +3,12 @@
 package dal
 
 type TicketHistoryWeekly struct {
-	ID      uint   `gorm:"primary_key"`
-	Code    string `gorm:"index"`
-	Name    string
-	Date    string `gorm:"index"`
-	Shou    float64
-	Percent float64 // 周线涨跌幅
+	ID      uint    `gorm:"primary_key" json:"id"`
+	Code    string  `gorm:"index" json:"code"`
+	Name    string  `json:"name"`
+	Date    string  `gorm:"index" json:"date"`
+	Shou    float64 `json:"shou"`
+	Percent float64 `json:"percent"` // 周线涨跌幅
 }
 
 func (TicketHistoryWeekly) TableName() string {

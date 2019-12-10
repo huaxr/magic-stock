@@ -14,7 +14,7 @@ const (
 	LIMIT_UP = 9.9
 	Main     = 0.1
 	Virtual  = 0.1
-	Num      = 4
+	Num      = 3
 )
 
 func ArraySumLessThan(array []float64, less float64) bool {
@@ -135,7 +135,7 @@ func (craw *Crawler) HasLowLine(result *model.CalcResult, recent int) bool {
 
 func GetConceptByCode(code, concept string) bool {
 	var c int
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", code).Where("concept regexp ?", concept).Count(&c)
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", code).Where("`concept` regexp ?", concept).Count(&c)
 	if c > 0 {
 		return true
 	}
@@ -153,6 +153,86 @@ func GetFundByCode(code string) int {
 	var count int
 	store.MysqlClient.GetDB().Model(&dal.FundHoldRank{}).Where("code = ?", code).Count(&count)
 	return count
+}
+
+func calc(res []float64, flag string) bool {
+	if len(res) == 0 {
+		return false
+	}
+	var first = res[0]
+	for _, i := range res {
+		if flag == "desc" {
+			if i < first {
+				return false
+			}
+		}
+		if flag == "asc" {
+			if i > first {
+				return false
+			}
+		}
+		first = i
+	}
+	return true
+}
+
+func GetUpManageCashFlow(code string) (up1, up2, up3, up4 bool) {
+	var cash_flow []dal.StockCashFlow
+	var ManageCashFlow, InvestCashFlow, FundraisingCashFlow, CashRemain []float64
+	store.MysqlClient.GetDB().Model(&dal.StockCashFlow{}).Where("code = ?", code).Order("date desc").Find(&cash_flow)
+	for _, i := range cash_flow {
+		if i.ManageCashFlow != 0 {
+			ManageCashFlow = append(ManageCashFlow, i.ManageCashFlow)
+		}
+		if i.InvestCashFlow != 0 {
+			InvestCashFlow = append(InvestCashFlow, i.InvestCashFlow)
+		}
+		if i.FundraisingCashFlow != 0 {
+			FundraisingCashFlow = append(FundraisingCashFlow, i.FundraisingCashFlow)
+		}
+		if i.CashRemain != 0 {
+			CashRemain = append(CashRemain, i.CashRemain)
+		}
+	}
+	up1 = calc(ManageCashFlow, "desc")
+	up2 = calc(InvestCashFlow, "desc")
+	up3 = calc(FundraisingCashFlow, "desc")
+	up4 = calc(CashRemain, "desc")
+	return
+}
+
+func GetUpProfit(code string) (up1, up2 bool) {
+	var profit []dal.StockProfit
+	var NetProfit, GrossTradingIncome []float64
+	store.MysqlClient.GetDB().Model(&dal.StockProfit{}).Where("code = ?", code).Order("date desc").Find(&profit)
+	for _, i := range profit {
+		if i.GrossTradingIncome != 0 {
+			GrossTradingIncome = append(GrossTradingIncome, i.GrossTradingIncome)
+		}
+		if i.NetProfit != 0 {
+			NetProfit = append(NetProfit, i.NetProfit)
+		}
+	}
+	up1 = calc(GrossTradingIncome, "desc")
+	up2 = calc(NetProfit, "desc")
+	return
+}
+
+func GetUpLiabilities(code string) (up1, done1 bool) {
+	var StockLiabilities []dal.StockLiabilities
+	var TotalAssets, TotalLiabilities []float64 // 资产总计 负债总计
+	store.MysqlClient.GetDB().Model(&dal.StockLiabilities{}).Where("code = ?", code).Order("date desc").Find(&StockLiabilities)
+	for _, i := range StockLiabilities {
+		if i.TotalAssets != 0 {
+			TotalAssets = append(TotalAssets, i.TotalAssets)
+		}
+		if i.TotalLiabilities != 0 {
+			TotalLiabilities = append(TotalLiabilities, i.TotalLiabilities)
+		}
+	}
+	up1 = calc(TotalAssets, "desc")
+	done1 = calc(TotalLiabilities, "asc")
+	return
 }
 
 // 最近几日量价和均线有几日满足关系条件（在误差范围内）
@@ -226,17 +306,17 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	liangshangyang2 := result.AveCount2[0] > result.AveCount2[1] && result.AveCount2[1] > result.AveCount2[2] && result.AveCount2[2] > result.AveCount2[3] && result.AveCount2[3] > result.AveCount2[4] && result.AveCount2[4] > result.AveCount2[5]
 
 	// 连续5日量能站上10均线
-	liangnengbigger1 := result.AveCount1[0] > result.RecentCount[0] && result.AveCount1[1] > result.RecentCount[1] && result.AveCount1[2] > result.RecentCount[2] && result.AveCount1[3] > result.RecentCount[3] && result.AveCount1[4] > result.RecentCount[4]
+	liangnengbigger1 := result.AveCount1[0] < result.RecentCount[0] && result.AveCount1[1] < result.RecentCount[1] && result.AveCount1[2] < result.RecentCount[2] && result.AveCount1[3] < result.RecentCount[3] && result.AveCount1[4] < result.RecentCount[4]
 	// 连续5日量能站上40均线
-	liangnengbigger2 := result.AveCount2[0] > result.RecentCount[0] && result.AveCount2[1] > result.RecentCount[1] && result.AveCount2[2] > result.RecentCount[2] && result.AveCount2[3] > result.RecentCount[3] && result.AveCount2[4] > result.RecentCount[4]
+	liangnengbigger2 := result.AveCount2[0] < result.RecentCount[0] && result.AveCount2[1] < result.RecentCount[1] && result.AveCount2[2] < result.RecentCount[2] && result.AveCount2[3] < result.RecentCount[3] && result.AveCount2[4] < result.RecentCount[4]
 
 	// 5连阳
 	wulianyang := result.RecentPercent[0] > 0 && result.RecentPercent[1] > 0 && result.RecentPercent[2] > 0 && result.RecentPercent[3] > 0 && result.RecentPercent[4] > 0 && result.RecentPercent[5] > 0
 
 	// 近期长上影
-	changshangying := craw.HasTopLine(result, 5)
+	changshangying := craw.HasTopLine(result, 1)
 	// 近期长下影
-	changxiaying := craw.HasLowLine(result, 5)
+	changxiaying := craw.HasLowLine(result, 1)
 
 	// 优良概念
 	goodconcept := GetConceptByCode(code, "预盈预增|业绩预升|高派息|独角兽|高送转|基金重仓|QFII|RQFII")
@@ -247,61 +327,90 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	// 基金持仓
 	jigouchicangcount := GetFundByCode(code)
 
-	// 均价粘合上扬
-	junjialianhe := RecentInRangeAveWithCond(result.RecentClose, result.AveDailyPrice1, 7, 4)
+	// 均价粘合
+	junjialianhe1 := RecentInRangeAveWithCond(result.RecentClose, result.AveDailyPrice1, 5, 4)
+	junjialianhe2 := RecentInRangeAveWithCond(result.RecentClose, result.AveDailyPrice2, 5, 4)
+	junjialianhe3 := RecentInRangeAveWithCond(result.RecentClose, result.AveDailyPrice3, 5, 4)
 
 	// 涨停股
 	zhangting := result.RecentPercent[0] > 9.94
 
 	// 当前价格在短期均线上方
-	priceaboveave := result.RecentClose[0] > result.AveDailyPrice1[0]
+	priceaboveave6 := result.RecentClose[0] > result.AveDailyPrice1[0]
+	priceaboveave15 := result.RecentClose[0] > result.AveDailyPrice2[0]
+	priceaboveave30 := result.RecentClose[0] > result.AveDailyPrice3[0]
+	pricelowave6 := result.RecentClose[0] < result.AveDailyPrice1[0]
+	pricelowave15 := result.RecentClose[0] < result.AveDailyPrice2[0]
+	pricelowave30 := result.RecentClose[0] < result.AveDailyPrice3[0]
 
 	// 成交过亿
 	guoyi := result.CurrTotalMoney > 10000
 
-	x := []interface{}{priceaboveave, guoyi, jigouchicangcount, jincha1, jincha2, jincha3, jincha4, jincha5, jincha6, jincha7, jincha8, priceshangyang1, priceshangyang2, priceshangyang3, priceshangyang4, priceshangyang5, gaoweihuitiao1, gaoweihuitiao2, gaoweihuitiao3, liangshangyang1, liangshangyang2, liangnengbigger1, liangnengbigger2, wulianyang, changshangying, changxiaying, goodconcept, simuchicangcount, junjialianhe, zhangting}
+	// 近期高振幅
+	gaozhenfu := result.RecentAmplitude[0] > 15 || result.RecentAmplitude[1] > 15 || result.RecentAmplitude[2] > 15
+
+	// 高换手
+	huanshou := result.RecentTurnoverRate[0] > 30 || result.RecentTurnoverRate[1] > 30 || result.RecentTurnoverRate[2] > 30
+
+	// 现金流量表 不断增加
+	up1, up2, up3, up4 := GetUpManageCashFlow(code)
+	// 利润表 不断增加
+	pup1, pup2 := GetUpProfit(code)
+	// 资产负债表
+	lup1, done1 := GetUpLiabilities(code)
+
+	x := []interface{}{pup1, pup2, huanshou, pricelowave6, pricelowave15, pricelowave30, priceaboveave15, priceaboveave30, priceaboveave6, guoyi, jigouchicangcount, jincha1, jincha2, jincha3, jincha4, jincha5, jincha6, jincha7, jincha8, priceshangyang1, priceshangyang2, priceshangyang3, priceshangyang4, priceshangyang5, gaoweihuitiao1, gaoweihuitiao2, gaoweihuitiao3, liangshangyang1, liangshangyang2, liangnengbigger1, liangnengbigger2, wulianyang, changshangying, changxiaying, goodconcept, simuchicangcount, junjialianhe1, zhangting}
 	xx(x)
 
-	cond_str := ""
-	if priceaboveave {
-		cond_str += "当前价格在短期均线上方; "
-	}
-	if guoyi {
-		cond_str += "成交额过亿; "
-	}
+	// 1 K线形态
+	// 2 量价形态
+	// 3 财务数据
+	// 4 机构持仓情况
+	// 5 其它
+	// 自定义数值
 
+	cond_str := ""
+	if priceaboveave6 {
+		cond_str += fmt.Sprintf("收盘价在6日均线上方; ")
+	}
+	if priceaboveave15 {
+		cond_str += fmt.Sprintf("收盘价在15日均线上方; ")
+	}
+	if priceaboveave30 {
+		cond_str += fmt.Sprintf("收盘价在30日均线上方; ")
+	}
+	if pricelowave6 {
+		cond_str += fmt.Sprintf("收盘价在6日均线下方; ")
+	}
+	if pricelowave15 {
+		cond_str += fmt.Sprintf("收盘价在15日均线下方; ")
+	}
+	if pricelowave30 {
+		cond_str += fmt.Sprintf("收盘价在30日均线下方; ")
+	}
 	if jincha1 || jincha2 {
-		cond_str += "短中均价金叉; "
+		cond_str += "6日均线与15日均线交金叉; "
 	}
 	if jincha3 || jincha4 {
-		cond_str += "中长均价金叉; "
+		cond_str += "15日均线与30日均线交金叉; "
 	}
 	if jincha5 || jincha6 {
-		cond_str += "周线均价金叉; "
+		cond_str += "6周均线与15周均线交金叉; "
 	}
-	if jincha7 || jincha8 {
-		cond_str += "量能金叉; "
+	if priceshangyang1 {
+		cond_str += "6日均线上扬; "
 	}
-	if priceshangyang1 && priceshangyang2 && priceshangyang3 {
-		cond_str += "均线全部上扬; "
+	if priceshangyang2 {
+		cond_str += "15日均线上扬; "
 	}
-	if priceshangyang4 && priceshangyang5 {
-		cond_str += "短中周均线上扬; "
+	if priceshangyang3 {
+		cond_str += "30日均线上扬; "
 	}
-	if gaoweihuitiao1 || gaoweihuitiao2 || gaoweihuitiao3 {
-		cond_str += "高位回调; "
+	if priceshangyang4 {
+		cond_str += "6周均线上扬; "
 	}
-	if liangshangyang1 || liangshangyang2 {
-		cond_str += "连续5日量能10均线上扬; "
-	}
-	if liangnengbigger1 {
-		cond_str += "连续5日量能站上十日均线; "
-	}
-	if liangnengbigger2 {
-		cond_str += "连续5日量能站上四十日均线; "
-	}
-	if wulianyang {
-		cond_str += "五连阳; "
+	if priceshangyang5 {
+		cond_str += "15周均线上扬; "
 	}
 	if changshangying {
 		cond_str += "长上影; "
@@ -309,23 +418,94 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	if changxiaying {
 		cond_str += "长下影; "
 	}
-	if goodconcept {
-		cond_str += "优良概念; "
+	if zhangting {
+		cond_str += "昨日涨停; "
 	}
+	if junjialianhe1 {
+		cond_str += "近5天6日均线与收盘价粘合; "
+	}
+	if junjialianhe2 {
+		cond_str += "近5天15日均线与收盘价粘合; "
+	}
+	if junjialianhe3 {
+		cond_str += "近5天30日均线与收盘价粘合; "
+	}
+	if gaozhenfu {
+		cond_str += "近期股价振幅高达15%; "
+	}
+	if wulianyang {
+		cond_str += "五连阳; "
+	}
+
+	// 量价
+	if jincha7 || jincha8 {
+		cond_str += "10日与40日量能均线交金叉; "
+	}
+	if liangshangyang1 {
+		cond_str += "连续5日量能10日均线上扬; "
+	}
+	if liangshangyang2 {
+		cond_str += "连续5日量能40日均线上扬; "
+	}
+	if liangnengbigger1 {
+		cond_str += "连续5日量能站上10日均线; "
+	}
+	if liangnengbigger2 {
+		cond_str += "连续5日量能站上40日均线; "
+	}
+	if huanshou {
+		cond_str += "近期成交量换手率高达30%; "
+	}
+	if guoyi {
+		cond_str += "成交额过亿; "
+	}
+
+	// 基本面 现金流量表
+	if up1 {
+		cond_str += "经营活动产生的现金流量净额不断增加; "
+	}
+	if up2 {
+		cond_str += "投资活动产生的现金流量净额不断增加; "
+	}
+	if up3 {
+		cond_str += "筹资活动产生的现金流量净额不断增加; "
+	}
+	if up4 {
+		cond_str += "期末现金及现金等价物余额不断增加; "
+	}
+	// 基本面 利润表
+	if pup1 {
+		cond_str += "营业总收入不断增加; "
+	}
+	if pup2 {
+		cond_str += "净利润不断增加; "
+	}
+	// 基本面 资产负债表
+	if lup1 {
+		cond_str += "总资产不断增加; "
+	}
+	if done1 {
+		cond_str += "总负债不断减小; "
+	}
+
+	// 机构持仓情况
+	// 十大流通股东信息
 	if simuchicangcount > 0 {
 		cond_str += fmt.Sprintf("%d个私募持仓; ", simuchicangcount)
 	}
-	if gongmuchicangcount > 0 {
-		cond_str += fmt.Sprintf("%d个公募持仓; ", gongmuchicangcount)
-	}
+	//if gongmuchicangcount > 0 {
+	//	cond_str += fmt.Sprintf("%d个公募持仓; ", gongmuchicangcount)
+	//}
 	if jigouchicangcount > 0 {
-		cond_str += fmt.Sprintf("%d个机构持仓; ", jigouchicangcount)
+		cond_str += fmt.Sprintf("%d个基金持仓; ", jigouchicangcount)
 	}
-	if junjialianhe {
-		cond_str += "均价粘合上扬; "
+
+	// 其它
+	if gaoweihuitiao1 || gaoweihuitiao2 || gaoweihuitiao3 {
+		cond_str += "高位回调; "
 	}
-	if zhangting {
-		cond_str += "涨停股; "
+	if goodconcept {
+		cond_str += "优良概念; "
 	}
 
 	if len(cond_str) > 0 {
@@ -333,5 +513,4 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		p := dal.Predict{Code: code, Name: name, Condition: cond_str, Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount, GMCount: gongmuchicangcount}
 		store.MysqlClient.GetDB().Save(&p)
 	}
-
 }

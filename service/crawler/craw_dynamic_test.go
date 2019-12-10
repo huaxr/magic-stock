@@ -27,7 +27,7 @@ func TestAddTodayShouToWeek(t *testing.T) {
 }
 
 func TestGetAllTicketTodayDetail(t *testing.T) {
-	today := "2019-12-05"
+	today := "2019-12-09"
 	// 超时重试
 	go func() {
 		var code []dal.Code
