@@ -18,13 +18,13 @@ import (
 	"github.com/parnurzeal/gorequest"
 )
 
-func dealPanic(doc *goquery.Document, i int) (str string, err error) {
+func dealPanic(doc *goquery.Document, i int, selector string) (str string, err error) {
 	defer func() {
 		if errs := recover(); errs != nil {
 			err = errors.New("err")
 		}
 	}()
-	str = doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(1)", i)).Text()
+	str = doc.Find(fmt.Sprintf(selector, i)).Text()
 	return
 }
 
@@ -43,7 +43,7 @@ func (craw *Crawler) GetAllTicketTodayDetail(code, name, today string, proxy boo
 				text := ""
 				// 获取日期不要用
 				//x := doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(1)", i)).Text()
-				x, err := dealPanic(doc, i)
+				x, err := dealPanic(doc, i, "body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(1)")
 				if err != nil {
 					// 空指针错误
 					return err
@@ -84,6 +84,78 @@ func (craw *Crawler) GetAllTicketTodayDetail(code, name, today string, proxy boo
 
 				}
 			}
+		}
+	}
+	return nil
+}
+
+// 每天收盘执行一次, 收集所有股票的当天的资金流入流出
+func (craw *Crawler) GetAllTicketTodayFlowDetail(code dal.Code, today string, proxy bool) error {
+	var doc *goquery.Document
+	for i := 0; i <= 0; i++ {
+		if !proxy {
+			doc, _ = craw.NewDocument(fmt.Sprintf("http://quotes.money.163.com/trade/lszjlx_%s,%d.html", code.Code, i))
+		} else {
+			doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://quotes.money.163.com/trade/lszjlx_%s,%d.html", code.Code, i))
+		}
+		//var date, inflow, outflow, net_flow, main_inflow, main_outflow, main_net_flow string
+
+		for index := 1; index <= 1; index++ {
+			x, err := dealPanic(doc, index, "body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td.align_c")
+			if err != nil {
+				// 空指针错误
+				return err
+			}
+			date := strings.TrimSpace(x)
+			if date != today {
+				return errors.New("时间错误")
+			}
+			inflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(5)", index)).Text()), ",", "", -1)
+			outflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(6)", index)).Text()), ",", "", -1)
+			net_flow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(7)", index)).Text()), ",", "", -1)
+			main_inflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(8)", index)).Text()), ",", "", -1)
+			main_outflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(9)", index)).Text()), ",", "", -1)
+			main_net_flow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(10)", index)).Text()), ",", "", -1)
+
+			in, err := strconv.ParseFloat(inflow, 64)
+			if err != nil {
+				in = 0
+			}
+			out, err := strconv.ParseFloat(outflow, 64)
+			if err != nil {
+				out = 0
+			}
+			net, err := strconv.ParseFloat(net_flow, 64)
+			if err != nil {
+				net = 0
+			}
+			min, err := strconv.ParseFloat(main_inflow, 64)
+			if err != nil {
+				min = 0
+			}
+			mout, err := strconv.ParseFloat(main_outflow, 64)
+			if err != nil {
+				mout = 0
+			}
+			mnet, err := strconv.ParseFloat(main_net_flow, 64)
+			if err != nil {
+				mnet = 0
+			}
+
+			fmt.Println(code.Code, code.Name, in, out, net, min, mout, mnet)
+			var c dal.TicketHistory
+			err = store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("date = ? and code = ?", date, code.Code).Find(&c).Error
+			if err != nil {
+				continue
+			}
+			c.Inflow = in
+			c.Outflow = out
+			c.NetFlow = net
+			c.MainInflow = min
+			c.MainOutflow = mout
+			c.MainNetFlow = mnet
+			store.MysqlClient.GetDB().Save(&c)
+
 		}
 	}
 	return nil
@@ -178,7 +250,7 @@ func (craw *Crawler) GetFundHighHold(date string) {
 		for _, i := range m {
 			var code dal.Code
 			store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", i.Code).Find(&code)
-			a := dal.FundHoldRank{Type: r.Type, FundCode: r.FundCode, FundSName: r.FundSName, Code: i.Code, Name: code.Name, Percent: i.Percent, Concept: code.Concept, Time: date}
+			a := dal.FundHoldRank{Type: r.Type, FundCode: r.FundCode, FundSName: r.FundSName, Code: i.Code, Name: code.Name, Percent: i.Percent, Time: date}
 			store.MysqlClient.GetDB().Save(&a)
 		}
 	}

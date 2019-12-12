@@ -4,9 +4,9 @@ package dal
 
 // 条件表
 type Conditions struct {
-	ID   uint   `gorm:"primary_key"`
-	Type string // 条件类型
-	Name string // 条件名称
+	ID   uint   `gorm:"primary_key" json:"id"`
+	Type string `json:"type"` // 条件类型
+	Name string `json:"name"` // 条件名称
 }
 
 func (Conditions) TableName() string {

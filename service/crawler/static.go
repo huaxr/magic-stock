@@ -128,7 +128,7 @@ func (craw *Crawler) GetSignalTicket(code, name string, proxy bool) error {
 				text := ""
 				// 获取日期不要用
 				//x := doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(1)", i)).Text()
-				x, err := dealPanic(doc, i)
+				x, err := dealPanic(doc, i, "body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(1)")
 				if err != nil {
 					// 空指针错误
 					return err
@@ -172,6 +172,69 @@ func (craw *Crawler) GetSignalTicket(code, name string, proxy bool) error {
 	return nil
 }
 
+func (craw *Crawler) GetSignalTicketFlow(code dal.Code, proxy bool) error {
+	var doc *goquery.Document
+	for i := 0; i <= 0; i++ {
+		if !proxy {
+			doc, _ = craw.NewDocument(fmt.Sprintf("http://quotes.money.163.com/trade/lszjlx_%s,%d.html", code.Code, i))
+		} else {
+			doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://quotes.money.163.com/trade/lszjlx_%s,%d.html", code.Code, i))
+		}
+		//var date, inflow, outflow, net_flow, main_inflow, main_outflow, main_net_flow string
+
+		for index := 1; index <= 50; index++ {
+			date := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td.align_c", index)).Text())
+			inflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(5)", index)).Text()), ",", "", -1)
+			outflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(6)", index)).Text()), ",", "", -1)
+			net_flow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(7)", index)).Text()), ",", "", -1)
+			main_inflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(8)", index)).Text()), ",", "", -1)
+			main_outflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(9)", index)).Text()), ",", "", -1)
+			main_net_flow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(10)", index)).Text()), ",", "", -1)
+
+			in, err := strconv.ParseFloat(inflow, 64)
+			if err != nil {
+				in = 0
+			}
+			out, err := strconv.ParseFloat(outflow, 64)
+			if err != nil {
+				out = 0
+			}
+			net, err := strconv.ParseFloat(net_flow, 64)
+			if err != nil {
+				net = 0
+			}
+			min, err := strconv.ParseFloat(main_inflow, 64)
+			if err != nil {
+				min = 0
+			}
+			mout, err := strconv.ParseFloat(main_outflow, 64)
+			if err != nil {
+				mout = 0
+			}
+			mnet, err := strconv.ParseFloat(main_net_flow, 64)
+			if err != nil {
+				mnet = 0
+			}
+
+			fmt.Println(code.Code, code.Name, in, out, net, min, mout, mnet)
+			var c dal.TicketHistory
+			err = store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("date = ? and code = ?", date, code.Code).Find(&c).Error
+			if err != nil {
+				continue
+			}
+			c.Inflow = in
+			c.Outflow = out
+			c.NetFlow = net
+			c.MainInflow = min
+			c.MainOutflow = mout
+			c.MainNetFlow = mnet
+			store.MysqlClient.GetDB().Save(&c)
+
+		}
+	}
+	return nil
+}
+
 // 股票的所属概念信息 记录到 code 表中
 // ex.g.经纬辉开 本月解禁,股权激励,小盘,苹果三星,证金汇金,特高压,新基建,电力物联网,高出口占比,苹果产业链,
 func (craw *Crawler) GetAllTicketCodeConcept(code dal.Code, proxy bool) {
@@ -192,6 +255,36 @@ func (craw *Crawler) GetAllTicketCodeConcept(code dal.Code, proxy bool) {
 	}
 	fmt.Println(code.ID, code.Name, concept)
 	code.Concept = concept
+	store.MysqlClient.GetDB().Save(&code)
+}
+
+// 拓展股票公司简介信息
+func (craw *Crawler) GetAllTicketCodeInfo(code dal.Code, proxy bool) {
+	var doc *goquery.Document
+	if !proxy {
+		doc, _ = craw.NewDocument(fmt.Sprintf("http://quotes.money.163.com/f10/gszl_%s.html#01f01", code.Code))
+	} else {
+		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://quotes.money.163.com/f10/gszl_%s.html#01f01", code.Code))
+	}
+	CompanyName := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_l_01 > table > tbody > tr:nth-child(3) > td:nth-child(2)")).Text())
+	OrganizationalForm := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_l_01 > table > tbody > tr:nth-child(1) > td:nth-child(2)")).Text())
+	Location := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_l_01 > table > tbody > tr:nth-child(1) > td:nth-child(4)")).Text())
+	Address := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_l_01 > table > tbody > tr:nth-child(2) > td:nth-child(4)")).Text())
+	NetAddress := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_l_01 > table > tbody > tr:nth-child(9) > td:nth-child(2)")).Text())
+	MajorBusinesses := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_l_01 > table > tbody > tr:nth-child(11) > td:nth-child(2)")).Text())
+	BusinessScope := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_l_01 > table > tbody > tr:nth-child(12) > td:nth-child(2)")).Text())
+	EstablishmentTime := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_r_01 > table > tbody > tr:nth-child(1) > td:nth-child(2)")).Text())
+	ListingDate := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_r_01 > table > tbody > tr:nth-child(2) > td:nth-child(2)")).Text())
+	fmt.Println(code.ID, code.Name, CompanyName, OrganizationalForm, Location, Address, NetAddress, MajorBusinesses, BusinessScope, EstablishmentTime, ListingDate)
+	code.CompanyName = CompanyName
+	code.OrganizationalForm = OrganizationalForm
+	code.Location = Location
+	code.Address = Address
+	code.NetAddress = NetAddress
+	code.MajorBusinesses = MajorBusinesses
+	code.BusinessScope = BusinessScope
+	code.EstablishmentTime = EstablishmentTime
+	code.ListingDate = ListingDate
 	store.MysqlClient.GetDB().Save(&code)
 }
 

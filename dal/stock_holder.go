@@ -3,13 +3,13 @@
 package dal
 
 type Stockholder struct {
-	ID         uint   `gorm:"primary_key"`
-	Code       string `gorm:"index"`
-	Name       string
-	HolderName string
-	Count      string
-	Percent    string
-	Change     string
+	ID         uint   `gorm:"primary_key" json:"id"`
+	Code       string `gorm:"index" json:"code"`
+	Name       string `json:"name"`
+	HolderName string `json:"holder_name"`
+	Count      string `json:"count"`
+	Percent    string `json:"percent"`
+	Change     string `json:"change"`
 }
 
 func (Stockholder) TableName() string {

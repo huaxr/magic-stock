@@ -17,6 +17,13 @@ type TicketHistory struct {
 	Change       float64 `json:"change"`        // 涨跌额
 	Amplitude    float64 `json:"amplitude"`     // 振幅
 	TurnoverRate float64 `json:"turnover_rate"` // 换手率
+
+	Inflow      float64 `json:"inflow"`        // 资金流入
+	Outflow     float64 `json:"outflow"`       // 资金流出
+	NetFlow     float64 `json:"net_flow"`      // 净流入
+	MainInflow  float64 `json:"main_inflow"`   // 主力流入
+	MainOutflow float64 `json:"main_outflow"`  // 主力流出
+	MainNetFlow float64 `json:"main_net_flow"` // 主力净流入 (万元 +-)
 }
 
 func (TicketHistory) TableName() string {

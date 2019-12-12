@@ -41,6 +41,8 @@ type RecentDailyData struct {
 	RecentPercent      []float64 // 最近涨跌幅
 	RecentAmplitude    []float64 // 最近振幅
 	RecentTurnoverRate []float64 // 最近换手率
+	RecentNetFlow      []float64 // 最近资金净流入
+	RecentMainNetFlow  []float64 // 最近主力资金净流入
 	CurrDate           string    // 今天日期
 	CurrTotalMoney     float64
 }

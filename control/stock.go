@@ -22,6 +22,10 @@ type PredictIF interface {
 	// 获取股票详情
 	GetDetail(c *gin.Context)
 	GetFunds(c *gin.Context)
+	// 通过机构code查询机构持仓
+	FundHold(c *gin.Context)
+	// 通过名称查询流通股东可能存在的其它持仓
+	TopHolderHold(c *gin.Context)
 	Response(c *gin.Context, data interface{}, err error)
 }
 
@@ -131,4 +135,24 @@ func (d *PredictControl) GetFunds(c *gin.Context) {
 		Funds = append(Funds, model.StockFund{FundInfo: fund, Percent: i.Percent})
 	}
 	d.Response(c, Funds, nil)
+}
+
+func (d *PredictControl) FundHold(c *gin.Context) {
+	code := c.DefaultQuery("fund_code", "")
+	if code == "" {
+		d.Response(c, nil, errors.New("机构代码为空"))
+	}
+	var FundHoldRank []dal.FundHoldRank
+	store.MysqlClient.GetDB().Model(&dal.FundHoldRank{}).Where("fund_code = ?", code).Find(&FundHoldRank)
+	d.Response(c, FundHoldRank, nil)
+}
+
+func (d *PredictControl) TopHolderHold(c *gin.Context) {
+	holder := c.DefaultQuery("holder_name", "")
+	if holder == "" {
+		d.Response(c, nil, errors.New("查询用户为空"))
+	}
+	var Stockholder []dal.Stockholder
+	store.MysqlClient.GetDB().Model(&dal.Stockholder{}).Where("holder_name = ?", holder).Find(&Stockholder)
+	d.Response(c, Stockholder, nil)
 }

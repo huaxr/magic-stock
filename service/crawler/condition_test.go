@@ -28,6 +28,7 @@ func TestMultiQuery(t *testing.T) {
 	var c []dal.Predict
 	err := store.MysqlClient.GetDB().Model(&dal.Predict{}).
 		Where("`condition` regexp ?", "募持仓").
+		Where("`condition` regexp ?", "量能不断放大").
 		Find(&c).Error
 	fmt.Println(err)
 	for _, i := range c {

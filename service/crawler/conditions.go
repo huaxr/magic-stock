@@ -24,7 +24,7 @@ func (craw *Crawler) getRecentAvePriceByNum(recent_money []float64, num int, cou
 }
 
 func (craw *Crawler) getRecentDailyData(ths []dal.TicketHistory) *model.RecentDailyData {
-	var recent_count, recent_money_shou, recent_money_kai, recent_money_high, recent_money_low, recent_percent, recent_amplitude, recent_turn_over []float64
+	var recent_count, recent_money_shou, recent_money_kai, recent_money_high, recent_money_low, recent_percent, recent_amplitude, recent_turn_over, recent_net_flow, recent_main_net_flow []float64
 	var date string
 	var total_money float64
 	for i, th := range ths {
@@ -41,8 +41,12 @@ func (craw *Crawler) getRecentDailyData(ths []dal.TicketHistory) *model.RecentDa
 		recent_percent = append(recent_percent, th.Percent)
 		recent_amplitude = append(recent_amplitude, th.Amplitude)    // 振幅
 		recent_turn_over = append(recent_turn_over, th.TurnoverRate) // 换手率
+
+		recent_net_flow = append(recent_net_flow, th.NetFlow)
+		recent_main_net_flow = append(recent_net_flow, th.MainNetFlow)
 	}
-	return &model.RecentDailyData{recent_count, recent_money_shou, recent_money_kai, recent_money_high, recent_money_low, recent_percent, recent_amplitude, recent_turn_over, date, total_money}
+	return &model.RecentDailyData{recent_count, recent_money_shou, recent_money_kai, recent_money_high, recent_money_low,
+		recent_percent, recent_amplitude, recent_turn_over, recent_net_flow, recent_main_net_flow, date, total_money}
 }
 
 func (craw *Crawler) getRecentWeeklyData(thw []dal.TicketHistoryWeekly) *model.RecentWeeklyData {

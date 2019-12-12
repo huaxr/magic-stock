@@ -26,8 +26,9 @@ func TestAddTodayShouToWeek(t *testing.T) {
 
 }
 
+// 获取今日的所有股票
 func TestGetAllTicketTodayDetail(t *testing.T) {
-	today := "2019-12-09"
+	today := "2019-12-12"
 	// 超时重试
 	go func() {
 		var code []dal.Code
@@ -52,6 +53,42 @@ func TestGetAllTicketTodayDetail(t *testing.T) {
 			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, true)
 			if err != nil {
 				log.Println("爬虫错误， 休眠10秒继续...", i.Name)
+				time.Sleep(10 * time.Second)
+				goto RE
+			}
+			time.Sleep(1 * time.Second)
+		}
+	}()
+	select {}
+}
+
+// 获取今日的所有股票资金
+func TestGetAllTicketTodayFlowDetail(t *testing.T) {
+	today := "2019-12-12"
+	// 超时重试
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2000").Find(&code)
+		for _, i := range code {
+		RE:
+			err := CrawlerGlobal.GetAllTicketTodayFlowDetail(i, today, true)
+			if err != nil {
+				log.Println("爬虫错误， 休眠10秒继续...", i.Name, err)
+				time.Sleep(10 * time.Second)
+				goto RE
+			}
+			time.Sleep(1 * time.Second)
+		}
+	}()
+
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000").Find(&code)
+		for _, i := range code {
+		RE:
+			err := CrawlerGlobal.GetAllTicketTodayFlowDetail(i, today, true)
+			if err != nil {
+				log.Println("爬虫错误， 休眠10秒继续...", i.Name, err)
 				time.Sleep(10 * time.Second)
 				goto RE
 			}

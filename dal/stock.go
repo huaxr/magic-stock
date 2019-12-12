@@ -3,11 +3,21 @@
 package dal
 
 type Code struct {
-	ID      uint   `gorm:"primary_key"`
-	Code    string `gorm:"not null;unique"`
-	Name    string
-	Belong  string // 所属行业板块
-	Concept string // 所属概念板块
+	ID      uint   `gorm:"primary_key" json:"id"`
+	Code    string `gorm:"not null;unique" json:"code"`
+	Name    string `json:"name"`
+	Belong  string `json:"belong"`  // 所属行业板块
+	Concept string `json:"concept"` // 所属概念板块
+
+	CompanyName        string `json:"company_name"`                   // 公司全称
+	OrganizationalForm string `json:"organizational_form"`            // 组织形式
+	Location           string `json:"location"`                       // 地域
+	Address            string `json:"address"`                        //办公地址
+	NetAddress         string `json:"net_address"`                    //公司网址
+	MajorBusinesses    string `json:"major_businesses"`               // 主营业务
+	BusinessScope      string `sql:"type:text" json:"business_scope"` //经营范围
+	EstablishmentTime  string `json:"establishment_time"`             // 成立日期
+	ListingDate        string `json:"listing_date"`                   //上市日期
 }
 
 func (Code) TableName() string {

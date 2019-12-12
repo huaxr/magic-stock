@@ -40,6 +40,28 @@ func TestGetAllTicketCodeConcept(T *testing.T) {
 	select {}
 }
 
+// 获取所有股票简介信息
+func TestCrawler_GetAllTicketCodeInfo(t *testing.T) {
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000 and id <= 2005").Find(&code)
+		for _, i := range code {
+			CrawlerGlobal.GetAllTicketCodeInfo(i, false)
+		}
+	}()
+
+	//go func() {
+	//	var code []dal.Code
+	//	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000").Find(&code)
+	//	for _, i := range code {
+	//		CrawlerGlobal.GetAllTicketCodeInfo(i, true)
+	//	}
+	//}()
+
+	select {}
+
+}
+
 // 获取十大流通股东（done）
 func TestCrawler_GetTopStockholder(t *testing.T) {
 	go func() {
@@ -76,6 +98,37 @@ func TestGetSignalTicket(T *testing.T) {
 				goto RE
 			}
 			time.Sleep(2 * time.Second)
+		}
+	}()
+	select {}
+}
+
+// 获取股票历史记录--资金流入流出数据
+func TestGetSignalTicketFlow(T *testing.T) {
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 686 and id < 2000").Find(&code)
+		for _, i := range code {
+		RE:
+			err := CrawlerGlobal.GetSignalTicketFlow(i, true)
+			if err != nil {
+				log.Println("爬虫错误， 休眠10秒继续...", i.Name)
+				time.Sleep(10 * time.Second)
+				goto RE
+			}
+		}
+	}()
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2776").Find(&code)
+		for _, i := range code {
+		RE:
+			err := CrawlerGlobal.GetSignalTicketFlow(i, false)
+			if err != nil {
+				log.Println("爬虫错误， 休眠10秒继续...", i.Name)
+				time.Sleep(10 * time.Second)
+				goto RE
+			}
 		}
 	}()
 	select {}
@@ -123,3 +176,11 @@ func TestGetStockProfit(t *testing.T) {
 
 	select {}
 }
+
+//func TestSync(t *testing.T) {
+//	var code []dal.TicketHistory
+//	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("date = ?", "2019-12-10").Find(&code)
+//	for _, i := range code {
+//		store.MysqlClient.GetTmpDb().Save(&i)
+//	}
+//}
