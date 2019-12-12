@@ -108,7 +108,7 @@ func (craw *Crawler) GetAllTicketTodayFlowDetail(code dal.Code, today string, pr
 			}
 			date := strings.TrimSpace(x)
 			if date != today {
-				return errors.New("时间错误")
+				continue
 			}
 			inflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(5)", index)).Text()), ",", "", -1)
 			outflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(6)", index)).Text()), ",", "", -1)

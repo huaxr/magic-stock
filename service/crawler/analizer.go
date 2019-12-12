@@ -77,6 +77,11 @@ func ConditionTopLine(array_shou, array_high, array_kai, percent []float64, rece
 }
 
 // 如何判断实体柱有意义， 实体柱在昨日收盘价*0.1的数据中 占比%10即可算是有意义  也就是 main > 昨日收盘价*0.1*0.1, 同理影线长度也需要做限制
+// 1 main 为 1 个点的时候， 虚线为3个点以上
+// 2 main 为 2 个点的时候, 虚线为6个点以上
+// 3 main 为 3个点  虚线为 7 点以上
+// 4 main 为4个点 虚线5个点以上
+
 // 上影线是实体柱子4倍以上
 func (craw *Crawler) HasTopLine(result *model.CalcResult, recent int) bool {
 	closes := result.RecentClose[0:recent]

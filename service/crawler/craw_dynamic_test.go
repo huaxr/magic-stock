@@ -77,7 +77,7 @@ func TestGetAllTicketTodayFlowDetail(t *testing.T) {
 				time.Sleep(10 * time.Second)
 				goto RE
 			}
-			time.Sleep(1 * time.Second)
+
 		}
 	}()
 
@@ -92,7 +92,7 @@ func TestGetAllTicketTodayFlowDetail(t *testing.T) {
 				time.Sleep(10 * time.Second)
 				goto RE
 			}
-			time.Sleep(1 * time.Second)
+
 		}
 	}()
 	select {}

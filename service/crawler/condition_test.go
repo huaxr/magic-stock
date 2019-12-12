@@ -27,11 +27,15 @@ func TestGetData(t *testing.T) {
 func TestMultiQuery(t *testing.T) {
 	var c []dal.Predict
 	err := store.MysqlClient.GetDB().Model(&dal.Predict{}).
-		Where("`condition` regexp ?", "募持仓").
-		Where("`condition` regexp ?", "量能不断放大").
+		//Where("`condition` regexp ?", "长上影").
+		Where("`condition` regexp ?", "突放巨量").
+		//Where("`condition` regexp ?", "15日均线与30日均线交金叉").
+		Where("`condition` regexp ?", "近5日资金净流入总和非负").
 		Find(&c).Error
 	fmt.Println(err)
 	for _, i := range c {
 		fmt.Println(i.Code)
 	}
 }
+
+// 免责声明：本终端所载数据仅供参考，若数据有误，以交易所发布数据为准，不对您构成投资建议。
