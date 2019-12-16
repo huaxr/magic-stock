@@ -5,7 +5,11 @@ package model
 import "magic/stock/dal"
 
 type GetPredicts struct {
-	Predicts []string `json:"predicts"`
+	Predicts           []string `json:"predicts"`            // 预测的打标
+	Belongs            []string `json:"belongs"`             // 所属行业
+	Locations          []string `json:"locations"`           // 所属地区
+	OrganizationalForm []string `json:"organizational_form"` // 组织类型
+	Date               string   `json:"date"`
 }
 
 type StockDetail struct {

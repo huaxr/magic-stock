@@ -6,30 +6,33 @@ import (
 	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
+	"sync"
 	"testing"
 	"time"
 )
 
+var wg sync.WaitGroup //定义一个同步等待的组
+var today_str = "2019-12-16"
+
 // 得出基金排行并根据这些基金获取持仓股
 func TestCrawler_GetFundHighHold(t *testing.T) {
 	CrawlerGlobal.GetFundRanks()
-	CrawlerGlobal.GetFundHighHold("2019-12-02")
+	CrawlerGlobal.GetFundHighHold(today_str)
 }
 
-// 把今日收盘信息加入周线
+// 把今日收盘信息加入周线 （自动加入到线上）
 func TestAddTodayShouToWeek(t *testing.T) {
 	var code []dal.Code
 	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 0").Find(&code)
 	for _, i := range code {
-		CrawlerGlobal.AddTodayShouToWeek(i.Code, "2019-09-30", "", "2019-10-11") // 再次用的时候把 2019-06-28 全部删掉 用来计算均价用
+		CrawlerGlobal.AddTodayShouToWeek(i.Code, "2019-11-29", "", today_str) // 再次用的时候把 2019-06-28 全部删掉 用来计算均价用
 	}
-
 }
 
-// 获取今日的所有股票
+// 获取今日的所有股票 （自动加入到线上）
 func TestGetAllTicketTodayDetail(t *testing.T) {
-	today := "2019-12-12"
-	// 超时重试
+	today := today_str
+	wg.Add(2)
 	go func() {
 		var code []dal.Code
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2000").Find(&code)
@@ -43,6 +46,7 @@ func TestGetAllTicketTodayDetail(t *testing.T) {
 			}
 			time.Sleep(1 * time.Second)
 		}
+		wg.Done()
 	}()
 
 	go func() {
@@ -58,42 +62,7 @@ func TestGetAllTicketTodayDetail(t *testing.T) {
 			}
 			time.Sleep(1 * time.Second)
 		}
+		wg.Done()
 	}()
-	select {}
-}
-
-// 获取今日的所有股票资金
-func TestGetAllTicketTodayFlowDetail(t *testing.T) {
-	today := "2019-12-12"
-	// 超时重试
-	go func() {
-		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2000").Find(&code)
-		for _, i := range code {
-		RE:
-			err := CrawlerGlobal.GetAllTicketTodayFlowDetail(i, today, true)
-			if err != nil {
-				log.Println("爬虫错误， 休眠10秒继续...", i.Name, err)
-				time.Sleep(10 * time.Second)
-				goto RE
-			}
-
-		}
-	}()
-
-	go func() {
-		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000").Find(&code)
-		for _, i := range code {
-		RE:
-			err := CrawlerGlobal.GetAllTicketTodayFlowDetail(i, today, true)
-			if err != nil {
-				log.Println("爬虫错误， 休眠10秒继续...", i.Name, err)
-				time.Sleep(10 * time.Second)
-				goto RE
-			}
-
-		}
-	}()
-	select {}
+	wg.Wait()
 }

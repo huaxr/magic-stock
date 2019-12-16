@@ -42,8 +42,8 @@ func (craw *Crawler) getRecentDailyData(ths []dal.TicketHistory) *model.RecentDa
 		recent_amplitude = append(recent_amplitude, th.Amplitude)    // 振幅
 		recent_turn_over = append(recent_turn_over, th.TurnoverRate) // 换手率
 
-		recent_net_flow = append(recent_net_flow, th.NetFlow)
-		recent_main_net_flow = append(recent_net_flow, th.MainNetFlow)
+		//recent_net_flow = append(recent_net_flow, th.NetFlow)
+		//recent_main_net_flow = append(recent_net_flow, th.MainNetFlow)
 	}
 	return &model.RecentDailyData{recent_count, recent_money_shou, recent_money_kai, recent_money_high, recent_money_low,
 		recent_percent, recent_amplitude, recent_turn_over, recent_net_flow, recent_main_net_flow, date, total_money}
@@ -59,7 +59,7 @@ func (craw *Crawler) getRecentWeeklyData(thw []dal.TicketHistoryWeekly) *model.R
 	return &model.RecentWeeklyData{recent_money, recent_percent}
 }
 
-func (craw *Crawler) CalcResultWithDefined(params *model.Params) *model.CalcResult {
+func (craw *Crawler) CalcResultWithDefined(params *model.Params, date string) *model.CalcResult {
 	if params.AveragePrice1 > 6 || params.AveragePrice2 > 15 || params.AveragePrice3 > 30 || params.AverageCount1 > 40 || params.AverageCount2 > 40 {
 		panic("argument error")
 	}
@@ -70,6 +70,9 @@ func (craw *Crawler) CalcResultWithDefined(params *model.Params) *model.CalcResu
 	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ?", params.Code).Limit(20).Offset(params.Offset).Order("date desc").Find(&thw)
 
 	recent_daily := craw.getRecentDailyData(ths)
+	if recent_daily.CurrDate != date {
+		return nil
+	}
 	recent_week := craw.getRecentWeeklyData(thw)
 
 	if len(recent_daily.RecentCount) != 50 || len(recent_week.RecentWeeklyClose) != 20 {

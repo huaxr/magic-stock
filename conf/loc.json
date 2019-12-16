@@ -1,5 +1,5 @@
 {
-  "session_secret" : "byte_dance_sec_secret", "cmk": "9dRyXa1n",
+  "session_secret" : "zhixiutec_secret",
   "store": "root:root@tcp(127.0.0.1:3316)/stock?charset=utf8mb4&parseTime=True&loc=Local",
-  "host": "https://www.suixigongde.com"
+  "host": "http://127.0.0.1"
 }

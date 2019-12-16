@@ -30,8 +30,6 @@ type CrawlerIF interface {
 	GetTopStockholder(code, namer string, proxy bool)
 	// 获取股票历史记录
 	GetSignalTicket(code, name string, proxy bool) error
-	// 获取股票历史资金流入流出记录
-	GetSignalTicketFlow(code dal.Code, proxy bool) error
 	// 获取股票的 收益表 数据
 	GetStockProfit(code string, proxy bool)
 	// 获取股票的 资产负债表 数据
@@ -44,11 +42,9 @@ type CrawlerIF interface {
 	CalcPercentTicketWeekly(code string)
 	// 获取今日股价
 	GetAllTicketTodayDetail(code, name, today string, proxy bool) error
-	// 获取今日资金流入流出
-	GetAllTicketTodayFlowDetail(code dal.Code, today string, proxy bool) error
 
 	// 计算返回
-	CalcResultWithDefined(params *model.Params) *model.CalcResult
+	CalcResultWithDefined(params *model.Params, date string) *model.CalcResult
 	// 分析
 	// 近几周百分比小于less
 	WeeklyPercentLimited(result *model.CalcResult, recent_num int, limit_percent float64, typ string) bool

@@ -9,6 +9,7 @@ import (
 	"magic/stock/model"
 	"magic/stock/service/adapter"
 	"magic/stock/service/check"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,7 +19,9 @@ type PredictIF interface {
 	QueryAll(where string, args []interface{}, offset, limit int) (*[]dal.Predict, error)
 	Exist(where string, args []interface{}) bool
 	// 获取预测数据列表 post 请求
-	GetPredict(c *gin.Context)
+	PredictList(c *gin.Context)
+	// 获取预测的时间点
+	GetPredictDates(c *gin.Context)
 	// 获取股票详情
 	GetDetail(c *gin.Context)
 	GetFunds(c *gin.Context)
@@ -26,6 +29,12 @@ type PredictIF interface {
 	FundHold(c *gin.Context)
 	// 通过名称查询流通股东可能存在的其它持仓
 	TopHolderHold(c *gin.Context)
+	// 获取所有行业的列表
+	GetBelongs(c *gin.Context)
+	// 获取所有地区的列表
+	GetLocations(c *gin.Context)
+	// 获取所有的组织形式列表
+	GetOrganizationalForms(c *gin.Context)
 	Response(c *gin.Context, data interface{}, err error)
 }
 
@@ -60,18 +69,73 @@ func (d *PredictControl) Response(c *gin.Context, data interface{}, err error) {
 	c.AbortWithStatusJSON(200, d.response.Response(data, err))
 }
 
-func (d *PredictControl) GetPredict(c *gin.Context) {
+type Codes struct {
+	Code string
+}
+
+func (d *PredictControl) PredictList(c *gin.Context) {
 	offset, limit := check.ParamParse.GetPagination(c)
-	//where, args := check.ParamParse.ParseParamsToWhereArgs(c, []string{"condition"}, true)
-	//log.Println(where, args)
 	var post model.GetPredicts
 	err := c.BindJSON(&post)
 	if err != nil {
 		c.JSON(400, gin.H{"error_code": 1, "err_msg": err.Error(), "data": nil})
 		return
 	}
+	var where_belongs, where_locations, where_forms []string
+	var args_belongs, args_locationgs, args_forms []interface{}
+	var belongs, locations, forms []string
+
+	if len(post.Belongs) > 0 {
+		var codes []Codes
+		for _, i := range post.Belongs {
+			where_belongs = append(where_belongs, "belong = ?")
+			args_belongs = append(args_belongs, i)
+		}
+		where_str := strings.Join(where_belongs, "OR")
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_belongs...).Scan(&codes)
+		for _, i := range codes {
+			belongs = append(belongs, i.Code)
+		}
+	}
+
+	if len(post.Locations) > 0 {
+		var codes []Codes
+		for _, i := range post.Locations {
+			where_locations = append(where_locations, "location = ?")
+			args_locationgs = append(args_locationgs, i)
+		}
+		where_str := strings.Join(where_locations, "OR")
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_locationgs...).Scan(&codes)
+		for _, i := range codes {
+			locations = append(locations, i.Code)
+		}
+	}
+
+	if len(post.OrganizationalForm) > 0 {
+		var codes []Codes
+		for _, i := range post.OrganizationalForm {
+			where_forms = append(where_forms, "organizational_form = ?")
+			args_forms = append(args_forms, i)
+		}
+		where_str := strings.Join(where_forms, "OR")
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_forms...).Scan(&codes)
+		for _, i := range codes {
+			forms = append(forms, i.Code)
+		}
+	}
+
 	var predicts []dal.Predict
-	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{})
+	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
+
+	if len(belongs) > 0 {
+		tmp = tmp.Where("code IN (?)", belongs)
+	}
+	if len(locations) > 0 {
+		tmp = tmp.Where("code IN (?)", locations)
+	}
+	if len(forms) > 0 {
+		tmp = tmp.Where("code IN (?)", forms)
+	}
 	for _, i := range post.Predicts {
 		tmp = tmp.Where("`condition` regexp ?", i)
 	}
@@ -155,4 +219,62 @@ func (d *PredictControl) TopHolderHold(c *gin.Context) {
 	var Stockholder []dal.Stockholder
 	store.MysqlClient.GetDB().Model(&dal.Stockholder{}).Where("holder_name = ?", holder).Find(&Stockholder)
 	d.Response(c, Stockholder, nil)
+}
+
+type PredictDate struct {
+	Date string `json:"date"`
+}
+
+type Belongs struct {
+	Belong string `json:"date"`
+}
+
+type Locations struct {
+	Location string `json:"location"`
+}
+
+type OrganizationalForms struct {
+	OrganizationalForm string `json:"organizational_form"`
+}
+
+func (d *PredictControl) GetPredictDates(c *gin.Context) {
+	var x []PredictDate
+	store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("distinct(date) as date").Order("date desc").Scan(&x)
+	d.Response(c, x, nil)
+}
+
+func (d *PredictControl) GetBelongs(c *gin.Context) {
+	var x []Belongs
+	var result []string
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Select("distinct(belong) as belong").Order("belong").Scan(&x)
+	for _, i := range x {
+		if i.Belong != "" {
+			result = append(result, i.Belong)
+		}
+	}
+	d.Response(c, result, nil)
+}
+
+func (d *PredictControl) GetLocations(c *gin.Context) {
+	var x []Locations
+	var result []string
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Select("distinct(location) as location").Order("location").Scan(&x)
+	for _, i := range x {
+		if i.Location != "" {
+			result = append(result, i.Location)
+		}
+	}
+	d.Response(c, result, nil)
+}
+
+func (d *PredictControl) GetOrganizationalForms(c *gin.Context) {
+	var x []OrganizationalForms
+	var result []string
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Select("distinct(organizational_form) as organizational_form").Order("organizational_form").Scan(&x)
+	for _, i := range x {
+		if i.OrganizationalForm != "" {
+			result = append(result, i.OrganizationalForm)
+		}
+	}
+	d.Response(c, result, nil)
 }

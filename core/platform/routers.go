@@ -15,12 +15,17 @@ func (r *Router) addRouters() {
 	router.GET("/wx_login", control.UserControlGlobal.LoginByWeChat)
 	router.POST("/jsapi_pay", control.UserControlGlobal.PayByWeChat)
 	router.GET("/callback/:order_id", control.UserControlGlobal.TradeCallBack)
+	router.GET("/predicts_dates", control.PredictControlGlobal.GetPredictDates)
+	router.GET("/belongs", control.PredictControlGlobal.GetBelongs)
+	router.GET("/locations", control.PredictControlGlobal.GetLocations)
+	router.GET("/organization_forms", control.PredictControlGlobal.GetOrganizationalForms)
 
-	router.POST("/predicts_list", control.PredictControlGlobal.GetPredict)
+	router.POST("/predicts_list", control.PredictControlGlobal.PredictList)
 	router.GET("/stock/detail", control.PredictControlGlobal.GetDetail)
 	router.GET("/stock/fund", control.PredictControlGlobal.GetFunds)
 	// 机构持仓
 	router.GET("/fund_hold", control.PredictControlGlobal.FundHold)
 	// 流通股东持仓
 	router.GET("/top_holder_hold", control.PredictControlGlobal.TopHolderHold)
+
 }

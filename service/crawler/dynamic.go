@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"magic/mall/utils"
 	"magic/stock/core/store"
 	"magic/stock/dal"
 	"magic/stock/model"
@@ -79,83 +81,17 @@ func (craw *Crawler) GetAllTicketTodayDetail(code, name, today string, proxy boo
 					huanshou, _ := strconv.ParseFloat(tmp[10], 64)
 					dh := dal.TicketHistory{Code: code, Name: name, Kai: kai, High: high, Low: low, Shou: shou, TotalCount: tc, TotalMoney: tm, Date: date,
 						Percent: percent, Change: zhangdiee, Amplitude: zhenfu, TurnoverRate: huanshou} //, Percent:p}
+					if utils.TellEnv() == "loc" {
+						err := store.MysqlClient.GetOnlineDB().Save(&dh).Error
+						if err != nil {
+							log.Println("写入线上错误")
+						}
+					}
 					store.MysqlClient.GetDB().Save(&dh)
 					fmt.Println(code, name, date, kai, high, low, shou, zhangdiee, percent, tc, tm, zhenfu, huanshou)
 
 				}
 			}
-		}
-	}
-	return nil
-}
-
-// 每天收盘执行一次, 收集所有股票的当天的资金流入流出
-func (craw *Crawler) GetAllTicketTodayFlowDetail(code dal.Code, today string, proxy bool) error {
-	var doc *goquery.Document
-	for i := 0; i <= 0; i++ {
-		if !proxy {
-			doc, _ = craw.NewDocument(fmt.Sprintf("http://quotes.money.163.com/trade/lszjlx_%s,%d.html", code.Code, i))
-		} else {
-			doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://quotes.money.163.com/trade/lszjlx_%s,%d.html", code.Code, i))
-		}
-		//var date, inflow, outflow, net_flow, main_inflow, main_outflow, main_net_flow string
-
-		for index := 1; index <= 1; index++ {
-			x, err := dealPanic(doc, index, "body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td.align_c")
-			if err != nil {
-				// 空指针错误
-				return err
-			}
-			date := strings.TrimSpace(x)
-			if date != today {
-				continue
-			}
-			inflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(5)", index)).Text()), ",", "", -1)
-			outflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(6)", index)).Text()), ",", "", -1)
-			net_flow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(7)", index)).Text()), ",", "", -1)
-			main_inflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(8)", index)).Text()), ",", "", -1)
-			main_outflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(9)", index)).Text()), ",", "", -1)
-			main_net_flow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(10)", index)).Text()), ",", "", -1)
-
-			in, err := strconv.ParseFloat(inflow, 64)
-			if err != nil {
-				in = 0
-			}
-			out, err := strconv.ParseFloat(outflow, 64)
-			if err != nil {
-				out = 0
-			}
-			net, err := strconv.ParseFloat(net_flow, 64)
-			if err != nil {
-				net = 0
-			}
-			min, err := strconv.ParseFloat(main_inflow, 64)
-			if err != nil {
-				min = 0
-			}
-			mout, err := strconv.ParseFloat(main_outflow, 64)
-			if err != nil {
-				mout = 0
-			}
-			mnet, err := strconv.ParseFloat(main_net_flow, 64)
-			if err != nil {
-				mnet = 0
-			}
-
-			fmt.Println(code.Code, code.Name, in, out, net, min, mout, mnet)
-			var c dal.TicketHistory
-			err = store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("date = ? and code = ?", date, code.Code).Find(&c).Error
-			if err != nil {
-				continue
-			}
-			c.Inflow = in
-			c.Outflow = out
-			c.NetFlow = net
-			c.MainInflow = min
-			c.MainOutflow = mout
-			c.MainNetFlow = mnet
-			store.MysqlClient.GetDB().Save(&c)
-
 		}
 	}
 	return nil
@@ -167,14 +103,26 @@ func (craw *Crawler) AddTodayShouToWeek(code, last_week, last_day_to_delete, tod
 		store.MysqlClient.GetDB().Exec("delete from ticket_history_week where date = ?", last_day_to_delete)
 	}
 	var th dal.TicketHistory
-	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date = ?", code, today).Find(&th)
+	err := store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date = ?", code, today).Find(&th).Error
+	if err != nil {
+		log.Println("数据不存在", code, today)
+	}
 
 	var xx dal.TicketHistoryWeekly
-	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date = ?", code, last_week).Find(&xx)
+	err = store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date = ?", code, last_week).Find(&xx).Error
+	if err != nil {
+		log.Println("数据不存在2", code, today)
+	}
 
 	p, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", (th.Shou-xx.Shou)*100/xx.Shou), 64)
 
 	weekly := dal.TicketHistoryWeekly{Code: th.Code, Date: th.Date, Name: th.Name, Shou: th.Shou, Percent: p}
+	if utils.TellEnv() == "loc" {
+		err := store.MysqlClient.GetOnlineDB().Save(&weekly).Error
+		if err != nil {
+			log.Println("写入线上错误")
+		}
+	}
 	store.MysqlClient.GetDB().Save(&weekly)
 }
 

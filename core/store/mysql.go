@@ -6,6 +6,7 @@ package store
 import (
 	"errors"
 	"fmt"
+	"magic/mall/utils"
 	"magic/stock/dal"
 	"magic/stock/model"
 	"magic/stock/service/conf"
@@ -24,14 +25,16 @@ var (
 
 type MI interface {
 	GetDB() *gorm.DB
+	GetOnlineDB() *gorm.DB
 	NewTransaction() *Transaction
 	QueryJson(table, filed, k string, v interface{}) (*gorm.DB, error)
 }
 
 type Mysql struct {
 	StorageClient
-	db   *gorm.DB
-	pool *sync.Pool
+	db       *gorm.DB
+	dbonline *gorm.DB
+	pool     *sync.Pool
 }
 
 func init() {
@@ -42,6 +45,16 @@ func init() {
 	}
 	db.DB().SetConnMaxLifetime(60 * time.Second)
 	db.DB().SetMaxOpenConns(30)
+
+	if utils.TellEnv() == "loc" {
+		e.dbonline, err = gorm.Open("mysql", "root:Icode_787518771@tcp(154.8.228.39:3306)/stock?charset=utf8mb4&parseTime=True&loc=Local")
+		if err != nil {
+			panic(err)
+		}
+		e.dbonline.DB().SetConnMaxLifetime(60 * time.Second)
+		e.dbonline.DB().SetMaxOpenConns(30)
+	}
+
 	e.typ = "mysql"
 	e.mutex = new(sync.Mutex)
 	e.debug = false
@@ -118,6 +131,10 @@ func (e *Mysql) GetType() string {
 
 func (e *Mysql) GetDB() *gorm.DB {
 	return e.db
+}
+
+func (e *Mysql) GetOnlineDB() *gorm.DB {
+	return e.dbonline
 }
 
 func (e *Mysql) NewQuery() *model.NewQuery {

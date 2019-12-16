@@ -7,6 +7,7 @@ import (
 	"magic/stock/core/store"
 	"magic/stock/dal"
 	"magic/stock/model"
+	"magic/stock/utils"
 	"math"
 )
 
@@ -77,32 +78,20 @@ func ConditionTopLine(array_shou, array_high, array_kai, percent []float64, rece
 }
 
 // 如何判断实体柱有意义， 实体柱在昨日收盘价*0.1的数据中 占比%10即可算是有意义  也就是 main > 昨日收盘价*0.1*0.1, 同理影线长度也需要做限制
-// 1 main 为 1 个点的时候， 虚线为3个点以上
-// 2 main 为 2 个点的时候, 虚线为6个点以上
-// 3 main 为 3个点  虚线为 7 点以上
-// 4 main 为4个点 虚线5个点以上
+// 虚线柱子有4个点以上即可 简单粗暴
 
-// 上影线是实体柱子4倍以上
 func (craw *Crawler) HasTopLine(result *model.CalcResult, recent int) bool {
 	closes := result.RecentClose[0:recent]
 	for index, i := range closes {
 		// 开盘价大于收盘价
 		if result.RecentOpen[index]-i >= 0 {
-			main := result.RecentOpen[index] - result.RecentClose[index]
 			virtual := result.RecentHigh[index] - result.RecentOpen[index]
-			if main <= result.RecentClose[index+1]*0.1*Main || virtual <= result.RecentClose[index+1]*0.1*Virtual {
-				continue
-			}
-			if virtual/main > Num {
+			if virtual > result.RecentClose[index+1]*0.04 {
 				return true
 			}
 		} else {
-			main := result.RecentClose[index] - result.RecentOpen[index]
 			virtual := result.RecentHigh[index] - result.RecentClose[index]
-			if main <= result.RecentClose[index+1]*0.1*Main || virtual <= result.RecentClose[index+1]*0.1*Virtual {
-				continue
-			}
-			if virtual/main > Num {
+			if virtual > result.RecentClose[index+1]*0.04 {
 				return true
 			}
 		}
@@ -116,21 +105,13 @@ func (craw *Crawler) HasLowLine(result *model.CalcResult, recent int) bool {
 	for index, i := range closes {
 		// 开盘价大于收盘价
 		if result.RecentOpen[index]-i >= 0 {
-			main := result.RecentOpen[index] - i
 			virtual := result.RecentClose[index] - result.RecentLow[index]
-			if main <= result.RecentClose[index+1]*0.1*Main || virtual <= result.RecentClose[index+1]*0.1*Virtual {
-				continue
-			}
-			if virtual/main > Num {
+			if virtual > result.RecentClose[index+1]*0.04 {
 				return true
 			}
 		} else {
-			main := result.RecentClose[index] - result.RecentOpen[index]
 			virtual := result.RecentOpen[index] - result.RecentLow[index]
-			if main <= result.RecentClose[index+1]*0.1*Main || virtual <= result.RecentClose[index+1]*0.1*Virtual {
-				continue
-			}
-			if virtual/main > Num {
+			if virtual > result.RecentClose[index+1]*0.04 {
 				return true
 			}
 		}
@@ -158,6 +139,74 @@ func GetFundByCode(code string) int {
 	var count int
 	store.MysqlClient.GetDB().Model(&dal.FundHoldRank{}).Where("code = ?", code).Count(&count)
 	return count
+}
+
+func STStock(code string) bool {
+	var c int
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", code).Where("`belong` regexp ?", "ST").Count(&c)
+	return c > 0
+}
+
+func GetStockPercent(result *model.CalcResult) (zhangdie, huanshoulv, zhenfures string) {
+	percent := result.RecentPercent[0]
+	huanshou := result.RecentTurnoverRate[0]
+	zhenfu := result.RecentAmplitude[0]
+	if percent >= 8 {
+		zhangdie = "涨幅高于8%; "
+	}
+
+	if percent >= 5 && percent <= 8 {
+		zhangdie = "涨幅介于5% ~ 8%; "
+	}
+
+	if percent >= 2 && percent <= 5 {
+		zhangdie = "涨幅介于2% ~ 5%; "
+	}
+
+	if percent >= -2 && percent <= 2 {
+		zhangdie = "涨跌幅介于-2% ~ 2%; "
+	}
+
+	if percent <= -8 {
+		zhangdie = "跌幅高于8%; "
+	}
+
+	if percent >= -8 && percent <= -5 {
+		zhangdie = "跌幅介于-8% ~ -5%; "
+	}
+
+	if percent >= -5 && percent <= -2 {
+		zhangdie = "跌幅介于-5% ~ -2%; "
+	}
+
+	if huanshou <= 5 {
+		huanshoulv = "换手率小于5%; "
+	}
+
+	if huanshou >= 5 && huanshou <= 10 {
+		huanshoulv = "换手率介于5% ~ 10%; "
+	}
+
+	if huanshou >= 10 {
+		huanshoulv = "换手率大于10%; "
+	}
+
+	if zhenfu <= 5 {
+		zhenfures = "振幅小于5%; "
+	}
+
+	if zhenfu >= 5 && zhenfu <= 10 {
+		zhenfures = "振幅介于5% ~ 10%; "
+	}
+
+	if zhenfu >= 10 && zhenfu <= 15 {
+		zhenfures = "振幅介于10% ~ 15%; "
+	}
+
+	if zhenfu >= 15 {
+		zhenfures = "振幅大于15%; "
+	}
+	return zhangdie, huanshoulv, zhenfures
 }
 
 // 不断增加
@@ -341,8 +390,11 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	liangnengbuduanbigger := result.RecentCount[0] > result.RecentCount[1] && result.RecentCount[1] > result.RecentCount[2] && result.RecentCount[2] > result.RecentCount[3]
 	// 突放巨量
 	tufangjuliang := (result.RecentCount[0]-result.RecentCount[1])/result.RecentCount[1] > 5 || (result.RecentCount[1]-result.RecentCount[2])/result.RecentCount[1] > 5
+
+	// 3 连阳
+	sanlianyang := result.RecentPercent[0] > 0 && result.RecentPercent[1] > 0 && result.RecentPercent[2] > 0 && result.RecentPercent[3] > 0
 	// 5连阳
-	wulianyang := result.RecentPercent[0] > 0 && result.RecentPercent[1] > 0 && result.RecentPercent[2] > 0 && result.RecentPercent[3] > 0 && result.RecentPercent[4] > 0 && result.RecentPercent[5] > 0
+	wulianyang := sanlianyang && result.RecentPercent[4] > 0 && result.RecentPercent[5] > 0
 
 	// 近期长上影
 	changshangying := craw.HasTopLine(result, 1)
@@ -350,7 +402,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	changxiaying := craw.HasLowLine(result, 1)
 
 	// 优良概念
-	goodconcept := GetConceptByCode(code, "预盈预增|业绩预升|高派息|独角兽|高送转|基金重仓|QFII|RQFII")
+	//goodconcept := GetConceptByCode(code, "预盈预增|业绩预升|高派息|独角兽|高送转|基金重仓|QFII|RQFII")
 	// 私募持仓
 	simuchicangcount := GetHolderByCode(code, "私募")
 	// 基金持仓
@@ -377,12 +429,6 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	// 成交过亿
 	guoyi := result.CurrTotalMoney > 10000
 
-	// 近期高振幅
-	gaozhenfu := result.RecentAmplitude[0] > 15 || result.RecentAmplitude[1] > 15 || result.RecentAmplitude[2] > 15
-
-	// 高换手
-	huanshou := result.RecentTurnoverRate[0] > 30 || result.RecentTurnoverRate[1] > 30 || result.RecentTurnoverRate[2] > 30
-
 	// 现金流量表 非负
 	up1, up2, up3, up4 := GetUpManageCashFlow(code)
 	// 利润表 不能为负
@@ -390,20 +436,8 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	// 资产负债表
 	lup1, done1 := GetUpLiabilities(code)
 
-	// 近5日资金净流入综合非负
-	netflow := calc3(result.RecentNetFlow[0:4])
-	// 近5日主力资金净流入综合非负
-	mainnetflow := calc3(result.RecentMainNetFlow[0:4])
-
-	x := []interface{}{liangnengbuduanbigger, yiziban, netflow, mainnetflow, pup1, pup2, huanshou, pricelowave6, pricelowave15, pricelowave30, priceaboveave15, priceaboveave30, priceaboveave6, guoyi, jigouchicangcount, jincha1, jincha2, jincha3, jincha4, jincha5, jincha6, jincha7, jincha8, priceshangyang1, priceshangyang2, priceshangyang3, priceshangyang4, priceshangyang5, gaoweihuitiao1, gaoweihuitiao2, gaoweihuitiao3, liangshangyang1, liangshangyang2, liangnengbigger1, liangnengbigger2, wulianyang, changshangying, changxiaying, goodconcept, simuchicangcount, junjialianhe1, zhangting}
-	xx(x)
-
-	// 1 K线形态
-	// 2 量价形态
-	// 3 财务数据
-	// 4 机构持仓情况
-	// 5 其它
-	// 自定义数值
+	// st
+	st := STStock(code)
 
 	cond_str := ""
 	if priceaboveave6 {
@@ -460,6 +494,9 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	if yiziban {
 		cond_str += "一字板; "
 	}
+	if gaoweihuitiao1 || gaoweihuitiao2 || gaoweihuitiao3 {
+		cond_str += "高位回调; "
+	}
 	if junjialianhe1 {
 		cond_str += "近5天6日均线与收盘价粘合; "
 	}
@@ -469,8 +506,8 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	if junjialianhe3 {
 		cond_str += "近5天30日均线与收盘价粘合; "
 	}
-	if gaozhenfu {
-		cond_str += "近期股价振幅高达15%; "
+	if sanlianyang {
+		cond_str += "三连阳; "
 	}
 	if wulianyang {
 		cond_str += "五连阳; "
@@ -490,9 +527,6 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if liangnengbigger2 {
 		cond_str += "连续5日量能站上40日均线; "
-	}
-	if huanshou {
-		cond_str += "近期成交量换手率高达30%; "
 	}
 	if liangnengbuduanbigger {
 		cond_str += "量能不断放大; "
@@ -540,22 +574,27 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 
 	// 其它
-	if gaoweihuitiao1 || gaoweihuitiao2 || gaoweihuitiao3 {
-		cond_str += "高位回调; "
+	if st {
+		cond_str += "ST板块; "
 	}
-	if goodconcept {
-		cond_str += "优良概念; "
+	if !st {
+		cond_str += "非ST板块; "
 	}
-	if netflow {
-		cond_str += "近5日资金净流入总和非负; "
-	}
-	if mainnetflow {
-		cond_str += "近5日主力资金净流入总和非负; "
-	}
+
+	zhangdie, huanshoulv, zhenfu := GetStockPercent(result)
+	cond_str += zhangdie
+	cond_str += huanshoulv
+	cond_str += zhenfu
 
 	if len(cond_str) > 0 {
 		fmt.Println(code, name, cond_str)
 		p := dal.Predict{Code: code, Name: name, Condition: cond_str, Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount}
+		if utils.TellEnv() == "loc" {
+			err := store.MysqlClient.GetOnlineDB().Save(&p).Error
+			if err != nil {
+				fmt.Println("写入线上错误")
+			}
+		}
 		store.MysqlClient.GetDB().Save(&p)
 	}
 }

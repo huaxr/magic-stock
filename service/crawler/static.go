@@ -172,69 +172,6 @@ func (craw *Crawler) GetSignalTicket(code, name string, proxy bool) error {
 	return nil
 }
 
-func (craw *Crawler) GetSignalTicketFlow(code dal.Code, proxy bool) error {
-	var doc *goquery.Document
-	for i := 0; i <= 0; i++ {
-		if !proxy {
-			doc, _ = craw.NewDocument(fmt.Sprintf("http://quotes.money.163.com/trade/lszjlx_%s,%d.html", code.Code, i))
-		} else {
-			doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://quotes.money.163.com/trade/lszjlx_%s,%d.html", code.Code, i))
-		}
-		//var date, inflow, outflow, net_flow, main_inflow, main_outflow, main_net_flow string
-
-		for index := 1; index <= 50; index++ {
-			date := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td.align_c", index)).Text())
-			inflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(5)", index)).Text()), ",", "", -1)
-			outflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(6)", index)).Text()), ",", "", -1)
-			net_flow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(7)", index)).Text()), ",", "", -1)
-			main_inflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(8)", index)).Text()), ",", "", -1)
-			main_outflow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(9)", index)).Text()), ",", "", -1)
-			main_net_flow := strings.Replace(strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(10)", index)).Text()), ",", "", -1)
-
-			in, err := strconv.ParseFloat(inflow, 64)
-			if err != nil {
-				in = 0
-			}
-			out, err := strconv.ParseFloat(outflow, 64)
-			if err != nil {
-				out = 0
-			}
-			net, err := strconv.ParseFloat(net_flow, 64)
-			if err != nil {
-				net = 0
-			}
-			min, err := strconv.ParseFloat(main_inflow, 64)
-			if err != nil {
-				min = 0
-			}
-			mout, err := strconv.ParseFloat(main_outflow, 64)
-			if err != nil {
-				mout = 0
-			}
-			mnet, err := strconv.ParseFloat(main_net_flow, 64)
-			if err != nil {
-				mnet = 0
-			}
-
-			fmt.Println(code.Code, code.Name, in, out, net, min, mout, mnet)
-			var c dal.TicketHistory
-			err = store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("date = ? and code = ?", date, code.Code).Find(&c).Error
-			if err != nil {
-				continue
-			}
-			c.Inflow = in
-			c.Outflow = out
-			c.NetFlow = net
-			c.MainInflow = min
-			c.MainOutflow = mout
-			c.MainNetFlow = mnet
-			store.MysqlClient.GetDB().Save(&c)
-
-		}
-	}
-	return nil
-}
-
 // 股票的所属概念信息 记录到 code 表中
 // ex.g.经纬辉开 本月解禁,股权激励,小盘,苹果三星,证金汇金,特高压,新基建,电力物联网,高出口占比,苹果产业链,
 func (craw *Crawler) GetAllTicketCodeConcept(code dal.Code, proxy bool) {
