@@ -6,10 +6,10 @@ package store
 import (
 	"errors"
 	"fmt"
-	"magic/mall/utils"
 	"magic/stock/dal"
 	"magic/stock/model"
 	"magic/stock/service/conf"
+	"magic/stock/utils"
 	"reflect"
 	"strings"
 	"sync"
