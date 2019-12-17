@@ -59,18 +59,18 @@ func (craw *Crawler) getRecentWeeklyData(thw []dal.TicketHistoryWeekly) *model.R
 	return &model.RecentWeeklyData{recent_money, recent_percent}
 }
 
-func (craw *Crawler) CalcResultWithDefined(params *model.Params, date string) *model.CalcResult {
+func (craw *Crawler) CalcResultWithDefined(params *model.Params) *model.CalcResult {
 	if params.AveragePrice1 > 6 || params.AveragePrice2 > 15 || params.AveragePrice3 > 30 || params.AverageCount1 > 40 || params.AverageCount2 > 40 {
 		panic("argument error")
 	}
 	var ths []dal.TicketHistory
-	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ?", params.Code).Limit(50).Offset(params.Offset).Order("date desc").Find(&ths)
+	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", params.Code, params.Date).Limit(50).Offset(params.Offset).Order("date desc").Find(&ths)
 
 	var thw []dal.TicketHistoryWeekly
-	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ?", params.Code).Limit(20).Offset(params.Offset).Order("date desc").Find(&thw)
+	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", params.Code, params.Date).Limit(20).Offset(params.Offset).Order("date desc").Find(&thw)
 
 	recent_daily := craw.getRecentDailyData(ths)
-	if recent_daily.CurrDate != date {
+	if recent_daily.CurrDate != params.Date {
 		return nil
 	}
 	recent_week := craw.getRecentWeeklyData(thw)

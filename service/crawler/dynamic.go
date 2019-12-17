@@ -26,7 +26,9 @@ func dealPanic(doc *goquery.Document, i int, selector string) (str string, err e
 			err = errors.New("err")
 		}
 	}()
-	str = doc.Find(fmt.Sprintf(selector, i)).Text()
+	finder := doc.Find(fmt.Sprintf(selector, i))
+	time.Sleep(1 * time.Second)
+	str = finder.Text()
 	return
 }
 
@@ -44,6 +46,7 @@ func (craw *Crawler) GetAllTicketTodayDetail(code, name, today string, proxy boo
 				// 一季度按照72个交易日来算  // 因为第一栏是中文标题
 				text := ""
 				// 获取日期不要用
+				//body > div.area > div.inner_box > table > tbody > tr:nth-child(1) > td:nth-child(1)
 				//x := doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(1)", i)).Text()
 				x, err := dealPanic(doc, i, "body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(1)")
 				if err != nil {

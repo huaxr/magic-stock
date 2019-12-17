@@ -52,7 +52,7 @@ func (u *UserControl) Exist(where string, args []interface{}) bool {
 func (d *UserControl) GetUserInfo(c *gin.Context) {
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
-	user, err := d.Query("user_id = ?", []interface{}{authentication.Uid})
+	user, err := d.Query("id = ?", []interface{}{authentication.Uid})
 	d.Response(c, user, err)
 }
 

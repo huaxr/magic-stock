@@ -346,15 +346,15 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	// 今日线金叉 6 和 15线
 	jincha1 := result.AveDailyPrice1[0] > result.AveDailyPrice2[0] && result.AveDailyPrice1[1] < result.AveDailyPrice2[1]
 	// 昨日线金叉 6 和 15线
-	jincha2 := result.AveDailyPrice1[1] > result.AveDailyPrice2[1] && result.AveDailyPrice1[2] < result.AveDailyPrice2[2]
+	// jincha2 := result.AveDailyPrice1[1] > result.AveDailyPrice2[1] && result.AveDailyPrice1[2] < result.AveDailyPrice2[2]
 	// 今日线金叉 15 和 30线
 	jincha3 := result.AveDailyPrice2[0] > result.AveDailyPrice3[0] && result.AveDailyPrice2[1] < result.AveDailyPrice3[1]
 	// 昨日线金叉 15 和 30线
-	jincha4 := result.AveDailyPrice2[1] > result.AveDailyPrice3[1] && result.AveDailyPrice2[2] < result.AveDailyPrice3[2]
+	//jincha4 := result.AveDailyPrice2[1] > result.AveDailyPrice3[1] && result.AveDailyPrice2[2] < result.AveDailyPrice3[2]
 	// 本周线金叉
 	jincha5 := result.AveWeeklyPrice1[0] > result.AveWeeklyPrice2[0] && result.AveWeeklyPrice1[1] < result.AveWeeklyPrice2[1]
 	// 上周金叉
-	jincha6 := result.AveWeeklyPrice1[1] > result.AveWeeklyPrice2[1] && result.AveWeeklyPrice1[2] < result.AveWeeklyPrice2[2]
+	//jincha6 := result.AveWeeklyPrice1[1] > result.AveWeeklyPrice2[1] && result.AveWeeklyPrice1[2] < result.AveWeeklyPrice2[2]
 	// 量能今日金叉
 	jincha7 := result.AveCount1[0] > result.AveCount2[0] && result.AveCount1[1] < result.AveCount2[1]
 	// 量能昨日金叉
@@ -458,13 +458,13 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	if pricelowave30 {
 		cond_str += fmt.Sprintf("收盘价在30日均线下方; ")
 	}
-	if jincha1 || jincha2 {
+	if jincha1 {
 		cond_str += "6日均线与15日均线交金叉; "
 	}
-	if jincha3 || jincha4 {
+	if jincha3 {
 		cond_str += "15日均线与30日均线交金叉; "
 	}
-	if jincha5 || jincha6 {
+	if jincha5 {
 		cond_str += "6周均线与15周均线交金叉; "
 	}
 	if priceshangyang1 {

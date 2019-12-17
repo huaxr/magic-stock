@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"log"
+	"magic/stock/dao"
 	"magic/stock/model"
 	sessions "magic/stock/service/middleware/session"
 	"magic/stock/utils"
@@ -87,12 +88,13 @@ func (a *authentication) checkSession(c *gin.Context) *model.AuthResult {
 	uid := session.Get("uid")
 	if user == nil || uid == nil {
 		if utils.TellEnv() == "loc" {
-			return &model.AuthResult{nil, "hua", 1, false}
+			return &model.AuthResult{nil, "hua", 1, true}
 		} else {
 			return &model.AuthResult{errors.New("登录错误"), "", -1, false}
 		}
 	}
-	return &model.AuthResult{User: user.(string), Uid: uid.(int)}
+	user_obj, _ := dao.UserDao.Query("id = ?", []interface{}{uid})
+	return &model.AuthResult{User: user.(string), Uid: uid.(int), Member: user_obj.IsMember}
 }
 
 func (a *authentication) getDebug() bool {

@@ -12,7 +12,7 @@ import (
 )
 
 var wg sync.WaitGroup //定义一个同步等待的组
-var today_str = "2019-12-16"
+var today_str = "2019-12-17"
 
 // 得出基金排行并根据这些基金获取持仓股
 func TestCrawler_GetFundHighHold(t *testing.T) {
@@ -44,7 +44,6 @@ func TestGetAllTicketTodayDetail(t *testing.T) {
 				time.Sleep(10 * time.Second)
 				goto RE
 			}
-			time.Sleep(1 * time.Second)
 		}
 		wg.Done()
 	}()
@@ -60,7 +59,6 @@ func TestGetAllTicketTodayDetail(t *testing.T) {
 				time.Sleep(10 * time.Second)
 				goto RE
 			}
-			time.Sleep(1 * time.Second)
 		}
 		wg.Done()
 	}()

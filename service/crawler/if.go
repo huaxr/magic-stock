@@ -44,7 +44,7 @@ type CrawlerIF interface {
 	GetAllTicketTodayDetail(code, name, today string, proxy bool) error
 
 	// 计算返回
-	CalcResultWithDefined(params *model.Params, date string) *model.CalcResult
+	CalcResultWithDefined(params *model.Params) *model.CalcResult
 	// 分析
 	// 近几周百分比小于less
 	WeeklyPercentLimited(result *model.CalcResult, recent_num int, limit_percent float64, typ string) bool

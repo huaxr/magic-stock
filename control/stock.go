@@ -22,6 +22,7 @@ type PredictIF interface {
 	PredictList(c *gin.Context)
 	// 获取预测的时间点
 	GetPredictDates(c *gin.Context)
+	GetConditions(c *gin.Context)
 	// 获取股票详情
 	GetDetail(c *gin.Context)
 	GetFunds(c *gin.Context)
@@ -277,4 +278,14 @@ func (d *PredictControl) GetOrganizationalForms(c *gin.Context) {
 		}
 	}
 	d.Response(c, result, nil)
+}
+
+func (d *PredictControl) GetConditions(c *gin.Context) {
+	var x []dal.Conditions
+	response := map[string][]string{}
+	store.MysqlClient.GetDB().Model(&dal.Conditions{}).Find(&x)
+	for _, i := range x {
+		response[i.Type] = append(response[i.Type], i.Name)
+	}
+	d.Response(c, response, nil)
 }

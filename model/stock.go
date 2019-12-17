@@ -64,6 +64,7 @@ type RecentAverage struct {
 
 type Params struct {
 	Code          string
+	Date          string
 	Offset        int
 	AveragePrice1 int // 均线1 6
 	AveragePrice2 int // 均线2 15

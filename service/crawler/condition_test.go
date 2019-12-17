@@ -10,14 +10,14 @@ import (
 	"testing"
 )
 
-// 得出基金排行并根据这些基金获取持仓股
+// 获取具体日期的分析结果
 func TestGetData(t *testing.T) {
-	var date = "2019-12-13"
+	var date = "2019-12-17"
 	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id>0").Find(&code)
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
 	for _, i := range code {
-		x := &model.Params{i.Code, 0, 6, 15, 30, 10, 40}
-		y := CrawlerGlobal.CalcResultWithDefined(x, date)
+		x := &model.Params{i.Code, date, 0, 6, 15, 30, 10, 40}
+		y := CrawlerGlobal.CalcResultWithDefined(x)
 		if y == nil {
 			continue
 		}
@@ -28,10 +28,10 @@ func TestGetData(t *testing.T) {
 func TestMultiQuery(t *testing.T) {
 	var c []dal.Predict
 	err := store.MysqlClient.GetDB().Model(&dal.Predict{}).
-		//Where("`condition` regexp ?", "长上影").
-		Where("`condition` regexp ?", "总负债不断减小").
+		Where("date = ?", "2019-12-17").
+		Where("`condition` regexp ?", "高位回调").
+		//Where("`condition` regexp ?", "总负债不断减小").
 		//Where("`condition` regexp ?", "15日均线与30日均线交金叉").
-		Where("`condition` regexp ?", "近5日资金净流入总和非负").
 		Find(&c).Error
 	fmt.Println(err)
 	for _, i := range c {
