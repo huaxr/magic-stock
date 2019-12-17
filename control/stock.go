@@ -149,7 +149,7 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 		d.Response(c, nil, errors.New("证券代码为空"))
 	}
 	var TicketHistory []dal.TicketHistory
-	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ?", code).Limit(50).Order("date desc").Find(&TicketHistory)
+	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ?", code).Limit(70).Order("date desc").Find(&TicketHistory)
 
 	var TicketHistoryWeekly []dal.TicketHistoryWeekly
 	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ?", code).Limit(20).Order("date desc").Find(&TicketHistoryWeekly)
