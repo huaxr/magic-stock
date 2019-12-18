@@ -4,6 +4,7 @@ package control
 
 import (
 	"errors"
+	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
 	"magic/stock/model"
@@ -75,20 +76,28 @@ type Codes struct {
 }
 
 func (d *PredictControl) PredictList(c *gin.Context) {
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
 	offset, limit := check.ParamParse.GetPagination(c)
 	var post model.GetPredicts
 	err := c.BindJSON(&post)
 	if err != nil {
-		c.JSON(400, gin.H{"error_code": 1, "err_msg": err.Error(), "data": nil})
-		return
+		d.Response(c, nil, err)
+	}
+	// 如果用户提交查询并保存查询结果
+	if post.Save {
+		err := adapter.UserServiceGlobal.SaveUserConditions(&post, authentication)
+		if err != nil {
+			log.Println("保存用户查询数据失败", err)
+		}
 	}
 	var where_belongs, where_locations, where_forms []string
 	var args_belongs, args_locationgs, args_forms []interface{}
 	var belongs, locations, forms []string
 
-	if len(post.Belongs) > 0 {
+	if len(post.Query.Belongs) > 0 {
 		var codes []Codes
-		for _, i := range post.Belongs {
+		for _, i := range post.Query.Belongs {
 			where_belongs = append(where_belongs, "belong = ?")
 			args_belongs = append(args_belongs, i)
 		}
@@ -99,9 +108,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		}
 	}
 
-	if len(post.Locations) > 0 {
+	if len(post.Query.Locations) > 0 {
 		var codes []Codes
-		for _, i := range post.Locations {
+		for _, i := range post.Query.Locations {
 			where_locations = append(where_locations, "location = ?")
 			args_locationgs = append(args_locationgs, i)
 		}
@@ -112,9 +121,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		}
 	}
 
-	if len(post.OrganizationalForm) > 0 {
+	if len(post.Query.OrganizationalForm) > 0 {
 		var codes []Codes
-		for _, i := range post.OrganizationalForm {
+		for _, i := range post.Query.OrganizationalForm {
 			where_forms = append(where_forms, "organizational_form = ?")
 			args_forms = append(args_forms, i)
 		}
@@ -137,7 +146,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	if len(forms) > 0 {
 		tmp = tmp.Where("code IN (?)", forms)
 	}
-	for _, i := range post.Predicts {
+	for _, i := range post.Query.Predicts {
 		tmp = tmp.Where("`condition` regexp ?", i)
 	}
 	tmp.Limit(limit).Offset(offset).Find(&predicts)

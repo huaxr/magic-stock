@@ -12,7 +12,7 @@ import (
 
 // 获取具体日期的分析结果
 func TestGetData(t *testing.T) {
-	var date = "2019-12-17"
+	var date = "2019-12-18"
 	var code []dal.Code
 	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
 	for _, i := range code {
@@ -28,10 +28,10 @@ func TestGetData(t *testing.T) {
 func TestMultiQuery(t *testing.T) {
 	var c []dal.Predict
 	err := store.MysqlClient.GetDB().Model(&dal.Predict{}).
-		Where("date = ?", "2019-12-17").
-		Where("`condition` regexp ?", "高位回调").
-		//Where("`condition` regexp ?", "总负债不断减小").
-		//Where("`condition` regexp ?", "15日均线与30日均线交金叉").
+		Where("date = ?", "2019-12-18").
+		//Where("`condition` regexp ?", "高位回调").
+		//Where("`condition` regexp ?", "金叉").
+		Where("`condition` regexp ?", "15日均线与30日均线交金叉").
 		Find(&c).Error
 	fmt.Println(err)
 	for _, i := range c {

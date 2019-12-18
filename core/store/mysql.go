@@ -53,6 +53,9 @@ func init() {
 		}
 		e.dbonline.DB().SetConnMaxLifetime(60 * time.Second)
 		e.dbonline.DB().SetMaxOpenConns(30)
+		go e.dbonline.AutoMigrate(&dal.Code{}, &dal.Stockholder{}, &dal.FundHoldRank{},
+			&dal.Predict{}, &dal.TicketHistoryWeekly{}, &dal.FundRank{}, dal.TicketHistory{}, &dal.User{}, &dal.Pay{},
+			&dal.StockCashFlow{}, &dal.StockProfit{}, &dal.StockLiabilities{}, &dal.Conditions{}, &dal.UserConditions{})
 	}
 
 	e.typ = "mysql"
@@ -67,7 +70,7 @@ func init() {
 	}
 	go db.AutoMigrate(&dal.Code{}, &dal.Stockholder{}, &dal.FundHoldRank{},
 		&dal.Predict{}, &dal.TicketHistoryWeekly{}, &dal.FundRank{}, dal.TicketHistory{}, &dal.User{}, &dal.Pay{},
-		&dal.StockCashFlow{}, &dal.StockProfit{}, &dal.StockLiabilities{}, &dal.Conditions{})
+		&dal.StockCashFlow{}, &dal.StockProfit{}, &dal.StockLiabilities{}, &dal.Conditions{}, &dal.UserConditions{})
 	MysqlClient = e
 }
 

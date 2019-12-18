@@ -4,12 +4,27 @@ package model
 
 import "magic/stock/dal"
 
-type GetPredicts struct {
+type Query struct {
 	Predicts           []string `json:"predicts"`            // 预测的打标
 	Belongs            []string `json:"belongs"`             // 所属行业
 	Locations          []string `json:"locations"`           // 所属地区
 	OrganizationalForm []string `json:"organizational_form"` // 组织类型
-	Date               string   `json:"date"`
+}
+
+type GetPredicts struct {
+	Query Query  `json:"query"`
+	Date  string `json:"date"`
+	Save  bool   `json:"save"` // 查询并保存条件
+}
+
+type EditPredicts struct {
+	Query Query  `json:"query"`
+	Id    int    `json:"id"`
+	Name  string `json:"name"`
+}
+
+type DeletePredicts struct {
+	Id int `json:"id"`
 }
 
 type StockDetail struct {

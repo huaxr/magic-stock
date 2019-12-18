@@ -15,6 +15,7 @@ import (
 	"magic/stock/service/check"
 	"magic/stock/service/wechat"
 	"strconv"
+	"time"
 
 	"github.com/panghu1024/anypay"
 )
@@ -29,6 +30,9 @@ type UserServiceIF interface {
 	CreateUserIfNotExist(user *dal.User) (us *dal.User, err error)
 	LoginWx(code string) (*dal.User, error)
 	PayWx(authentication *model.AuthResult) (*anypay.WeResJsApi, error)
+	SaveUserConditions(query *model.GetPredicts, auth *model.AuthResult) error
+	EditUserConditions(query *model.EditPredicts, auth *model.AuthResult) error
+	DeleteUserConditions(id int, auth *model.AuthResult) error
 }
 
 var UserServiceGlobal UserServiceIF
@@ -109,4 +113,33 @@ func (u *UserService) PayWx(authentication *model.AuthResult) (*anypay.WeResJsAp
 	pay_record := dal.Pay{UserId: authentication.Uid, Spend: 30, PaySuccess: false, OrderId: payment.NonceStr}
 	store.MysqlClient.GetDB().Save(&pay_record)
 	return payment, nil
+}
+
+func (m *UserService) genName() string {
+	return "自定义条件-" + time.Now().Format("20060102150405")
+}
+
+func (u *UserService) SaveUserConditions(post *model.GetPredicts, authentication *model.AuthResult) error {
+	res, _ := json.Marshal(post.Query)
+	uc := dal.UserConditions{Name: u.genName(), UserId: authentication.Uid, Conditions: res}
+	err := store.MysqlClient.GetDB().Save(&uc).Error
+	return err
+}
+
+func (u *UserService) EditUserConditions(query *model.EditPredicts, auth *model.AuthResult) error {
+	var uc dal.UserConditions
+	err := store.MysqlClient.GetDB().Model(&dal.UserConditions{}).Where("id = ? and user_id = ?", query.Id, auth.Uid).Find(&uc).Error
+	if err != nil {
+		return err
+	}
+	res, _ := json.Marshal(query.Query)
+	uc.Name = query.Name
+	uc.Conditions = res
+	store.MysqlClient.GetDB().Save(&uc)
+	return nil
+}
+
+func (u *UserService) DeleteUserConditions(id int, auth *model.AuthResult) error {
+	store.MysqlClient.GetDB().Delete(&dal.UserConditions{}, "id = ? and user_id = ?", id, auth.Uid)
+	return nil
 }

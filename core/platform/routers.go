@@ -15,6 +15,7 @@ func (r *Router) addRouters() {
 	router.GET("/wx_login", control.UserControlGlobal.LoginByWeChat)
 	router.POST("/jsapi_pay", control.UserControlGlobal.PayByWeChat)
 	router.GET("/callback/:order_id", control.UserControlGlobal.TradeCallBack)
+	router.GET("/my_conditions", control.UserControlGlobal.GetConditions)
 	router.GET("/predicts_dates", control.PredictControlGlobal.GetPredictDates)
 	router.GET("/conditions", control.PredictControlGlobal.GetConditions)
 	router.GET("/belongs", control.PredictControlGlobal.GetBelongs)

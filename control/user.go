@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"log"
+	"magic/stock/core/store"
 	"magic/stock/dal"
 	"magic/stock/model"
 	"magic/stock/service/adapter"
@@ -23,6 +24,10 @@ type UserIF interface {
 	// 充值会员
 	PayByWeChat(c *gin.Context)
 	TradeCallBack(c *gin.Context)
+
+	GetConditions(c *gin.Context)
+	EditUserConditions(c *gin.Context)
+	DeleteUserConditions(c *gin.Context)
 	Response(c *gin.Context, data interface{}, err error)
 }
 
@@ -99,4 +104,40 @@ func (d *UserControl) TradeCallBack(c *gin.Context) {
 
 func (d *UserControl) Response(c *gin.Context, data interface{}, err error) {
 	c.AbortWithStatusJSON(200, d.response.Response(data, err))
+}
+
+func (d *UserControl) EditUserConditions(c *gin.Context) {
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
+	var post model.EditPredicts
+	err := c.BindJSON(&post)
+	if err != nil {
+		d.Response(c, nil, err)
+	}
+
+	err = d.service.EditUserConditions(&post, authentication)
+	if err != nil {
+		d.Response(c, nil, nil)
+	}
+	d.Response(c, "success", err)
+}
+
+func (d *UserControl) DeleteUserConditions(c *gin.Context) {
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
+	var post model.DeletePredicts
+	err := c.BindJSON(&post)
+	if err != nil {
+		d.Response(c, nil, err)
+	}
+	d.service.DeleteUserConditions(post.Id, authentication)
+	d.Response(c, "success", nil)
+}
+
+func (d *UserControl) GetConditions(c *gin.Context) {
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
+	var ucs []dal.UserConditions
+	store.MysqlClient.GetDB().Model(&dal.UserConditions{}).Where("user_id = ?", authentication.Uid).Find(&ucs)
+	d.Response(c, ucs, nil)
 }
