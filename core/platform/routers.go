@@ -18,6 +18,8 @@ func (r *Router) addRouters() {
 	router.GET("/my_conditions", control.UserControlGlobal.GetConditions)
 	router.GET("/predicts_dates", control.PredictControlGlobal.GetPredictDates)
 	router.GET("/conditions", control.PredictControlGlobal.GetConditions)
+	router.GET("/concepts", control.PredictControlGlobal.GetConcepts)
+	router.GET("/labels", control.PredictControlGlobal.GetLabels)
 	router.GET("/belongs", control.PredictControlGlobal.GetBelongs)
 	router.GET("/locations", control.PredictControlGlobal.GetLocations)
 	router.GET("/organization_forms", control.PredictControlGlobal.GetOrganizationalForms)

@@ -38,5 +38,3 @@ func TestMultiQuery(t *testing.T) {
 		fmt.Println(i.Code)
 	}
 }
-
-// 免责声明：本终端所载数据仅供参考，若数据有误，以交易所发布数据为准，不对您构成投资建议。

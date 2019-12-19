@@ -6,6 +6,7 @@ import (
 	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
+	"strings"
 	"testing"
 	"time"
 )
@@ -38,6 +39,32 @@ func TestGetAllTicketCodeConcept(T *testing.T) {
 	}()
 
 	select {}
+}
+
+// 从股票概念中抽出详细的概念保存在表中
+func TestGetConcept(t *testing.T) {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
+	xx := map[string]bool{}
+	for _, i := range code {
+		x := strings.Split(strings.TrimRight(i.Concept, ","), ",")
+		for _, j := range x {
+			xx[j] = true
+		}
+	}
+
+	for i, _ := range xx {
+		if len(i) == 0 {
+			continue
+		}
+		if strings.Contains(i, "概念") {
+			c := dal.StockConcept{Name: i}
+			store.MysqlClient.GetDB().Save(&c)
+		} else {
+			c := dal.StockLabels{Name: i}
+			store.MysqlClient.GetDB().Save(&c)
+		}
+	}
 }
 
 // 获取所有股票简介信息

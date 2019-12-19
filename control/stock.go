@@ -24,6 +24,9 @@ type PredictIF interface {
 	// 获取预测的时间点
 	GetPredictDates(c *gin.Context)
 	GetConditions(c *gin.Context)
+	// 获取概念列表
+	GetConcepts(c *gin.Context)
+	GetLabels(c *gin.Context)
 	// 获取股票详情
 	GetDetail(c *gin.Context)
 	GetFunds(c *gin.Context)
@@ -247,6 +250,10 @@ type OrganizationalForms struct {
 	OrganizationalForm string `json:"organizational_form"`
 }
 
+type Concepts struct {
+	Name string `json:"name"`
+}
+
 func (d *PredictControl) GetPredictDates(c *gin.Context) {
 	var x []PredictDate
 	store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("distinct(date) as date").Order("date desc").Scan(&x)
@@ -297,4 +304,28 @@ func (d *PredictControl) GetConditions(c *gin.Context) {
 		response[i.Type] = append(response[i.Type], i.Name)
 	}
 	d.Response(c, response, nil)
+}
+
+func (d *PredictControl) GetConcepts(c *gin.Context) {
+	var x []Concepts
+	var result []string
+	store.MysqlClient.GetDB().Model(&dal.StockConcept{}).Select("name").Order("name desc").Scan(&x)
+	for _, i := range x {
+		if i.Name != "" {
+			result = append(result, i.Name)
+		}
+	}
+	d.Response(c, result, nil)
+}
+
+func (d *PredictControl) GetLabels(c *gin.Context) {
+	var x []Concepts
+	var result []string
+	store.MysqlClient.GetDB().Model(&dal.StockLabels{}).Select("name").Order("name desc").Scan(&x)
+	for _, i := range x {
+		if i.Name != "" {
+			result = append(result, i.Name)
+		}
+	}
+	d.Response(c, result, nil)
 }
