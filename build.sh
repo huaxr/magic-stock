@@ -12,10 +12,11 @@ go build -a -o output/bin/${RUN_NAME}
 
 
 if [ "$(expr substr $(uname -s) 1 5)"=="Linux" ]; then
+    rm output/nohup.out
     PID=`ps -e|grep stock|awk '{printf $1}'`
     kill -9 ${PID}
 
-    echo "killing stock process ${PID}, restarting it"
-    nohup output/bootstrap.sh &
-    echo "success"
+    echo "[*] killing stock process ${PID}, restarting it"
+    nohup output/bootstrap.sh 2>&1 &
+    echo "[!] success"
 fi
