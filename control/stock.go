@@ -94,9 +94,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 			log.Println("保存用户查询数据失败", err)
 		}
 	}
-	var where_belongs, where_locations, where_forms []string
-	var args_belongs, args_locationgs, args_forms []interface{}
-	var belongs, locations, forms []string
+	var where_belongs, where_locations, where_forms, where_concepts []string
+	var args_belongs, args_locationgs, args_forms, args_concepts []interface{}
+	var belongs, locations, forms, concepts []string
 
 	if len(post.Query.Belongs) > 0 {
 		var codes []Codes
@@ -104,11 +104,12 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 			where_belongs = append(where_belongs, "belong = ?")
 			args_belongs = append(args_belongs, i)
 		}
-		where_str := strings.Join(where_belongs, "OR")
+		where_str := strings.Join(where_belongs, " OR ")
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_belongs...).Scan(&codes)
 		for _, i := range codes {
 			belongs = append(belongs, i.Code)
 		}
+		log.Println(where_str, args_belongs)
 	}
 
 	if len(post.Query.Locations) > 0 {
@@ -117,11 +118,12 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 			where_locations = append(where_locations, "location = ?")
 			args_locationgs = append(args_locationgs, i)
 		}
-		where_str := strings.Join(where_locations, "OR")
+		where_str := strings.Join(where_locations, " OR ")
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_locationgs...).Scan(&codes)
 		for _, i := range codes {
 			locations = append(locations, i.Code)
 		}
+		log.Println(where_str, args_locationgs)
 	}
 
 	if len(post.Query.OrganizationalForm) > 0 {
@@ -130,11 +132,27 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 			where_forms = append(where_forms, "organizational_form = ?")
 			args_forms = append(args_forms, i)
 		}
-		where_str := strings.Join(where_forms, "OR")
+		where_str := strings.Join(where_forms, " OR ")
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_forms...).Scan(&codes)
 		for _, i := range codes {
 			forms = append(forms, i.Code)
 		}
+		log.Println(where_str, args_forms)
+	}
+
+	if len(post.Query.Concepts) > 0 || len(post.Query.Labels) > 0 {
+		var codes []Codes
+		arrays := append(post.Query.Concepts, post.Query.Labels...)
+		for _, i := range arrays {
+			where_concepts = append(where_concepts, "concept like ?")
+			args_concepts = append(args_concepts, "%"+i+"%")
+		}
+		where_str := strings.Join(where_concepts, " OR ")
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_concepts...).Scan(&codes)
+		for _, i := range codes {
+			concepts = append(concepts, i.Code)
+		}
+		log.Println(where_str, args_concepts)
 	}
 
 	var predicts []dal.Predict
@@ -149,6 +167,10 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	if len(forms) > 0 {
 		tmp = tmp.Where("code IN (?)", forms)
 	}
+	if len(concepts) > 0 {
+		tmp = tmp.Where("code IN (?)", concepts)
+	}
+
 	for _, i := range post.Query.Predicts {
 		tmp = tmp.Where("`condition` regexp ?", i)
 	}
@@ -157,15 +179,16 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 }
 
 func (d *PredictControl) GetDetail(c *gin.Context) {
+	date := c.DefaultQuery("date", "")
 	code := c.DefaultQuery("code", "")
-	if code == "" {
-		d.Response(c, nil, errors.New("证券代码为空"))
+	if code == "" || date == "" {
+		d.Response(c, nil, errors.New("证券代码/日期为空"))
 	}
 	var TicketHistory []dal.TicketHistory
-	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ?", code).Limit(70).Order("date desc").Find(&TicketHistory)
+	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", code, date).Limit(70).Order("date desc").Find(&TicketHistory)
 
 	var TicketHistoryWeekly []dal.TicketHistoryWeekly
-	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ?", code).Limit(20).Order("date desc").Find(&TicketHistoryWeekly)
+	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", code, date).Limit(40).Order("date desc").Find(&TicketHistoryWeekly)
 
 	var Stockholder []dal.Stockholder
 	store.MysqlClient.GetDB().Model(&dal.Stockholder{}).Where("code = ?", code).Find(&Stockholder)
@@ -174,7 +197,7 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", code).Find(&Stock)
 
 	var Predict dal.Predict
-	store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("code = ?", code).Find(&Predict)
+	store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("code = ? and date = ?", code, date).Find(&Predict)
 
 	var StockCashFlow []dal.StockCashFlow
 	store.MysqlClient.GetDB().Model(&dal.StockCashFlow{}).Where("code = ?", code).Find(&StockCashFlow)

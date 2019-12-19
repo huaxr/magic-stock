@@ -143,7 +143,7 @@ func GetFundByCode(code string) int {
 
 func STStock(code string) bool {
 	var c int
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", code).Where("`belong` regexp ?", "ST").Count(&c)
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", code).Where("`concept` regexp ?", "ST").Count(&c)
 	return c > 0
 }
 

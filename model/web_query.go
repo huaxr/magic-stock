@@ -9,6 +9,8 @@ type Query struct {
 	Belongs            []string `json:"belongs"`             // 所属行业
 	Locations          []string `json:"locations"`           // 所属地区
 	OrganizationalForm []string `json:"organizational_form"` // 组织类型
+	Concepts           []string `json:"concepts"`            // 所属概念 ex 腾讯概念
+	Labels             []string `json:"labels"`              // 标签
 }
 
 type GetPredicts struct {
