@@ -81,6 +81,7 @@ type Codes struct {
 func (d *PredictControl) PredictList(c *gin.Context) {
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
+	log.Println(authentication)
 	if !authentication.Member {
 		if authentication.QueryLeft == 0 {
 			d.Response(c, nil, errors.New("查询次数不足"))
