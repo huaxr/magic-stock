@@ -212,6 +212,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	}
 
 	var predicts []dal.Predict
+	var total int
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
 
 	if len(belongs) > 0 {
@@ -246,8 +247,10 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	for _, i := range post.Query.Predicts {
 		tmp = tmp.Where("`condition` regexp ?", i)
 	}
+	tmp.Count(&total)
 	tmp.Limit(limit).Offset(offset).Find(&predicts)
-	d.Response(c, predicts, nil)
+
+	d.Response(c, map[string]interface{}{"result": predicts, "total": total}, nil)
 }
 
 func (d *PredictControl) GetDetail(c *gin.Context) {
