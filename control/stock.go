@@ -248,7 +248,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		tmp = tmp.Where("`condition` regexp ?", i)
 	}
 	tmp.Count(&total)
-	tmp.Limit(limit).Offset(offset).Find(&predicts)
+	tmp.Order("score desc").Limit(limit).Offset(offset).Find(&predicts)
 
 	d.Response(c, map[string]interface{}{"result": predicts, "total": total}, nil)
 }
