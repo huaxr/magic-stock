@@ -74,7 +74,7 @@ func (r *Router) bindDev() {
 func (r *Router) bindOnline() {
 	//r.Router.Use(normal.Recover())
 	r.Router.Use(normal.DebugCORS())
-	//r.Router.Use(normal.LoginRequired())
+	r.Router.Use(normal.LoginRequired())
 	r.bindRouters()
 	r.Router.Run("0.0.0.0:8081")
 }
