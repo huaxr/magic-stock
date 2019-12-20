@@ -88,13 +88,14 @@ func (a *authentication) checkSession(c *gin.Context) *model.AuthResult {
 	uid := session.Get("uid")
 	if user == nil || uid == nil {
 		if utils.TellEnv() == "loc" {
-			return &model.AuthResult{nil, "hua", 1, true}
+			user_obj, _ := dao.UserDao.Query("id = ?", []interface{}{888})
+			return &model.AuthResult{User: user_obj.UserName, Uid: int(user_obj.ID), Member: user_obj.IsMember, QueryLeft: user_obj.QueryLeft}
 		} else {
-			return &model.AuthResult{errors.New("登录错误"), "", -1, false}
+			return &model.AuthResult{errors.New("登录错误"), "", -1, false, 0}
 		}
 	}
 	user_obj, _ := dao.UserDao.Query("id = ?", []interface{}{uid})
-	return &model.AuthResult{User: user.(string), Uid: uid.(int), Member: user_obj.IsMember}
+	return &model.AuthResult{User: user.(string), Uid: uid.(int), Member: user_obj.IsMember, QueryLeft: user_obj.QueryLeft}
 }
 
 func (a *authentication) getDebug() bool {

@@ -81,11 +81,24 @@ type Codes struct {
 func (d *PredictControl) PredictList(c *gin.Context) {
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
+	if !authentication.Member {
+		if authentication.QueryLeft == 0 {
+			d.Response(c, nil, errors.New("查询次数不足"))
+			return
+		} else {
+			user_obj, _ := UserControlGlobal.Query("id = ?", []interface{}{authentication.Uid})
+			left := user_obj.QueryLeft - 1
+			user_obj.QueryLeft = left
+			err := store.MysqlClient.GetDB().Save(&user_obj).Error
+			log.Println("查询次数剩余", authentication.QueryLeft, left, err)
+		}
+	}
 	offset, limit := check.ParamParse.GetPagination(c)
 	var post model.GetPredicts
 	err := c.BindJSON(&post)
 	if err != nil {
 		d.Response(c, nil, err)
+		return
 	}
 	// 如果用户提交查询并保存查询结果
 	if post.Save {
@@ -183,6 +196,7 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	code := c.DefaultQuery("code", "")
 	if code == "" || date == "" {
 		d.Response(c, nil, errors.New("证券代码/日期为空"))
+		return
 	}
 	var TicketHistory []dal.TicketHistory
 	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", code, date).Limit(70).Order("date desc").Find(&TicketHistory)
@@ -225,6 +239,7 @@ func (d *PredictControl) GetFunds(c *gin.Context) {
 	code := c.DefaultQuery("code", "")
 	if code == "" {
 		d.Response(c, nil, errors.New("证券代码为空"))
+		return
 	}
 	var FundHoldRank []dal.FundHoldRank
 	var Funds []model.StockFund
@@ -241,6 +256,7 @@ func (d *PredictControl) FundHold(c *gin.Context) {
 	code := c.DefaultQuery("fund_code", "")
 	if code == "" {
 		d.Response(c, nil, errors.New("机构代码为空"))
+		return
 	}
 	var FundHoldRank []dal.FundHoldRank
 	store.MysqlClient.GetDB().Model(&dal.FundHoldRank{}).Where("fund_code = ?", code).Find(&FundHoldRank)
@@ -251,6 +267,7 @@ func (d *PredictControl) TopHolderHold(c *gin.Context) {
 	holder := c.DefaultQuery("holder_name", "")
 	if holder == "" {
 		d.Response(c, nil, errors.New("查询用户为空"))
+		return
 	}
 	var Stockholder []dal.Stockholder
 	store.MysqlClient.GetDB().Model(&dal.Stockholder{}).Where("holder_name = ?", holder).Find(&Stockholder)

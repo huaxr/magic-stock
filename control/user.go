@@ -28,6 +28,8 @@ type UserIF interface {
 	GetConditions(c *gin.Context)
 	EditUserConditions(c *gin.Context)
 	DeleteUserConditions(c *gin.Context)
+	// 提需求
+	SubmitDemand(c *gin.Context)
 	Response(c *gin.Context, data interface{}, err error)
 }
 
@@ -63,12 +65,15 @@ func (d *UserControl) GetUserInfo(c *gin.Context) {
 
 func (d *UserControl) LoginByWeChat(c *gin.Context) {
 	code := c.DefaultQuery("code", "")
+	//token := c.DefaultQuery("token", "")
 	if code == "" {
 		d.Response(c, nil, errors.New("code为空"))
+		return
 	}
 	user, err := adapter.UserServiceGlobal.LoginWx(code)
 	if err != nil {
 		d.Response(c, nil, err)
+		return
 	}
 	session := sessions.Default(c)
 	session.Set("user", user.UserName)
@@ -84,6 +89,7 @@ func (d *UserControl) PayByWeChat(c *gin.Context) {
 	res, err := adapter.UserServiceGlobal.PayWx(authentication)
 	if err != nil {
 		d.Response(c, nil, err)
+		return
 	}
 	response := model.WeResJsApi{TimeStamp: res.TimeStamp, NonceStr: res.NonceStr, Package: res.Package, Sign: res.Sign, SignType: "MD5", AppId: wechat.WX_APPID}
 	d.Response(c, response, nil)
@@ -113,11 +119,13 @@ func (d *UserControl) EditUserConditions(c *gin.Context) {
 	err := c.BindJSON(&post)
 	if err != nil {
 		d.Response(c, nil, err)
+		return
 	}
 
 	err = d.service.EditUserConditions(&post, authentication)
 	if err != nil {
-		d.Response(c, nil, nil)
+		d.Response(c, nil, err)
+		return
 	}
 	d.Response(c, "success", err)
 }
@@ -129,6 +137,7 @@ func (d *UserControl) DeleteUserConditions(c *gin.Context) {
 	err := c.BindJSON(&post)
 	if err != nil {
 		d.Response(c, nil, err)
+		return
 	}
 	d.service.DeleteUserConditions(post.Id, authentication)
 	d.Response(c, "success", nil)
@@ -140,4 +149,8 @@ func (d *UserControl) GetConditions(c *gin.Context) {
 	var ucs []dal.UserConditions
 	store.MysqlClient.GetDB().Model(&dal.UserConditions{}).Where("user_id = ?", authentication.Uid).Find(&ucs)
 	d.Response(c, ucs, nil)
+}
+
+func (d *UserControl) SubmitDemand(c *gin.Context) {
+
 }
