@@ -8,7 +8,6 @@ import (
 	"log"
 	"magic/stock/dao"
 	"magic/stock/model"
-	sessions "magic/stock/service/middleware/session"
 	"magic/stock/utils"
 	"net/http"
 	"strings"
@@ -82,21 +81,22 @@ func (a *authentication) checkToken(c *gin.Context) (*model.AuthResult, bool) {
 
 // Session 认证
 func (a *authentication) checkSession(c *gin.Context) *model.AuthResult {
-	session := sessions.Default(c)
-	user := session.Get("user")
-	uid := session.Get("uid")
-	if user == nil || uid == nil {
-		//if utils.TellEnv() == "loc" {
-		//	user_obj, _ := dao.UserDao.Query("id = ?", []interface{}{888})
-		//	return &model.AuthResult{User: user_obj.UserName, Uid: int(user_obj.ID), Member: user_obj.IsMember, QueryLeft: user_obj.QueryLeft}
-		//} else {
-		//	return &model.AuthResult{errors.New("登录错误"), "", -1, false, 0}
-		//}
-		user_obj, _ := dao.UserDao.Query("id = ?", []interface{}{888})
-		return &model.AuthResult{User: user_obj.UserName, Uid: int(user_obj.ID), Member: user_obj.IsMember, QueryLeft: user_obj.QueryLeft}
-	}
-	user_obj, _ := dao.UserDao.Query("id = ?", []interface{}{uid})
-	return &model.AuthResult{User: user.(string), Uid: uid.(int), Member: user_obj.IsMember, QueryLeft: user_obj.QueryLeft}
+	user_obj, _ := dao.UserDao.Query("id = ?", []interface{}{888})
+	return &model.AuthResult{User: user_obj.UserName, Uid: int(user_obj.ID), Member: user_obj.IsMember, QueryLeft: user_obj.QueryLeft}
+
+	//session := sessions.Default(c)
+	//user := session.Get("user")
+	//uid := session.Get("uid")
+	//if user == nil || uid == nil {
+	//	if utils.TellEnv() == "loc" {
+	//		user_obj, _ := dao.UserDao.Query("id = ?", []interface{}{888})
+	//		return &model.AuthResult{User: user_obj.UserName, Uid: int(user_obj.ID), Member: user_obj.IsMember, QueryLeft: user_obj.QueryLeft}
+	//	} else {
+	//		return &model.AuthResult{errors.New("登录错误"), "", -1, false, 0}
+	//	}
+	//}
+	//user_obj, _ := dao.UserDao.Query("id = ?", []interface{}{uid})
+	//return &model.AuthResult{User: user.(string), Uid: uid.(int), Member: user_obj.IsMember, QueryLeft: user_obj.QueryLeft}
 }
 
 func (a *authentication) getDebug() bool {
