@@ -29,7 +29,7 @@ type UserServiceIF interface {
 	Query(where string, args []interface{}) (*dal.User, error)
 	QueryAll(where string, args []interface{}, offset, limit int) (*[]dal.User, error)
 	Count(where string, args []interface{}) (int, error)
-	CreateUserIfNotExist(user *dal.User) (us *dal.User, err error)
+	CreateUserIfNotExist(user *dal.User, token string) (us *dal.User, err error)
 	LoginWx(code, token string) (*dal.User, error)
 	PayWx(authentication *model.AuthResult) (*anypay.WeResJsApi, error)
 	SaveUserConditions(query *model.GetPredicts, auth *model.AuthResult) error
