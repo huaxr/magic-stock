@@ -7,7 +7,10 @@ import (
 	"magic/stock/core/store"
 	"magic/stock/dal"
 	"magic/stock/model"
+	"magic/stock/utils"
 	"math"
+	"math/rand"
+	"time"
 )
 
 const (
@@ -487,27 +490,27 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str += fmt.Sprintf("收盘价在30日均线下方; ")
 	}
 	if jincha1 {
-		score += 1
+		score += 2
 		cond_str += "6日均线与15日均线交金叉; "
 	}
 	if sicha1 {
-		score -= 1
+		score -= 2
 		cond_str += "6日均线与15日均线交死叉; "
 	}
 	if jincha3 {
-		score += 1
+		score += 2
 		cond_str += "15日均线与30日均线交金叉; "
 	}
 	if sicha3 {
-		score -= 1
+		score -= 2
 		cond_str += "15日均线与30日均线交死叉; "
 	}
 	if jincha5 {
-		score += 1
+		score += 2
 		cond_str += "6周均线与15周均线交金叉; "
 	}
 	if sicha5 {
-		score -= 1
+		score -= 2
 		cond_str += "6周均线与15周均线交死叉; "
 	}
 	if priceshangyang1 {
@@ -533,7 +536,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 
 	if pricexiajiang1 {
-		score -= 1
+		score -= 2
 		cond_str += "6日均线下挫; "
 	}
 	if pricexiajiang2 {
@@ -611,11 +614,11 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str += "连续5日量能站上40日均线; "
 	}
 	if liangnengsmall1 {
-		score -= 1
+		score -= 2
 		cond_str += "成交量(不活跃)低于10日均线; "
 	}
 	if liangnengsmall2 {
-		score -= 1
+		score -= 2
 		cond_str += "成交量(不活跃)低于40日均线; "
 	}
 	if liangnengbuduanbigger {
@@ -668,7 +671,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str += "营业总收入非负; "
 	}
 	if !pup1 {
-		score -= 1
+		score -= 2
 		cond_str += "营业总收入亏损; "
 	}
 	if pup2 {
@@ -676,7 +679,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str += "净利润非负; "
 	}
 	if !pup2 {
-		score -= 1
+		score -= 2
 		cond_str += "净利润亏损; "
 	}
 	// 基本面 资产负债表
@@ -701,28 +704,32 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 
 	// 其它
 	if st {
-		score -= 1
+		score -= 3
 		cond_str += "ST板块; "
-	}
-	if !st {
-		score += 1
-		cond_str += "非ST板块; "
 	}
 
 	zhangdie, huanshoulv, zhenfu, score := GetStockPercent(result, score)
+	if score < 0 {
+		score = 0
+	}
 	cond_str += zhangdie
 	cond_str += huanshoulv
 	cond_str += zhenfu
 
 	if len(cond_str) > 0 {
 		fmt.Println(code, name, cond_str)
-		p := dal.Predict{Code: code, Name: name, Condition: cond_str, Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount, Score: score * 3}
-		//if utils.TellEnv() == "loc" {
-		//	err := store.MysqlClient.GetOnlineDB().Save(&p).Error
-		//	if err != nil {
-		//		fmt.Println("写入线上错误")
-		//	}
-		//}
+
+		seed := []int{1, 2, 3, 4, 5, 6}
+		rand.Seed(time.Now().Unix())
+		n := rand.Int() % len(seed)
+
+		p := dal.Predict{Code: code, Name: name, Condition: cond_str, Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount, Score: score*4 + seed[n]}
+		if utils.TellEnv() == "loc" {
+			err := store.MysqlClient.GetOnlineDB().Save(&p).Error
+			if err != nil {
+				fmt.Println("写入线上错误")
+			}
+		}
 		store.MysqlClient.GetDB().Save(&p)
 	}
 }
