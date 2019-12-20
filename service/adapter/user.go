@@ -17,6 +17,8 @@ import (
 	"strconv"
 	"time"
 
+	uuid "github.com/satori/go.uuid"
+
 	"github.com/panghu1024/anypay"
 )
 
@@ -28,7 +30,7 @@ type UserServiceIF interface {
 	QueryAll(where string, args []interface{}, offset, limit int) (*[]dal.User, error)
 	Count(where string, args []interface{}) (int, error)
 	CreateUserIfNotExist(user *dal.User) (us *dal.User, err error)
-	LoginWx(code string) (*dal.User, error)
+	LoginWx(code, token string) (*dal.User, error)
 	PayWx(authentication *model.AuthResult) (*anypay.WeResJsApi, error)
 	SaveUserConditions(query *model.GetPredicts, auth *model.AuthResult) error
 	EditUserConditions(query *model.EditPredicts, auth *model.AuthResult) error
@@ -71,16 +73,21 @@ func (m *UserService) Count(where string, args []interface{}) (int, error) {
 	return m.dao.Count(where, args)
 }
 
-func (u *UserService) CreateUserIfNotExist(user *dal.User) (us *dal.User, err error) {
+func (u *UserService) CreateUserIfNotExist(user *dal.User, token string) (us *dal.User, err error) {
 	user_obj, err := u.Query("user_name = ?", []interface{}{user.UserName})
 	if err != nil {
+		user_obj2, err := u.Query("share_token = ?", []interface{}{token})
+		if err == nil {
+			user_obj2.QueryLeft += 5
+			store.MysqlClient.GetDB().Save(user_obj2)
+		}
 		store.MysqlClient.GetDB().Save(user)
 		user_obj = user
 	}
 	return user_obj, err
 }
 
-func (u *UserService) LoginWx(code string) (*dal.User, error) {
+func (u *UserService) LoginWx(code, token string) (*dal.User, error) {
 	login_response, err := wechat.WechatGlobal.GetAccessTokenByCode(code)
 	if err != nil {
 		return nil, err
@@ -98,9 +105,10 @@ func (u *UserService) LoginWx(code string) (*dal.User, error) {
 	country := user_info.Country
 	username := user_info.Nickname
 	openid := user_info.OpenId
-	user := dal.User{OpenId: openid, UserName: username, Avatar: avatar, Sex: sex, City: city, Province: province, Country: country, IsMember: false, QueryLeft: 10}
+	uid := uuid.Must(uuid.NewV4()).String()
+	user := dal.User{OpenId: openid, UserName: username, Avatar: avatar, Sex: sex, City: city, Province: province, Country: country, IsMember: false, QueryLeft: 10, ShareToken: uid[0:12]}
 	log.Println(user)
-	obj, _ := u.CreateUserIfNotExist(&user)
+	obj, _ := u.CreateUserIfNotExist(&user, token)
 	return obj, nil
 }
 

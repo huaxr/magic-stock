@@ -65,12 +65,12 @@ func (d *UserControl) GetUserInfo(c *gin.Context) {
 
 func (d *UserControl) LoginByWeChat(c *gin.Context) {
 	code := c.DefaultQuery("code", "")
-	//token := c.DefaultQuery("token", "")
+	token := c.DefaultQuery("token", "")
 	if code == "" {
 		d.Response(c, nil, errors.New("code为空"))
 		return
 	}
-	user, err := adapter.UserServiceGlobal.LoginWx(code)
+	user, err := adapter.UserServiceGlobal.LoginWx(code, token)
 	if err != nil {
 		d.Response(c, nil, err)
 		return

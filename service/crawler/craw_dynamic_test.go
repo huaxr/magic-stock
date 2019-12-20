@@ -12,7 +12,7 @@ import (
 )
 
 var wg sync.WaitGroup //定义一个同步等待的组
-var today_str = "2019-12-19"
+var today_str = "2019-12-20"
 
 // 得出基金排行并根据这些基金获取持仓股
 func TestCrawler_GetFundHighHold(t *testing.T) {
@@ -25,7 +25,7 @@ func TestAddTodayShouToWeek(t *testing.T) {
 	var code []dal.Code
 	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 0").Find(&code)
 	for _, i := range code {
-		CrawlerGlobal.AddTodayShouToWeek(i.Code, "2019-11-29", "", today_str) // 再次用的时候把 2019-06-28 全部删掉 用来计算均价用
+		CrawlerGlobal.AddTodayShouToWeek(i.Code, "2019-12-06", "", "2019-12-20") // 再次用的时候把 2019-06-28 全部删掉 用来计算均价用
 	}
 }
 

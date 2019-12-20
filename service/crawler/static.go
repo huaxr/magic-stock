@@ -397,6 +397,61 @@ func (craw *Crawler) GetStockCashFlow(code string, proxy bool) {
 	}
 }
 
+func (craw *Crawler) GetStockPerTicket(code string, proxy bool) {
+	var doc *goquery.Document
+	if !proxy {
+		doc, _ = craw.NewDocument(fmt.Sprintf("http://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/%s/displaytype/4.phtml", code))
+	} else {
+		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/%s/displaytype/4.phtml", code))
+	}
+	for i := 2; i <= 2; i++ {
+		date := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(1) > td:nth-child(%d)", i)).Text())
+
+		tanbo := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(3) > td:nth-child(%d)", i)).Text())
+		tanbo1, err := strconv.ParseFloat(strings.Replace(tanbo, "--", "", -1), 64)
+		if err != nil {
+			tanbo1 = 0
+		}
+		jiaquanshouyi := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(4) > td:nth-child(%d)", i)).Text())
+		jiaquanshouyi1, err := strconv.ParseFloat(strings.Replace(jiaquanshouyi, "--", "", -1), 64)
+		if err != nil {
+			jiaquanshouyi1 = 0
+		}
+		shouyi := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(5) > td:nth-child(%d)", i)).Text())
+		shouyi1, err := strconv.ParseFloat(strings.Replace(shouyi, "--", "", -1), 64)
+		if err != nil {
+			shouyi1 = 0
+		}
+		jizichan_front := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(7) > td:nth-child(%d)", i)).Text())
+		jizichan_front1, err := strconv.ParseFloat(strings.Replace(jizichan_front, "--", "", -1), 64)
+		if err != nil {
+			jizichan_front1 = 0
+		}
+		jizichan_after := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(8) > td:nth-child(%d)", i)).Text())
+		jizichan_after1, err := strconv.ParseFloat(strings.Replace(jizichan_after, "--", "", -1), 64)
+		if err != nil {
+			jizichan_after1 = 0
+		}
+		jingyingxianjinliu := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(9) > td:nth-child(%d)", i)).Text())
+		jingyingxianjinliu1, err := strconv.ParseFloat(strings.Replace(jingyingxianjinliu, "--", "", -1), 64)
+		if err != nil {
+			jingyingxianjinliu1 = 0
+		}
+		zibengongjijin := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(10) > td:nth-child(%d)", i)).Text())
+		zibengongjijin1, err := strconv.ParseFloat(strings.Replace(zibengongjijin, "--", "", -1), 64)
+		if err != nil {
+			zibengongjijin1 = 0
+		}
+		weifenpeilirun := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(11) > td:nth-child(%d)", i)).Text())
+		weifenpeilirun1, err := strconv.ParseFloat(strings.Replace(weifenpeilirun, "--", "", -1), 64)
+		if err != nil {
+			weifenpeilirun1 = 0
+		}
+		per_ticket := dal.StockPerTicket{Code: code, Tanboshouyi: tanbo1, Jiaquanshouyi: jiaquanshouyi1, Shouyiafter: shouyi1, Jinzichanfront: jizichan_front1, Jinzichanafter: jizichan_after1, Jingyingxianjinliu: jingyingxianjinliu1, Gubengongjijin: zibengongjijin1, Weifenpeilirun: weifenpeilirun1, Date: date}
+		store.MysqlClient.GetDB().Save(&per_ticket)
+	}
+}
+
 // 周线表计算涨跌幅
 func (craw *Crawler) CalcPercentTicketWeekly(code string) {
 	var th []dal.TicketHistoryWeekly

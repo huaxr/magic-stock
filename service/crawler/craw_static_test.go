@@ -165,10 +165,24 @@ func TestGetStockProfit(t *testing.T) {
 	select {}
 }
 
-//func TestSync(t *testing.T) {
-//	var code []dal.TicketHistory
-//	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("date = ?", "2019-12-10").Find(&code)
-//	for _, i := range code {
-//		store.MysqlClient.GetTmpDb().Save(&i)
-//	}
-//}
+// 获取股票每股财务指标
+func TestCrawler_GetStockPerTicket(t *testing.T) {
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2000").Find(&code)
+		for _, i := range code {
+			CrawlerGlobal.GetStockPerTicket(i.Code, true)
+			time.Sleep(1 * time.Second)
+		}
+	}()
+
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000").Find(&code)
+		for _, i := range code {
+			CrawlerGlobal.GetStockPerTicket(i.Code, false)
+			time.Sleep(1 * time.Second)
+		}
+	}()
+	select {}
+}

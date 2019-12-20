@@ -88,9 +88,11 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		} else {
 			user_obj, _ := UserControlGlobal.Query("id = ?", []interface{}{authentication.Uid})
 			left := user_obj.QueryLeft - 1
+			exp := user_obj.Exp + 1
 			user_obj.QueryLeft = left
+			user_obj.Exp = exp
 			err := store.MysqlClient.GetDB().Save(&user_obj).Error
-			log.Println("查询次数剩余", authentication.QueryLeft, left, err)
+			log.Println("查询次数剩余", authentication.User, authentication.QueryLeft, left, err)
 		}
 	}
 	offset, limit := check.ParamParse.GetPagination(c)
@@ -109,7 +111,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	}
 	var where_belongs, where_locations, where_forms, where_concepts []string
 	var args_belongs, args_locationgs, args_forms, args_concepts []interface{}
-	var belongs, locations, forms, concepts []string
+	var belongs, locations, forms, concepts, Shouyiafter, Jinzichanafter, Jingyingxianjinliu, Gubengongjijin, Weifenpeilirun []string
 
 	if len(post.Query.Belongs) > 0 {
 		var codes []Codes
@@ -168,6 +170,46 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		log.Println(where_str, args_concepts)
 	}
 
+	if len(post.Query.PerTickets.Shouyiafter) == 2 {
+		var codes []Codes
+		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("shouyiafter >= ? and shouyiafter <= ?", post.Query.PerTickets.Shouyiafter[0], post.Query.PerTickets.Shouyiafter[1]).Scan(&codes)
+		for _, i := range codes {
+			Shouyiafter = append(Shouyiafter, i.Code)
+		}
+	}
+
+	if len(post.Query.PerTickets.Jinzichanafter) == 2 {
+		var codes []Codes
+		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("jinzichanafter >= ? and jinzichanafter <= ?", post.Query.PerTickets.Jinzichanafter[0], post.Query.PerTickets.Jinzichanafter[1]).Scan(&codes)
+		for _, i := range codes {
+			Jinzichanafter = append(Jinzichanafter, i.Code)
+		}
+	}
+
+	if len(post.Query.PerTickets.Jingyingxianjinliu) == 2 {
+		var codes []Codes
+		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("jingyingxianjinliu >= ? and jingyingxianjinliu <= ?", post.Query.PerTickets.Jingyingxianjinliu[0], post.Query.PerTickets.Jingyingxianjinliu[1]).Scan(&codes)
+		for _, i := range codes {
+			Jingyingxianjinliu = append(Jingyingxianjinliu, i.Code)
+		}
+	}
+
+	if len(post.Query.PerTickets.Gubengongjijin) == 2 {
+		var codes []Codes
+		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("gubengongjijin >= ? and gubengongjijin <= ?", post.Query.PerTickets.Gubengongjijin[0], post.Query.PerTickets.Gubengongjijin[1]).Scan(&codes)
+		for _, i := range codes {
+			Gubengongjijin = append(Gubengongjijin, i.Code)
+		}
+	}
+
+	if len(post.Query.PerTickets.Weifenpeilirun) == 2 {
+		var codes []Codes
+		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("weifenpeilirun >= ? and weifenpeilirun <= ?", post.Query.PerTickets.Weifenpeilirun[0], post.Query.PerTickets.Weifenpeilirun[1]).Scan(&codes)
+		for _, i := range codes {
+			Weifenpeilirun = append(Weifenpeilirun, i.Code)
+		}
+	}
+
 	var predicts []dal.Predict
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
 
@@ -182,6 +224,22 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	}
 	if len(concepts) > 0 {
 		tmp = tmp.Where("code IN (?)", concepts)
+	}
+
+	if len(Shouyiafter) > 0 {
+		tmp = tmp.Where("code IN (?)", Shouyiafter)
+	}
+	if len(Jinzichanafter) > 0 {
+		tmp = tmp.Where("code IN (?)", Jinzichanafter)
+	}
+	if len(Jingyingxianjinliu) > 0 {
+		tmp = tmp.Where("code IN (?)", Jingyingxianjinliu)
+	}
+	if len(Gubengongjijin) > 0 {
+		tmp = tmp.Where("code IN (?)", Gubengongjijin)
+	}
+	if len(Weifenpeilirun) > 0 {
+		tmp = tmp.Where("code IN (?)", Weifenpeilirun)
 	}
 
 	for _, i := range post.Query.Predicts {

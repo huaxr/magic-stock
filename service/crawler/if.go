@@ -36,6 +36,8 @@ type CrawlerIF interface {
 	GetStockLiabilities(code string, proxy bool)
 	// 获取股票的 现金流量表 数据
 	GetStockCashFlow(code string, proxy bool)
+	// 获取股票每股的收益情况
+	GetStockPerTicket(code string, proxy bool)
 	// 生成周线表
 	GenerateWeekHistory(code string)
 	// 计算周线表百分比

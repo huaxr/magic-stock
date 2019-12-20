@@ -4,13 +4,22 @@ package model
 
 import "magic/stock/dal"
 
+type QueryPerTicket struct {
+	Shouyiafter        []float64 `json:"shouyiafter"`        // 每股收益调整后
+	Jinzichanafter     []float64 `json:"jinzichanafter"`     // 每股净资产_调整后(元) 范围 [1.33, 2.1]
+	Jingyingxianjinliu []float64 `json:"jingyingxianjinliu"` // 每股经营性现金流(元)范围
+	Gubengongjijin     []float64 `json:"gubengongjijin"`     // 每股资本公积金(元)范围
+	Weifenpeilirun     []float64 `json:"weifenpeilirun"`     // 每股未分配利润(元)范围
+}
+
 type Query struct {
-	Predicts           []string `json:"predicts"`            // 预测的打标
-	Belongs            []string `json:"belongs"`             // 所属行业
-	Locations          []string `json:"locations"`           // 所属地区
-	OrganizationalForm []string `json:"organizational_form"` // 组织类型
-	Concepts           []string `json:"concepts"`            // 所属概念 ex 腾讯概念
-	Labels             []string `json:"labels"`              // 标签
+	Predicts           []string       `json:"predicts"`            // 预测的打标
+	Belongs            []string       `json:"belongs"`             // 所属行业
+	Locations          []string       `json:"locations"`           // 所属地区
+	OrganizationalForm []string       `json:"organizational_form"` // 组织类型
+	Concepts           []string       `json:"concepts"`            // 所属概念 ex 腾讯概念
+	Labels             []string       `json:"labels"`              // 标签
+	PerTickets         QueryPerTicket `json:"per_tickets"`
 }
 
 type GetPredicts struct {
