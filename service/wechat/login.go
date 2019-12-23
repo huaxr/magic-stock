@@ -14,7 +14,7 @@ import (
 )
 
 func (w *WeChat) GetAccessTokenByCode(code string) (*model.AccessTokenResponse, error) {
-	res := check.Authentication.HttpGetWithToken(fmt.Sprintf(OpenIdUrl, code, WX_APPID, WX_APPSECRET, GrantType), "")
+	res := check.Authentication.HttpGetWithToken(fmt.Sprintf(OpenIdUrl, code, STOCK_WX_APPID, STOCK_WX_APPSECRET, GrantType), "")
 	log.Println("GetAccessTokenByCode", string(res))
 	var response model.AccessTokenResponse
 	err := json.Unmarshal(res, &response)
@@ -25,5 +25,5 @@ func (w *WeChat) GetAccessTokenByCode(code string) (*model.AccessTokenResponse, 
 }
 
 func (w *WeChat) GetCodeUrl() string {
-	return fmt.Sprintf(CodeUrl, WX_APPID, url.QueryEscape(conf.Config.Host))
+	return fmt.Sprintf(CodeUrl, STOCK_WX_APPID, url.QueryEscape(conf.Config.Host))
 }

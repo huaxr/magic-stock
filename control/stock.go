@@ -74,6 +74,18 @@ func (d *PredictControl) Response(c *gin.Context, data interface{}, err error) {
 	c.AbortWithStatusJSON(200, d.response.Response(data, err))
 }
 
+func (d *PredictControl) getMinMax(da map[string]float64) (float64, float64) {
+	min, ok_min := da["min"]
+	if !ok_min {
+		min = -999
+	}
+	max, ok_max := da["max"]
+	if !ok_max {
+		max = 999
+	}
+	return min, max
+}
+
 type Codes struct {
 	Code string
 }
@@ -171,41 +183,46 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		log.Println(where_str, args_concepts)
 	}
 
-	if len(post.Query.PerTickets.Shouyiafter) == 2 {
+	if len(post.Query.PerTickets.Shouyiafter) > 0 {
+		min, max := d.getMinMax(post.Query.PerTickets.Shouyiafter)
 		var codes []Codes
-		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("shouyiafter >= ? and shouyiafter <= ?", post.Query.PerTickets.Shouyiafter[0], post.Query.PerTickets.Shouyiafter[1]).Scan(&codes)
+		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("shouyiafter >= ? and shouyiafter <= ?", min, max).Scan(&codes)
 		for _, i := range codes {
 			Shouyiafter = append(Shouyiafter, i.Code)
 		}
 	}
 
-	if len(post.Query.PerTickets.Jinzichanafter) == 2 {
+	if len(post.Query.PerTickets.Jinzichanafter) > 0 {
+		min, max := d.getMinMax(post.Query.PerTickets.Jinzichanafter)
 		var codes []Codes
-		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("jinzichanafter >= ? and jinzichanafter <= ?", post.Query.PerTickets.Jinzichanafter[0], post.Query.PerTickets.Jinzichanafter[1]).Scan(&codes)
+		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("jinzichanafter >= ? and jinzichanafter <= ?", min, max).Scan(&codes)
 		for _, i := range codes {
 			Jinzichanafter = append(Jinzichanafter, i.Code)
 		}
 	}
 
-	if len(post.Query.PerTickets.Jingyingxianjinliu) == 2 {
+	if len(post.Query.PerTickets.Jingyingxianjinliu) > 0 {
+		min, max := d.getMinMax(post.Query.PerTickets.Jingyingxianjinliu)
 		var codes []Codes
-		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("jingyingxianjinliu >= ? and jingyingxianjinliu <= ?", post.Query.PerTickets.Jingyingxianjinliu[0], post.Query.PerTickets.Jingyingxianjinliu[1]).Scan(&codes)
+		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("jingyingxianjinliu >= ? and jingyingxianjinliu <= ?", min, max).Scan(&codes)
 		for _, i := range codes {
 			Jingyingxianjinliu = append(Jingyingxianjinliu, i.Code)
 		}
 	}
 
-	if len(post.Query.PerTickets.Gubengongjijin) == 2 {
+	if len(post.Query.PerTickets.Gubengongjijin) > 0 {
+		min, max := d.getMinMax(post.Query.PerTickets.Gubengongjijin)
 		var codes []Codes
-		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("gubengongjijin >= ? and gubengongjijin <= ?", post.Query.PerTickets.Gubengongjijin[0], post.Query.PerTickets.Gubengongjijin[1]).Scan(&codes)
+		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("gubengongjijin >= ? and gubengongjijin <= ?", min, max).Scan(&codes)
 		for _, i := range codes {
 			Gubengongjijin = append(Gubengongjijin, i.Code)
 		}
 	}
 
-	if len(post.Query.PerTickets.Weifenpeilirun) == 2 {
+	if len(post.Query.PerTickets.Weifenpeilirun) > 0 {
+		min, max := d.getMinMax(post.Query.PerTickets.Weifenpeilirun)
 		var codes []Codes
-		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("weifenpeilirun >= ? and weifenpeilirun <= ?", post.Query.PerTickets.Weifenpeilirun[0], post.Query.PerTickets.Weifenpeilirun[1]).Scan(&codes)
+		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("weifenpeilirun >= ? and weifenpeilirun <= ?", min, max).Scan(&codes)
 		for _, i := range codes {
 			Weifenpeilirun = append(Weifenpeilirun, i.Code)
 		}
@@ -214,7 +231,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	var predicts []dal.Predict
 	var total int
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
-
+	for _, i := range post.Query.Predicts {
+		tmp = tmp.Where("`condition` regexp ?", i)
+	}
 	if len(belongs) > 0 {
 		tmp = tmp.Where("code IN (?)", belongs)
 	}
@@ -243,14 +262,19 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	if len(Weifenpeilirun) > 0 {
 		tmp = tmp.Where("code IN (?)", Weifenpeilirun)
 	}
-
-	for _, i := range post.Query.Predicts {
-		tmp = tmp.Where("`condition` regexp ?", i)
-	}
 	tmp.Count(&total)
 	tmp.Order("score desc").Limit(limit).Offset(offset).Find(&predicts)
 
-	d.Response(c, map[string]interface{}{"result": predicts, "total": total}, nil)
+	var response []model.PredictListResponse
+	for _, i := range predicts {
+		var coder dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", i.Code).Find(&coder)
+		x := model.PredictListResponse{Name: i.Name, Code: i.Code, Price: i.Price, Percent: i.Percent, Location: coder.Location,
+			Form: coder.OrganizationalForm, Belong: coder.Belong, FundCount: i.FundCount, SimuCount: i.SMCount, Conditions: i.Condition,
+			Date: i.Date, Score: i.Score}
+		response = append(response, x)
+	}
+	d.Response(c, map[string]interface{}{"result": response, "total": total}, nil)
 }
 
 func (d *PredictControl) GetDetail(c *gin.Context) {

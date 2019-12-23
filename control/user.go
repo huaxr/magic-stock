@@ -91,7 +91,7 @@ func (d *UserControl) PayByWeChat(c *gin.Context) {
 		d.Response(c, nil, err)
 		return
 	}
-	response := model.WeResJsApi{TimeStamp: res.TimeStamp, NonceStr: res.NonceStr, Package: res.Package, Sign: res.Sign, SignType: "MD5", AppId: wechat.WX_APPID}
+	response := model.WeResJsApi{TimeStamp: res.TimeStamp, NonceStr: res.NonceStr, Package: res.Package, Sign: res.Sign, SignType: "MD5", AppId: wechat.STOCK_WX_APPID}
 	d.Response(c, response, nil)
 }
 

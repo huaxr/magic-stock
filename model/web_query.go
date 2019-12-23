@@ -5,11 +5,11 @@ package model
 import "magic/stock/dal"
 
 type QueryPerTicket struct {
-	Shouyiafter        []float64 `json:"shouyiafter"`        // 每股收益调整后
-	Jinzichanafter     []float64 `json:"jinzichanafter"`     // 每股净资产_调整后(元) 范围 [1.33, 2.1]
-	Jingyingxianjinliu []float64 `json:"jingyingxianjinliu"` // 每股经营性现金流(元)范围
-	Gubengongjijin     []float64 `json:"gubengongjijin"`     // 每股资本公积金(元)范围
-	Weifenpeilirun     []float64 `json:"weifenpeilirun"`     // 每股未分配利润(元)范围
+	Shouyiafter        map[string]float64 `json:"shouyiafter"`        // 每股收益调整后
+	Jinzichanafter     map[string]float64 `json:"jinzichanafter"`     // 每股净资产_调整后(元) 范围 [1.33, 2.1]
+	Jingyingxianjinliu map[string]float64 `json:"jingyingxianjinliu"` // 每股经营性现金流(元)范围
+	Gubengongjijin     map[string]float64 `json:"gubengongjijin"`     // 每股资本公积金(元)范围
+	Weifenpeilirun     map[string]float64 `json:"weifenpeilirun"`     // 每股未分配利润(元)范围
 }
 
 type Query struct {

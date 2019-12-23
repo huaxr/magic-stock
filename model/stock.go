@@ -78,3 +78,18 @@ type CalcResult struct {
 	*RecentWeeklyData
 	*RecentAverage
 }
+
+type PredictListResponse struct {
+	Name       string  `json:"name"`
+	Code       string  `json:"code"`
+	Price      float64 `json:"price"`
+	Percent    float64 `json:"percent"`
+	Location   string  `json:"location"`
+	Form       string  `json:"form"`
+	Belong     string  `json:"belong"`
+	FundCount  int     `json:"fund_count"`
+	SimuCount  int     `json:"simu_count"`
+	Conditions string  `json:"conditions"`
+	Date       string  `json:"date"`
+	Score      int     `json:"score"`
+}

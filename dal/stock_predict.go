@@ -12,6 +12,8 @@ type Predict struct {
 	SMCount   int    `json:"sm_count"`   // 私募数量
 	Score     int    `json:"score"`      // 得分
 	//GMCount     int     `json:"gm_count"`   // 公募数量
+	Price   float64 `json:"price"`   // 昨日收盘价格
+	Percent float64 `json:"percent"` // 昨日涨跌
 }
 
 func (Predict) TableName() string {

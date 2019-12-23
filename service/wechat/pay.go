@@ -20,7 +20,7 @@ func (w *WeChat) genOutTrade() string {
 func (w *WeChat) JSApiPay(openid string, money string) *anypay.WeResJsApi {
 	nonce_str := w.genOutTrade()
 	config := anypay.WeConfig{
-		AppId: WX_APPID,
+		AppId: STOCK_WX_APPID,
 		MchId: WX_MCH,
 		Key:   WX_KEY,
 	}
