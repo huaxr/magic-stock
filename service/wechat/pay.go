@@ -3,6 +3,8 @@
 package wechat
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -88,7 +90,9 @@ func (w *WeChat) H5Pay(ip string) {
 	//	print("the url is url", redicrt_url)
 	//
 	//	return redicrt_url, out_trade_no
-	req, _ := http.NewRequest("GET", "https://api.mch.weixin.qq.com/pay/unifiedorder", nil)
+	buf := new(bytes.Buffer)
+	err := json.NewEncoder(buf).Encode(post_data)
+	req, _ := http.NewRequest("POST", "https://api.mch.weixin.qq.com/pay/unifiedorder", buf)
 	req.Header.Add("Content-Type", "binary")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
