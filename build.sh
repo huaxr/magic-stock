@@ -12,7 +12,7 @@ go build -a -o output/bin/${RUN_NAME}
 
 
 if [ "$(expr substr $(uname -s) 1 5)"=="Linux" ]; then
-    rm output/nohup.out nohup.out
+    rm nohup.out
     PID=`ps -e|grep stock|awk '{printf $1}'`
     kill -9 ${PID}
 
