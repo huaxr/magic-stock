@@ -92,7 +92,7 @@ func (w *WeChat) H5Pay(ip, open string) {
 	//	return redicrt_url, out_trade_no
 	buf := new(bytes.Buffer)
 	json.NewEncoder(buf).Encode(post_data)
-	req, _ := http.Post("https://api.mch.weixin.qq.com/pay/unifiedorder", "text/xml", buf)
+	req, _ := http.Post("https://api.mch.weixin.qq.com/pay/unifiedorder", "binary", buf)
 	//req.Body
 	//req.Header.Add("Content-Type", "binary")
 	//resp, err := http.DefaultClient.Do(req)
