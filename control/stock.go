@@ -251,7 +251,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	if len(concepts) > 0 {
 		tmp = tmp.Where("code IN (?)", concepts)
 	}
-
 	if len(Shouyiafter) > 0 {
 		tmp = tmp.Where("code IN (?)", Shouyiafter)
 	}

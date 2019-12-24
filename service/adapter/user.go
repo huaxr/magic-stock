@@ -114,11 +114,11 @@ func (u *UserService) LoginWx(code, token string) (*dal.User, error) {
 
 func (u *UserService) PayWx(authentication *model.AuthResult) (*anypay.WeResJsApi, error) {
 	user, _ := u.Query("id = ?", []interface{}{authentication.Uid})
-	payment := wechat.WechatGlobal.JSApiPay(user.OpenId, strconv.Itoa(int(1)))
+	payment, NonceStr := wechat.WechatGlobal.JSApiPay(user.OpenId, strconv.Itoa(int(1)))
 	if payment == nil {
 		return nil, errors.New("唤起支付调用失败")
 	}
-	pay_record := dal.Pay{UserId: authentication.Uid, Spend: 30, PaySuccess: false, OrderId: payment.NonceStr}
+	pay_record := dal.Pay{UserId: authentication.Uid, Spend: 30, PaySuccess: false, OrderId: NonceStr}
 	store.MysqlClient.GetDB().Save(&pay_record)
 	return payment, nil
 }

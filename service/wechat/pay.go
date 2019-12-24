@@ -3,6 +3,7 @@
 package wechat
 
 import (
+	"log"
 	"magic/stock/service/conf"
 	"magic/stock/service/encrypt"
 
@@ -17,8 +18,9 @@ func (w *WeChat) genOutTrade() string {
 }
 
 // https://www.ctolib.com/panghu1024-anypay.html
-func (w *WeChat) JSApiPay(openid string, money string) *anypay.WeResJsApi {
+func (w *WeChat) JSApiPay(openid string, money string) (*anypay.WeResJsApi, string) {
 	nonce_str := w.genOutTrade()
+	log.Println("下单随机值", nonce_str)
 	config := anypay.WeConfig{
 		AppId: STOCK_WX_APPID,
 		MchId: WX_MCH,
@@ -42,8 +44,8 @@ func (w *WeChat) JSApiPay(openid string, money string) *anypay.WeResJsApi {
 		resParam := payment.JsApiParam(order.PrepayId)
 		if resParam.Status == 1 {
 			param := resParam.Data.(anypay.WeResJsApi)
-			return &param
+			return &param, nonce_str
 		}
 	}
-	return nil
+	return nil, ""
 }
