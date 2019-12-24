@@ -56,14 +56,14 @@ func (w *WeChat) JSApiPay(openid string, money string) (*anypay.WeResJsApi, stri
 	return nil, ""
 }
 
-func (w *WeChat) H5Pay(ip, openid string) {
+func (w *WeChat) H5Pay(ip string) {
 	nonce_str := strings.Replace(uuid.Must(uuid.NewV4()).String(), "-", "", -1)
 	out_trade_no, _ := encrypt.MD5Client.Encrypt(nonce_str)
 	notify_url := "https://stock.zhixiutec.com/api/callback/" + out_trade_no
 	// 回调函数
 	scene_info := `{"h5_info": {"type": "Wap", "wap_url": "https://stock.zhixiutec.com/api/h5_pay", "wap_name": "xxx"}}`
-	signA := fmt.Sprintf("appid=%s&body=%s&mch_id=%s&nonce_str=%s&notify_url=%s&openid=%s&out_trade_no=%s&scene_info=%s&spbill_create_ip=%s&total_fee=%s&trade_type=MWEB",
-		STOCK_WX_APPID, "知修科技", WX_MCH, nonce_str, notify_url, openid, out_trade_no, scene_info, ip, "1")
+	signA := fmt.Sprintf("appid=%s&body=%s&mch_id=%s&nonce_str=%s&notify_url=%s&out_trade_no=%s&scene_info=%s&spbill_create_ip=%s&total_fee=%s&trade_type=MWEB",
+		STOCK_WX_APPID, "知修科技", WX_MCH, nonce_str, notify_url, out_trade_no, scene_info, ip, "1")
 	strSignTmp := signA + "&key=" + WX_KEY
 	token, _ := encrypt.MD5Client.Encrypt(strSignTmp)
 	sign := strings.ToUpper(token)
@@ -91,15 +91,16 @@ func (w *WeChat) H5Pay(ip, openid string) {
 	//
 	//	return redicrt_url, out_trade_no
 	buf := new(bytes.Buffer)
-	err := json.NewEncoder(buf).Encode(post_data)
-	req, _ := http.NewRequest("POST", "https://api.mch.weixin.qq.com/pay/unifiedorder", buf)
-	req.Header.Add("Content-Type", "binary")
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Println(err)
-	}
-	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
+	json.NewEncoder(buf).Encode(post_data)
+	req, _ := http.Post("https://api.mch.weixin.qq.com/pay/unifiedorder", "text/xml", buf)
+	//req.Body
+	//req.Header.Add("Content-Type", "binary")
+	//resp, err := http.DefaultClient.Do(req)
+	//if err != nil {
+	//	log.Println(err)
+	//}
+	defer req.Body.Close()
+	body, _ := ioutil.ReadAll(req.Body)
 	log.Println("H5 微信端返回", string(body))
 	xx := H5PayCompile.FindStringSubmatch(string(body))
 	log.Println(xx)
