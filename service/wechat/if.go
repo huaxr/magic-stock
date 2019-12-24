@@ -39,6 +39,7 @@ const (
 
 var (
 	PayCallbackXmlCompile = regexp.MustCompile(`<result_code><!\[CDATA\[(.*?)]]></result_code>`)
+	H5PayCompile          = regexp.MustCompile(`<mweb_url><!\[CDATA\[(.*?)]]></mweb_url`)
 )
 
 var WechatGlobal WechatServiceIF

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"magic/mall/service/wechat"
 	"magic/stock/service/conf"
 	"magic/stock/service/encrypt"
 	"net/http"
@@ -97,6 +96,6 @@ func (w *WeChat) H5Pay(ip string) {
 	}
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
-	xx := wechat.H5PayCompile.FindStringSubmatch(string(body))
+	xx := H5PayCompile.FindStringSubmatch(string(body))
 	log.Println(xx)
 }
