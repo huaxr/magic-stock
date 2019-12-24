@@ -4,12 +4,14 @@ package control
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
 	"magic/stock/model"
 	"magic/stock/service/adapter"
 	"magic/stock/service/check"
+	"magic/stock/utils"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -43,7 +45,10 @@ type PredictIF interface {
 	Response(c *gin.Context, data interface{}, err error)
 }
 
-var PredictControlGlobal PredictIF
+var (
+	PredictControlGlobal PredictIF
+	OrderLimit           = []string{"score", "percent", "price", "fund_count", "sm_count"}
+)
 
 func init() {
 	tmp := new(PredictControl)
@@ -263,7 +268,10 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		tmp = tmp.Where("code IN (?)", Weifenpeilirun)
 	}
 	tmp.Count(&total)
-	tmp.Order("score desc").Limit(limit).Offset(offset).Find(&predicts)
+	if !utils.ContainsString(OrderLimit, post.Order) {
+		post.Order = "score"
+	}
+	tmp.Order(fmt.Sprintf("%s desc", post.Order)).Limit(limit).Offset(offset).Find(&predicts)
 
 	var response []model.PredictListResponse
 	for _, i := range predicts {

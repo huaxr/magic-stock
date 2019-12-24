@@ -25,6 +25,7 @@ type Query struct {
 type GetPredicts struct {
 	Query Query  `json:"query"`
 	Date  string `json:"date"`
+	Order string `json:"order"`
 	Save  bool   `json:"save"` // 查询并保存条件
 }
 

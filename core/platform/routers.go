@@ -12,6 +12,7 @@ func (r *Router) bindRouters() {
 func (r *Router) addRouters() {
 	router := r.Router.Group("/api")
 	router.GET("/user", control.UserControlGlobal.GetUserInfo)
+	router.GET("/logout", control.UserControlGlobal.LogOut)
 	router.GET("/wx_login", control.UserControlGlobal.LoginByWeChat)
 	router.POST("/jsapi_pay", control.UserControlGlobal.PayByWeChat)
 	router.GET("/callback/:order_id", control.UserControlGlobal.TradeCallBack)

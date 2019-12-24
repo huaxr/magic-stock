@@ -21,6 +21,7 @@ type UserIF interface {
 	Exist(where string, args []interface{}) bool
 	GetUserInfo(c *gin.Context)
 	LoginByWeChat(c *gin.Context)
+	LogOut(c *gin.Context)
 	// 充值会员
 	PayByWeChat(c *gin.Context)
 	TradeCallBack(c *gin.Context)
@@ -153,4 +154,11 @@ func (d *UserControl) GetConditions(c *gin.Context) {
 
 func (d *UserControl) SubmitDemand(c *gin.Context) {
 
+}
+
+func (d *UserControl) LogOut(c *gin.Context) {
+	session := sessions.Default(c)
+	session.Clear()
+	session.Save()
+	c.Redirect(302, "/")
 }
