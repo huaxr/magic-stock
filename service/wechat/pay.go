@@ -57,11 +57,11 @@ func (w *WeChat) JSApiPay(openid string, money string) (*anypay.WeResJsApi, stri
 }
 
 func (w *WeChat) H5Pay(ip string) {
-	nonce_str := uuid.Must(uuid.NewV4()).String()
+	nonce_str := strings.Replace(uuid.Must(uuid.NewV4()).String(), "-", "", -1)
 	out_trade_no, _ := encrypt.MD5Client.Encrypt(nonce_str)
 	notify_url := "https://stock.zhixiutec.com/api/callback/" + out_trade_no
 	// 回调函数
-	scene_info := `{"h5_info": {"type": "Wap", "wap_url": "https://www.payme.com/api/h5_pay", "wap_name": "xxx"}}`
+	scene_info := `{"h5_info": {"type": "Wap", "wap_url": "https://stock.zhixiutec.com/api/h5_pay", "wap_name": "xxx"}}`
 	signA := fmt.Sprintf("appid=%s&body=%s&mch_id=%s&nonce_str=%s&notify_url=%s&out_trade_no=%s&scene_info=%s&spbill_create_ip=%s&total_fee=%s&trade_type=MWEB",
 		STOCK_WX_APPID, "知修科技", WX_MCH, nonce_str, notify_url, out_trade_no, scene_info, ip, "1")
 	strSignTmp := signA + "&key=" + WX_KEY
