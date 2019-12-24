@@ -127,7 +127,8 @@ func (u *UserService) PayWxJsAPi(authentication *model.AuthResult) (*anypay.WeRe
 }
 
 func (u *UserService) PayWxH5(c *gin.Context) {
-	wechat.WechatGlobal.H5Pay(c.ClientIP())
+	ip := c.GetHeader("REMOTE_ADDR")
+	wechat.WechatGlobal.H5Pay(ip)
 }
 
 func (m *UserService) genName() string {
