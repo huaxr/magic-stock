@@ -99,6 +99,7 @@ func (d *UserControl) PayByWeChat(c *gin.Context) {
 func (d *UserControl) TradeCallBack(c *gin.Context) {
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	res := wechat.PayCallbackXmlCompile.FindStringSubmatch(string(body))
+	log.Println("支付回调", res, res[1])
 	if res[1] == "SUCCESS" {
 		order_id := c.Param("order_id")
 		adapter.PayServiceGlobal.UpdatePaySuccessAndGenerateIndent(order_id)
