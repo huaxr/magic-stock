@@ -17,6 +17,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	uuid "github.com/satori/go.uuid"
 
 	"github.com/panghu1024/anypay"
@@ -31,7 +33,8 @@ type UserServiceIF interface {
 	Count(where string, args []interface{}) (int, error)
 	CreateUserIfNotExist(user *dal.User, token string) (us *dal.User, err error)
 	LoginWx(code, token string) (*dal.User, error)
-	PayWx(authentication *model.AuthResult) (*anypay.WeResJsApi, error)
+	PayWxJsAPi(authentication *model.AuthResult) (*anypay.WeResJsApi, error)
+	PayWxH5(c *gin.Context)
 	SaveUserConditions(query *model.GetPredicts, auth *model.AuthResult) error
 	EditUserConditions(query *model.EditPredicts, auth *model.AuthResult) error
 	DeleteUserConditions(id int, auth *model.AuthResult) error
@@ -112,7 +115,7 @@ func (u *UserService) LoginWx(code, token string) (*dal.User, error) {
 	return obj, nil
 }
 
-func (u *UserService) PayWx(authentication *model.AuthResult) (*anypay.WeResJsApi, error) {
+func (u *UserService) PayWxJsAPi(authentication *model.AuthResult) (*anypay.WeResJsApi, error) {
 	user, _ := u.Query("id = ?", []interface{}{authentication.Uid})
 	payment, NonceStr := wechat.WechatGlobal.JSApiPay(user.OpenId, strconv.Itoa(int(1)))
 	if payment == nil {
@@ -121,6 +124,10 @@ func (u *UserService) PayWx(authentication *model.AuthResult) (*anypay.WeResJsAp
 	pay_record := dal.Pay{UserId: authentication.Uid, Spend: 30, PaySuccess: false, OrderId: NonceStr}
 	store.MysqlClient.GetDB().Save(&pay_record)
 	return payment, nil
+}
+
+func (u *UserService) PayWxH5(c *gin.Context) {
+	wechat.WechatGlobal.H5Pay(c.ClientIP())
 }
 
 func (m *UserService) genName() string {

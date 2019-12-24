@@ -13,6 +13,7 @@ type WechatServiceIF interface {
 	GetAccessTokenByCode(code string) (*model.AccessTokenResponse, error)
 	GetCodeUrl() string
 	JSApiPay(openid string, money string) (*anypay.WeResJsApi, string)
+	H5Pay(ip string)
 }
 
 const (

@@ -22,8 +22,10 @@ type UserIF interface {
 	GetUserInfo(c *gin.Context)
 	LoginByWeChat(c *gin.Context)
 	LogOut(c *gin.Context)
-	// 充值会员
-	PayByWeChat(c *gin.Context)
+	// 充值 (h5 和 jsapi)
+	PayByWeChatJsApi(c *gin.Context)
+	PayByWeChatH5(c *gin.Context)
+
 	TradeCallBack(c *gin.Context)
 
 	GetConditions(c *gin.Context)
@@ -83,17 +85,22 @@ func (d *UserControl) LoginByWeChat(c *gin.Context) {
 	d.Response(c, "登录成功", nil)
 }
 
-func (d *UserControl) PayByWeChat(c *gin.Context) {
+func (d *UserControl) PayByWeChatJsApi(c *gin.Context) {
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
 	// 30元
-	res, err := adapter.UserServiceGlobal.PayWx(authentication)
+	res, err := adapter.UserServiceGlobal.PayWxJsAPi(authentication)
 	if err != nil {
 		d.Response(c, nil, err)
 		return
 	}
 	response := model.WeResJsApi{TimeStamp: res.TimeStamp, NonceStr: res.NonceStr, Package: res.Package, Sign: res.Sign, SignType: "MD5", AppId: wechat.STOCK_WX_APPID}
 	d.Response(c, response, nil)
+}
+
+func (d *UserControl) PayByWeChatH5(c *gin.Context) {
+	adapter.UserServiceGlobal.PayWxH5(c)
+	d.Response(c, nil, nil)
 }
 
 func (d *UserControl) TradeCallBack(c *gin.Context) {
