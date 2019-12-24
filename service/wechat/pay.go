@@ -96,6 +96,7 @@ func (w *WeChat) H5Pay(ip string) {
 	}
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
+	log.Println("H5 微信端返回", string(body))
 	xx := H5PayCompile.FindStringSubmatch(string(body))
 	log.Println(xx)
 }
