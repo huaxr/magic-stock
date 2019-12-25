@@ -98,6 +98,13 @@ type Codes struct {
 func (d *PredictControl) PredictList(c *gin.Context) {
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
+	var post model.GetPredicts
+	err := c.BindJSON(&post)
+	if err != nil {
+		d.Response(c, nil, err)
+		return
+	}
+
 	log.Println(authentication)
 	if !authentication.Member {
 		if authentication.QueryLeft == 0 {
@@ -114,12 +121,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		}
 	}
 	offset, limit := check.ParamParse.GetPagination(c)
-	var post model.GetPredicts
-	err := c.BindJSON(&post)
-	if err != nil {
-		d.Response(c, nil, err)
-		return
-	}
 	// 如果用户提交查询并保存查询结果
 	if post.Save {
 		err := adapter.UserServiceGlobal.SaveUserConditions(&post, authentication)
@@ -127,9 +128,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 			log.Println("保存用户查询数据失败", err)
 		}
 	}
-	var where_belongs, where_locations, where_forms, where_concepts []string
-	var args_belongs, args_locationgs, args_forms, args_concepts []interface{}
-	var belongs, locations, forms, concepts, Shouyiafter, Jinzichanafter, Jingyingxianjinliu, Gubengongjijin, Weifenpeilirun []string
+	var where_belongs, where_locations, where_concepts []string
+	var args_belongs, args_locationgs, args_concepts []interface{}
+	var belongs, locations, concepts, Shouyiafter, Jinzichanafter, Jingyingxianjinliu, Gubengongjijin, Weifenpeilirun []string
 
 	if len(post.Query.Belongs) > 0 {
 		var codes []Codes
@@ -157,20 +158,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 			locations = append(locations, i.Code)
 		}
 		log.Println(where_str, args_locationgs)
-	}
-
-	if len(post.Query.OrganizationalForm) > 0 {
-		var codes []Codes
-		for _, i := range post.Query.OrganizationalForm {
-			where_forms = append(where_forms, "organizational_form = ?")
-			args_forms = append(args_forms, i)
-		}
-		where_str := strings.Join(where_forms, " OR ")
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_forms...).Scan(&codes)
-		for _, i := range codes {
-			forms = append(forms, i.Code)
-		}
-		log.Println(where_str, args_forms)
 	}
 
 	if len(post.Query.Concepts) > 0 || len(post.Query.Labels) > 0 {
@@ -245,9 +232,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	if len(locations) > 0 {
 		tmp = tmp.Where("code IN (?)", locations)
 	}
-	if len(forms) > 0 {
-		tmp = tmp.Where("code IN (?)", forms)
-	}
 	if len(concepts) > 0 {
 		tmp = tmp.Where("code IN (?)", concepts)
 	}
@@ -277,7 +261,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		var coder dal.Code
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", i.Code).Find(&coder)
 		x := model.PredictListResponse{Name: i.Name, Code: i.Code, Price: i.Price, Percent: i.Percent, Location: coder.Location,
-			Form: coder.OrganizationalForm, Belong: coder.Belong, FundCount: i.FundCount, SimuCount: i.SMCount, Conditions: i.Condition,
+			Form: coder.OrganizationalForm, Belong: coder.Belong, FundCount: i.FundCount, SimuCount: i.SMCount, Conditions: i.Condition, BadConditions: i.BadCondition, Finance: "",
 			Date: i.Date, Score: i.Score}
 		response = append(response, x)
 	}
@@ -314,6 +298,9 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 
 	var StockProfit []dal.StockProfit
 	store.MysqlClient.GetDB().Model(&dal.StockProfit{}).Where("code = ?", code).Find(&StockProfit)
+
+	var PerTickets dal.StockPerTicket
+	store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Where("code = ?", code).Find(&PerTickets)
 
 	var response model.StockDetail
 	response.TicketHistory = TicketHistory

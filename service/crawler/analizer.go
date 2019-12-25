@@ -464,7 +464,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	st := STStock(code)
 
 	score := 0 // max 37  // low 17
-	cond_str := ""
+	cond_str, bad_cond_str := "", ""
 	if priceaboveave6 {
 		score += 1
 		cond_str += fmt.Sprintf("收盘价在6日均线上方; ")
@@ -479,15 +479,15 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if pricelowave6 {
 		score -= 1
-		cond_str += fmt.Sprintf("收盘价在6日均线下方; ")
+		bad_cond_str += fmt.Sprintf("收盘价在6日均线下方; ")
 	}
 	if pricelowave15 {
 		score -= 1
-		cond_str += fmt.Sprintf("收盘价在15日均线下方; ")
+		bad_cond_str += fmt.Sprintf("收盘价在15日均线下方; ")
 	}
 	if pricelowave30 {
 		score -= 1
-		cond_str += fmt.Sprintf("收盘价在30日均线下方; ")
+		bad_cond_str += fmt.Sprintf("收盘价在30日均线下方; ")
 	}
 	if jincha1 {
 		score += 2
@@ -495,7 +495,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if sicha1 {
 		score -= 2
-		cond_str += "6日均线与15日均线交死叉; "
+		bad_cond_str += "6日均线与15日均线交死叉; "
 	}
 	if jincha3 {
 		score += 2
@@ -503,7 +503,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if sicha3 {
 		score -= 2
-		cond_str += "15日均线与30日均线交死叉; "
+		bad_cond_str += "15日均线与30日均线交死叉; "
 	}
 	if jincha5 {
 		score += 2
@@ -511,7 +511,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if sicha5 {
 		score -= 2
-		cond_str += "6周均线与15周均线交死叉; "
+		bad_cond_str += "6周均线与15周均线交死叉; "
 	}
 	if priceshangyang1 {
 		score += 1
@@ -537,25 +537,25 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 
 	if pricexiajiang1 {
 		score -= 2
-		cond_str += "6日均线下挫; "
+		bad_cond_str += "6日均线下挫; "
 	}
 	if pricexiajiang2 {
 		score -= 1
-		cond_str += "15日均线下挫; "
+		bad_cond_str += "15日均线下挫; "
 	}
 	if pricexiajiang3 {
 		score -= 1
-		cond_str += "30日均线下挫; "
+		bad_cond_str += "30日均线下挫; "
 	}
 
 	if pricexiajiang4 {
 		score -= 1
-		cond_str += "6周均线下挫; "
+		bad_cond_str += "6周均线下挫; "
 	}
 
 	if pricexiajiang5 {
 		score -= 1
-		cond_str += "15周均线下挫; "
+		bad_cond_str += "15周均线下挫; "
 	}
 
 	if changshangying {
@@ -615,11 +615,11 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if liangnengsmall1 {
 		score -= 2
-		cond_str += "成交量(不活跃)低于10日均线; "
+		bad_cond_str += "成交量(不活跃)低于10日均线; "
 	}
 	if liangnengsmall2 {
 		score -= 2
-		cond_str += "成交量(不活跃)低于40日均线; "
+		bad_cond_str += "成交量(不活跃)低于40日均线; "
 	}
 	if liangnengbuduanbigger {
 		score += 1
@@ -639,7 +639,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if !up1 {
 		score -= 1
-		cond_str += "经营现金流量净额出现负值(亏损可能); "
+		bad_cond_str += "经营现金流量净额出现负值(亏损可能); "
 	}
 	if up2 {
 		score += 1
@@ -647,7 +647,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if !up2 {
 		score -= 1
-		cond_str += "投资现金流量净额出现负值(亏损可能); "
+		bad_cond_str += "投资现金流量净额出现负值(亏损可能); "
 	}
 	if up3 {
 		score += 1
@@ -655,7 +655,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if !up3 {
 		score -= 1
-		cond_str += "筹资现金流量净额出现负值(亏损可能); "
+		bad_cond_str += "筹资现金流量净额出现负值(亏损可能); "
 	}
 	if up4 {
 		score += 1
@@ -663,7 +663,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if !up4 {
 		score -= 1
-		cond_str += "期末现金及现金等价物余额出现负值(亏损可能); "
+		bad_cond_str += "期末现金及现金等价物余额出现负值(亏损可能); "
 	}
 	// 基本面 利润表
 	if pup1 {
@@ -672,7 +672,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if !pup1 {
 		score -= 2
-		cond_str += "营业总收入亏损; "
+		bad_cond_str += "营业总收入亏损; "
 	}
 	if pup2 {
 		score += 1
@@ -680,7 +680,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if !pup2 {
 		score -= 2
-		cond_str += "净利润亏损; "
+		bad_cond_str += "净利润亏损; "
 	}
 	// 基本面 资产负债表
 	if lup1 {
@@ -702,34 +702,27 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str += fmt.Sprintf("%d个基金持仓; ", jigouchicangcount)
 	}
 
-	// 其它
 	if st {
 		score -= 3
-		cond_str += "ST板块; "
+		bad_cond_str += "ST垃圾股; "
 	}
-
-	zhangdie, huanshoulv, zhenfu, score := GetStockPercent(result, score)
 	if score < 0 {
 		score = 0
 	}
-	cond_str += zhangdie
-	cond_str += huanshoulv
-	cond_str += zhenfu
 
-	if len(cond_str) > 0 {
-		fmt.Println(code, name, cond_str)
+	fmt.Println(code, name, cond_str, bad_cond_str)
 
-		seed := []int{1, 2, 3, 4, 5, 6}
-		rand.Seed(time.Now().Unix())
-		n := rand.Int() % len(seed)
+	seed := []int{1, 2, 3, 4, 5, 6}
+	rand.Seed(time.Now().Unix())
+	n := rand.Int() % len(seed)
 
-		p := dal.Predict{Code: code, Name: name, Condition: cond_str, Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount, Score: score*4 + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0]}
-		if utils.TellEnv() == "loc" {
-			err := store.MysqlClient.GetOnlineDB().Save(&p).Error
-			if err != nil {
-				fmt.Println("写入线上错误")
-			}
+	p := dal.Predict{Code: code, Name: name, Condition: cond_str, BadCondition: bad_cond_str, Finance: "", Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount, Score: score*4 + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0]}
+	if utils.TellEnv() == "loc" {
+		err := store.MysqlClient.GetOnlineDB().Save(&p).Error
+		if err != nil {
+			fmt.Println("写入线上错误")
 		}
-		store.MysqlClient.GetDB().Save(&p)
 	}
+	store.MysqlClient.GetDB().Save(&p)
+
 }

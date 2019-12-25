@@ -397,6 +397,7 @@ func (craw *Crawler) GetStockCashFlow(code string, proxy bool) {
 	}
 }
 
+// 每股指标 营业能力 运营能力
 func (craw *Crawler) GetStockPerTicket(code string, proxy bool) {
 	var doc *goquery.Document
 	if !proxy {
@@ -447,7 +448,113 @@ func (craw *Crawler) GetStockPerTicket(code string, proxy bool) {
 		if err != nil {
 			weifenpeilirun1 = 0
 		}
-		per_ticket := dal.StockPerTicket{Code: code, Tanboshouyi: tanbo1, Jiaquanshouyi: jiaquanshouyi1, Shouyiafter: shouyi1, Jinzichanfront: jizichan_front1, Jinzichanafter: jizichan_after1, Jingyingxianjinliu: jingyingxianjinliu1, Gubengongjijin: zibengongjijin1, Weifenpeilirun: weifenpeilirun1, Date: date}
+
+		// 盈利能力
+		YlZongzichanlirunlv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(14) > td:nth-child(%d)", i)).Text())
+		YlZongzichanlirunlv1, err := strconv.ParseFloat(strings.Replace(YlZongzichanlirunlv, "--", "", -1), 64)
+		if err != nil {
+			YlZongzichanlirunlv1 = 0
+		}
+		YlZhuyingyewulirunlv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(15) > td:nth-child(%d)", i)).Text())
+		YlZhuyingyewulirunlv1, err := strconv.ParseFloat(strings.Replace(YlZhuyingyewulirunlv, "--", "", -1), 64)
+		if err != nil {
+			YlZhuyingyewulirunlv1 = 0
+		}
+
+		YlZongzichanjinglirunlv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(16) > td:nth-child(%d)", i)).Text())
+		YlZongzichanjinglirunlv1, err := strconv.ParseFloat(strings.Replace(YlZongzichanjinglirunlv, "--", "", -1), 64)
+		if err != nil {
+			YlZongzichanjinglirunlv1 = 0
+		}
+
+		YlYingyelirunlv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(18) > td:nth-child(%d)", i)).Text())
+		YlYingyelirunlv1, err := strconv.ParseFloat(strings.Replace(YlYingyelirunlv, "--", "", -1), 64)
+		if err != nil {
+			YlYingyelirunlv1 = 0
+		}
+
+		YlXiaoshoujinglilv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(20) > td:nth-child(%d)", i)).Text())
+		YlXiaoshoujinglilv1, err := strconv.ParseFloat(strings.Replace(YlXiaoshoujinglilv, "--", "", -1), 64)
+		if err != nil {
+			YlXiaoshoujinglilv1 = 0
+		}
+
+		YlGubenbaochoulv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(21) > td:nth-child(%d)", i)).Text())
+		YlGubenbaochoulv1, err := strconv.ParseFloat(strings.Replace(YlGubenbaochoulv, "--", "", -1), 64)
+		if err != nil {
+			YlGubenbaochoulv1 = 0
+		}
+
+		YlJingzichanbaochoulv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(22) > td:nth-child(%d)", i)).Text())
+		YlJingzichanbaochoulv1, err := strconv.ParseFloat(strings.Replace(YlJingzichanbaochoulv, "--", "", -1), 64)
+		if err != nil {
+			YlJingzichanbaochoulv1 = 0
+		}
+
+		YlZichanbaochoulv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(23) > td:nth-child(%d)", i)).Text())
+		YlZichanbaochoulv1, err := strconv.ParseFloat(strings.Replace(YlZichanbaochoulv, "--", "", -1), 64)
+		if err != nil {
+			YlZichanbaochoulv1 = 0
+		}
+		CzZhuyingyewushouruzengzhanglv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(35) > td:nth-child(%d)", i)).Text())
+		CzZhuyingyewushouruzengzhanglv1, err := strconv.ParseFloat(strings.Replace(CzZhuyingyewushouruzengzhanglv, "--", "", -1), 64)
+		if err != nil {
+			CzZhuyingyewushouruzengzhanglv1 = 0
+		}
+
+		Czjinglirunzengzhanglv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(36) > td:nth-child(%d)", i)).Text())
+		Czjinglirunzengzhanglv1, err := strconv.ParseFloat(strings.Replace(Czjinglirunzengzhanglv, "--", "", -1), 64)
+		if err != nil {
+			Czjinglirunzengzhanglv1 = 0
+		}
+
+		CzJingzichanzengzhanglv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(37) > td:nth-child(%d)", i)).Text())
+		CzJingzichanzengzhanglv1, err := strconv.ParseFloat(strings.Replace(CzJingzichanzengzhanglv, "--", "", -1), 64)
+		if err != nil {
+			CzJingzichanzengzhanglv1 = 0
+		}
+
+		CzZongzichanzengzhanglv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(38) > td:nth-child(%d)", i)).Text())
+		CzZongzichanzengzhanglv1, err := strconv.ParseFloat(strings.Replace(CzZongzichanzengzhanglv, "--", "", -1), 64)
+		if err != nil {
+			CzZongzichanzengzhanglv1 = 0
+		}
+
+		YyYingshouzhangkuanzhouzhuanlv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(40) > td:nth-child(%d)", i)).Text())
+		YyYingshouzhangkuanzhouzhuanlv1, err := strconv.ParseFloat(strings.Replace(YyYingshouzhangkuanzhouzhuanlv, "--", "", -1), 64)
+		if err != nil {
+			YyYingshouzhangkuanzhouzhuanlv1 = 0
+		}
+		YyCunhuozhouzhuanglv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(43) > td:nth-child(%d)", i)).Text())
+		YyCunhuozhouzhuanglv1, err := strconv.ParseFloat(strings.Replace(YyCunhuozhouzhuanglv, "--", "", -1), 64)
+		if err != nil {
+			YyCunhuozhouzhuanglv1 = 0
+		}
+		YyLiudongzichanzhouzhuanglv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(47) > td:nth-child(%d)", i)).Text())
+		YyLiudongzichanzhouzhuanglv1, err := strconv.ParseFloat(strings.Replace(YyLiudongzichanzhouzhuanglv, "--", "", -1), 64)
+		if err != nil {
+			YyLiudongzichanzhouzhuanglv1 = 0
+		}
+		YyZongzichanzhouzhuanglv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(45) > td:nth-child(%d)", i)).Text())
+		YyZongzichanzhouzhuanglv1, err := strconv.ParseFloat(strings.Replace(YyZongzichanzhouzhuanglv, "--", "", -1), 64)
+		if err != nil {
+			YyZongzichanzhouzhuanglv1 = 0
+		}
+
+		YyGudongquanyizhouzhuanglv := strings.TrimSpace(doc.Find(fmt.Sprintf("#BalanceSheetNewTable0 > tbody > tr:nth-child(49) > td:nth-child(%d)", i)).Text())
+		YyGudongquanyizhouzhuanglv1, err := strconv.ParseFloat(strings.Replace(YyGudongquanyizhouzhuanglv, "--", "", -1), 64)
+		if err != nil {
+			YyGudongquanyizhouzhuanglv1 = 0
+		}
+		// 运营能力
+
+		per_ticket := dal.StockPerTicket{Code: code, Tanboshouyi: tanbo1, Jiaquanshouyi: jiaquanshouyi1, Shouyiafter: shouyi1, Jinzichanfront: jizichan_front1,
+			Jinzichanafter: jizichan_after1, Jingyingxianjinliu: jingyingxianjinliu1, Gubengongjijin: zibengongjijin1, Weifenpeilirun: weifenpeilirun1, YlZhuyingyewulirunlv: YlZhuyingyewulirunlv1,
+			YlZongzichanlirunlv: YlZongzichanlirunlv1, YlZongzichanjinglirunlv: YlZongzichanjinglirunlv1, YlYingyelirunlv: YlYingyelirunlv1, YlXiaoshoujinglilv: YlXiaoshoujinglilv1,
+			YlGubenbaochoulv: YlGubenbaochoulv1, YlJingzichanbaochoulv: YlJingzichanbaochoulv1, YlZichanbaochoulv: YlZichanbaochoulv1, CzZhuyingyewushouruzengzhanglv: CzZhuyingyewushouruzengzhanglv1,
+			CzJinglirunzengzhanglv: Czjinglirunzengzhanglv1, CzJingzichanzengzhanglv: CzJingzichanzengzhanglv1, CzZongzichanzengzhanglv: CzZongzichanzengzhanglv1, YyYingshouzhangkuanzhouzhuanlv: YyYingshouzhangkuanzhouzhuanlv1,
+			YyCunhuozhouzhuanglv: YyCunhuozhouzhuanglv1, YyLiudongzichanzhouzhuanglv: YyLiudongzichanzhouzhuanglv1, YyZongzichanzhouzhuanglv: YyZongzichanzhouzhuanglv1, YyGudongquanyizhouzhuanglv: YyGudongquanyizhouzhuanglv1,
+			Date: date}
 		store.MysqlClient.GetDB().Save(&per_ticket)
 	}
 }
