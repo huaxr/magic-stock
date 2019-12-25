@@ -5,11 +5,14 @@ package model
 import "magic/stock/dal"
 
 type QueryPerTicket struct {
-	Shouyiafter        map[string]float64 `json:"shouyiafter"`        // 每股收益调整后
-	Jinzichanafter     map[string]float64 `json:"jinzichanafter"`     // 每股净资产_调整后(元) 范围 [1.33, 2.1]
-	Jingyingxianjinliu map[string]float64 `json:"jingyingxianjinliu"` // 每股经营性现金流(元)范围
-	Gubengongjijin     map[string]float64 `json:"gubengongjijin"`     // 每股资本公积金(元)范围
-	Weifenpeilirun     map[string]float64 `json:"weifenpeilirun"`     // 每股未分配利润(元)范围
+	Shouyiafter        map[string]float64 `json:"shouyiafter"`        // 每股收益调整后  指扣除与主营业务无关的一次性损益后的净利润除以总股本得出的每股收益。
+	Jiaquanshouyi      map[string]float64 `json:"jiaquanshouyi"`      // 使用加权平均法来计算每股收益，这样才可以更准确、更合理地反映公司客观的盈利能力。
+	Jinzichanafter     map[string]float64 `json:"jinzichanafter"`     // 每股净资产_调整后(元) 这一指标反映每股股票所拥有的资产现值。每股净资产越高，股东拥有的每股资产价值越多；
+	Jingyingxianjinliu map[string]float64 `json:"jingyingxianjinliu"` // 每股经营性现金流(元)范围  即每股经营活动产生的现金流量净额
+	Gubengongjijin     map[string]float64 `json:"gubengongjijin"`     // 每股资本公积金(元)范围  资本公积金是指从公司的利润以外的收入中提取的一种公积金。其主要来源有股票溢价收入，财产重估增值，以及接受捐赠资产等。每股资本公积金=资本公积金/总股本
+	Weifenpeilirun     map[string]float64 `json:"weifenpeilirun"`     // 每股未分配利润(元)范围 (1)每股未分配利润越多，不仅表明该公司盈利能力强，也意味着该公司未来分红、送股的能力强、概率比较大。
+	//(2)一般而言，如果某公司的每股未分配利润超过一元，该公司就具有每10股送10股或每股派现1元红利的能力。
+	//(3)每股未分配利润较多的上市公司，往往被各类投资者青睐，因为该类公司盈利和分红能力强，投资回报高。
 
 	LastPercent      map[string]float64 `json:"last_percent"`      // 昨日涨幅区间 %
 	LastAmplitude    map[string]float64 `json:"last_amplitude"`    // 昨日振幅区间

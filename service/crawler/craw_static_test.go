@@ -186,3 +186,12 @@ func TestCrawler_GetStockPerTicket(t *testing.T) {
 	}()
 	select {}
 }
+
+// 上面获取到了个股的财务指标 以及 各项能力后 对按照大小的区间 对所有股打标
+func TestCalcCaiWuForPreTicket(t *testing.T) {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
+	for _, i := range code {
+		CrawlerGlobal.CalcCaiWuForPreTicket(i.Code)
+	}
+}

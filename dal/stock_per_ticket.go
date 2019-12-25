@@ -9,13 +9,13 @@ type StockPerTicket struct {
 
 	// 每股指标
 	Tanboshouyi        float64 `json:"tanboshouyi"`        // 摊薄每股收益(元)
-	Jiaquanshouyi      float64 `json:"jiaquanshouyi"`      // 加权每股收益(元)
+	Jiaquanshouyi      float64 `json:"jiaquanshouyi"`      // 加权每股收益(元) 使用加权平均法来计算每股收益，这样才可以更准确、更合理地反映公司客观的盈利能力。
 	Jinzichanfront     float64 `json:"jinzichanfront"`     // 每股净资产_调整前(元)
-	Shouyiafter        float64 `json:"shouyiafter"`        // 每股收益_调整后(元)
-	Jinzichanafter     float64 `json:"jinzichanafter"`     // 每股净资产_调整后(元)
-	Jingyingxianjinliu float64 `json:"jingyingxianjinliu"` // 每股经营性现金流(元)
-	Gubengongjijin     float64 `json:"gubengongjijin"`     // 每股资本公积金(元)
-	Weifenpeilirun     float64 `json:"weifenpeilirun"`     // 每股未分配利润(元)
+	Shouyiafter        float64 `json:"shouyiafter"`        // 每股收益_调整后(元)  指扣除与主营业务无关的一次性损益后的净利润除以总股本得出的每股收益。
+	Jinzichanafter     float64 `json:"jinzichanafter"`     // 每股净资产_调整后(元) 这一指标反映每股股票所拥有的资产现值。每股净资产越高，股东拥有的每股资产价值越多；
+	Jingyingxianjinliu float64 `json:"jingyingxianjinliu"` // 每股经营性现金流(元) 即每股经营活动产生的现金流量净额
+	Gubengongjijin     float64 `json:"gubengongjijin"`     // 每股资本公积金(元) 资本公积金是指从公司的利润以外的收入中提取的一种公积金。其主要来源有股票溢价收入，财产重估增值，以及接受捐赠资产等。每股资本公积金=资本公积金/总股本
+	Weifenpeilirun     float64 `json:"weifenpeilirun"`     // 每股未分配利润(元) 每股未分配利润越多，不仅表明该公司盈利能力强，也意味着该公司未来分红、送股的能力强
 
 	// 盈利能力
 	YlZongzichanlirunlv     float64 `json:"yl_zongzichanlirunlv"`     // 总资产利润率(%)  总资产利润率=利润总额/资产平均总额×100% 可用来说明企业运用其全部资产获取利润的能力。
@@ -39,7 +39,9 @@ type StockPerTicket struct {
 	YyLiudongzichanzhouzhuanglv    float64 `json:"yy_liudongzichanzhouzhuanglv"`    // 流动资产周转率(次) 该指标越高，说明企业流动资产的利用效率越好。
 	YyZongzichanzhouzhuanglv       float64 `json:"yy_zongzichanzhouzhuanglv"`       // 总资产周转率(次) 总资产周转率越高，说明企业销售能力越强,资产投资的效益越好
 	YyGudongquanyizhouzhuanglv     float64 `json:"yy_gudongquanyizhouzhuanglv"`     // 股东权益周转率(次)  指标说明公司运用所有制的资产的效率。 该比率越高，表明所有者资产的运用效率高，营运能力强
-	Date                           string  `json:"date"`
+
+	RankCaiwu string `json:"rank_caiwu"` // 财务状况打标
+	Date      string `json:"date"`
 }
 
 func (StockPerTicket) TableName() string {

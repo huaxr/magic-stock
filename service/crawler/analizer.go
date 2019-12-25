@@ -10,6 +10,7 @@ import (
 	"magic/stock/utils"
 	"math"
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -464,7 +465,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	st := STStock(code)
 
 	score := 0 // max 37  // low 17
-	cond_str, bad_cond_str := "", ""
+	cond_str, bad_cond_str, finance := "", "", ""
 	if priceaboveave6 {
 		score += 1
 		cond_str += fmt.Sprintf("收盘价在6日均线上方; ")
@@ -710,13 +711,25 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		score = 0
 	}
 
-	fmt.Println(code, name, cond_str, bad_cond_str)
-
+	finance += ""
+	var per dal.StockPerTicket
+	err := store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Where("code = ?", code).Find(&per).Error
+	if err != nil {
+		finance = ""
+	} else {
+		finance = per.RankCaiwu
+	}
+	high := strings.Count(finance, "高")
+	middle := strings.Count(finance, "一般")
+	low := strings.Count(finance, "偏低")
+	bad := strings.Count(finance, "较差")
+	score += high*2 + middle*1 + low*-1 + bad*-2
+	fmt.Println(code, name, cond_str, bad_cond_str, finance)
 	seed := []int{1, 2, 3, 4, 5, 6}
 	rand.Seed(time.Now().Unix())
 	n := rand.Int() % len(seed)
 
-	p := dal.Predict{Code: code, Name: name, Condition: cond_str, BadCondition: bad_cond_str, Finance: "", Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount, Score: score*4 + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0]}
+	p := dal.Predict{Code: code, Name: name, Condition: cond_str, BadCondition: bad_cond_str, Finance: finance, Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount, Score: score*3 + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0]}
 	if utils.TellEnv() == "loc" {
 		err := store.MysqlClient.GetOnlineDB().Save(&p).Error
 		if err != nil {
