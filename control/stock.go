@@ -317,9 +317,12 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 func (d *PredictControl) GetDetail(c *gin.Context) {
 	date := c.DefaultQuery("date", "")
 	code := c.DefaultQuery("code", "")
-	if code == "" || date == "" {
-		d.Response(c, nil, errors.New("证券代码/日期为空"))
+	if code == "" {
+		d.Response(c, nil, errors.New("证券代码空"))
 		return
+	}
+	if date == "" {
+		date = "2020-12-24"
 	}
 	var TicketHistory []dal.TicketHistory
 	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", code, date).Limit(70).Order("date desc").Find(&TicketHistory)

@@ -7,7 +7,7 @@ type UserConditions struct {
 	ID         uint   `gorm:"primary_key"`
 	Name       string `json:"name"` // 用户为条件定义的名字
 	UserId     int    `json:"user_id"`
-	Conditions JSON   `json:"conditions"`
+	Conditions JSON   `sql:"type:text" json:"conditions"`
 }
 
 func (UserConditions) TableName() string {

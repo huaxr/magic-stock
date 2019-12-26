@@ -710,7 +710,6 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	if score < 0 {
 		score = 0
 	}
-
 	finance += ""
 	var per dal.StockPerTicket
 	err := store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Where("code = ?", code).Find(&per).Error
@@ -737,5 +736,4 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		}
 	}
 	store.MysqlClient.GetDB().Save(&p)
-
 }
