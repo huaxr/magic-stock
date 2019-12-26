@@ -107,6 +107,7 @@ func (d *PredictControl) ParseStockPerTicket(param map[string]float64, field str
 func (d *PredictControl) ParseLastDayRange(param map[string]float64, date string, field string, coders map[string]bool) map[string]bool {
 	tmp := coders
 	min, max := d.getMinMax(param)
+	log.Println(field, min, max)
 	var codes []Codes
 	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Select("code").Where(fmt.Sprintf("date = ? and %s >= ? and %s <= ?", field, field), date, min, max).Scan(&codes)
 	for _, i := range codes {
