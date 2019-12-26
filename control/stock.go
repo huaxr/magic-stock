@@ -280,7 +280,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 			used_sets = append(used_sets, i)
 		}
 	}
-
 	var coders []interface{}
 	if len(used_sets) == 0 {
 		coders = nil
@@ -291,7 +290,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	} else if len(used_sets) > 2 {
 		coders = set.Intersection(used_sets[0], used_sets[1], used_sets[2:]...).List()
 	}
-	log.Println("一共筛选(个):", coders)
+	log.Println("一共筛选(个):", len(coders))
 	var predicts []dal.Predict
 	var total int
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
