@@ -110,7 +110,6 @@ func (d *PredictControl) ParseLastDayRange(param map[string]float64, date string
 	tmp := set.New(set.ThreadSafe)
 	if len(param) > 0 {
 		min, max := d.getMinMax(param)
-		log.Println(field, min, max)
 		var codes []Codes
 		store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Select("code").Where(fmt.Sprintf("date = ? and %s >= ? and %s <= ?", field, field), date, min, max).Scan(&codes)
 		for _, i := range codes {
@@ -203,7 +202,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		for _, i := range codes {
 			belong_set.Add(i.Code)
 		}
-		log.Println(where_str, args_belongs)
 	}
 
 	if len(post.Query.Locations) > 0 {
@@ -217,7 +215,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		for _, i := range codes {
 			location_set.Add(i.Code)
 		}
-		log.Println(where_str, args_locationgs)
 	}
 
 	if len(post.Query.Concepts) > 0 || len(post.Query.Labels) > 0 {
@@ -232,7 +229,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		for _, i := range codes {
 			concept_set.Add(i.Code)
 		}
-		log.Println(where_str, args_concepts)
 	}
 
 	per_ticket_set1 = d.ParseStockPerTicket(post.Query.PerTickets.Shouyiafter, "shouyiafter")
@@ -290,7 +286,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	} else if len(used_sets) > 2 {
 		coders = set.Intersection(used_sets[0], used_sets[1], used_sets[2:]...).List()
 	}
-	log.Println("一共筛选(个):", len(coders))
 	var predicts []dal.Predict
 	var total int
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
@@ -299,6 +294,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	}
 	tmp = tmp.Where("code IN (?)", coders)
 	tmp.Count(&total)
+
+	log.Println(fmt.Sprintf("一共筛选(%d个), 总数(%d个)", len(coders), total))
+
 	if !utils.ContainsString(OrderLimit, post.Order) {
 		post.Order = "score"
 	}
