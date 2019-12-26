@@ -158,7 +158,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	}
 	var where_belongs, where_locations, where_concepts []string
 	var args_belongs, args_locationgs, args_concepts []interface{}
-	var all_codes = []string{}
 
 	belong_set := set.New(set.ThreadSafe)
 	location_set := set.New(set.ThreadSafe)
@@ -269,26 +268,37 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	ability_set16 = d.ParseStockPerTicket(post.Query.YyAbility.YyZongzichanzhouzhuanglv, "yy_zongzichanzhouzhuanglv")
 	ability_set17 = d.ParseStockPerTicket(post.Query.YyAbility.YyGudongquanyizhouzhuanglv, "yy_gudongquanyizhouzhuanglv")
 
-	coders := set.Intersection(belong_set, location_set, concept_set,
+	all_sets := []set.Interface{belong_set, location_set, concept_set,
 		per_ticket_set1, per_ticket_set2, per_ticket_set3, per_ticket_set4, per_ticket_set5, per_ticket_set6,
 		last_day_set1, last_day_set2, last_day_set3, last_day_set4,
 		ability_set1, ability_set2, ability_set3, ability_set4, ability_set5, ability_set6, ability_set7, ability_set8,
-		ability_set9, ability_set10, ability_set11, ability_set12, ability_set13, ability_set14, ability_set15, ability_set16, ability_set17)
+		ability_set9, ability_set10, ability_set11, ability_set12, ability_set13, ability_set14, ability_set15, ability_set16, ability_set17}
 
-	for _, k := range coders.List() {
-		all_codes = append(all_codes, k.(string))
+	used_sets := []set.Interface{}
+	for _, i := range all_sets {
+		if len(i.List()) > 0 {
+			used_sets = append(used_sets, i)
+		}
 	}
 
-	log.Println("一共筛选(个):", len(all_codes))
+	var coders []interface{}
+	if len(used_sets) == 0 {
+		coders = nil
+	} else if len(used_sets) == 1 {
+		coders = used_sets[0].List()
+	} else if len(used_sets) == 2 {
+		coders = set.Intersection(used_sets[0], used_sets[1]).List()
+	} else if len(used_sets) > 2 {
+		coders = set.Intersection(used_sets[0], used_sets[1], used_sets[2:]...).List()
+	}
+	log.Println("一共筛选(个):", coders)
 	var predicts []dal.Predict
 	var total int
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
 	for _, i := range post.Query.Predicts {
 		tmp = tmp.Where("`condition` regexp ?", i)
 	}
-	if len(all_codes) > 0 {
-		tmp = tmp.Where("code IN (?)", all_codes)
-	}
+	tmp = tmp.Where("code IN (?)", coders)
 	tmp.Count(&total)
 	if !utils.ContainsString(OrderLimit, post.Order) {
 		post.Order = "score"
