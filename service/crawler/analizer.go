@@ -729,7 +729,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	rand.Seed(time.Now().Unix())
 	n := rand.Int() % len(seed)
 
-	p := dal.Predict{Code: code, Name: name, Condition: cond_str, BadCondition: bad_cond_str, Finance: finance, Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount, Score: score*3 + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0]}
+	p := dal.Predict{Code: code, Name: name, Condition: cond_str, BadCondition: bad_cond_str, Finance: finance, Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount, Score: score*2 + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0]}
 	if utils.TellEnv() == "loc" {
 		err := store.MysqlClient.GetOnlineDB().Save(&p).Error
 		if err != nil {

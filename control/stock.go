@@ -129,7 +129,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		return
 	}
 
-	log.Println(authentication)
 	if !authentication.Member {
 		if authentication.QueryLeft == 0 {
 			d.Response(c, nil, errors.New("查询次数不足"))
@@ -210,6 +209,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	coders = d.ParseLastDayRange(post.Query.LastDayRange.LastPercent, post.Date, "percent", coders)
 	coders = d.ParseLastDayRange(post.Query.LastDayRange.LastAmplitude, post.Date, "amplitude", coders)
 	coders = d.ParseLastDayRange(post.Query.LastDayRange.LastTurnoverrate, post.Date, "turnover_rate", coders)
+	coders = d.ParseLastDayRange(post.Query.LastDayRange.LastPrice, post.Date, "shou", coders)
 
 	// 盈利能力
 	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlZongzichanlirunlv, "yl_zongzichanlirunlv", coders)

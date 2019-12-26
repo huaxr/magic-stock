@@ -16,6 +16,7 @@ type QueryPerTicket struct {
 }
 
 type LastDayRange struct {
+	LastPrice        map[string]float64 `json:"last_price"`        // 昨日收盘股价区间
 	LastPercent      map[string]float64 `json:"last_percent"`      // 昨日涨幅区间 %
 	LastAmplitude    map[string]float64 `json:"last_amplitude"`    // 昨日振幅区间
 	LastTurnoverrate map[string]float64 `json:"last_turnoverrate"` // 昨日换手率区间

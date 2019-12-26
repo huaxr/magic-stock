@@ -82,16 +82,16 @@ type CalcResult struct {
 type PredictListResponse struct {
 	Name          string  `json:"name"`
 	Code          string  `json:"code"`
-	Price         float64 `json:"price"`
-	Percent       float64 `json:"percent"`
-	Location      string  `json:"location"`
-	Form          string  `json:"form"`
-	Belong        string  `json:"belong"`
-	FundCount     int     `json:"fund_count"`
-	SimuCount     int     `json:"simu_count"`
-	Conditions    string  `json:"conditions"`     // k线指标
-	BadConditions string  `json:"bad_conditions"` // 不好的数据
+	Price         float64 `json:"price"`          // 当前价格
+	Percent       float64 `json:"percent"`        // 涨幅
+	Location      string  `json:"location"`       // 地区
+	Form          string  `json:"form"`           // 组织形式
+	Belong        string  `json:"belong"`         // 所属行业
+	FundCount     int     `json:"fund_count"`     // 基金数量
+	SimuCount     int     `json:"simu_count"`     // 私募数量
+	Conditions    string  `json:"conditions"`     // 优点
+	BadConditions string  `json:"bad_conditions"` // 缺点
 	Finance       string  `json:"finance"`        // 财务指标
 	Date          string  `json:"date"`
-	Score         int     `json:"score"`
+	Score         int     `json:"score"` // 得分
 }
