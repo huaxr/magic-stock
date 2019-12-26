@@ -279,6 +279,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		all_codes = append(all_codes, k.(string))
 	}
 
+	log.Println("一共筛选(个):", len(all_codes))
 	var predicts []dal.Predict
 	var total int
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
