@@ -11,6 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"code.byted.org/byte_security/dal/docs"
+
 	"code.byted.org/byte_security/dal/auth"
 	"code.byted.org/byte_security/dal/event"
 	"code.byted.org/byte_security/dal/policy"
@@ -69,6 +71,7 @@ func InitStore(path string, debug bool) *Mysql {
 		&policy.VariateOnline{}, &policy.VariateObjOnline{},
 		&seal.Device{}, &seal.User{},
 		&event.HResults{},
+		&docs.Article{}, &docs.Catalog{},
 		&rule_engine.Task{}, &rule_engine.TaskDataResult{}, &rule_engine.TaskDataSource{})
 	return e
 }

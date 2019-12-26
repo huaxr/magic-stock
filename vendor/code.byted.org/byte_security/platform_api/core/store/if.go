@@ -4,12 +4,14 @@
 package store
 
 import (
-	"code.byted.org/byte_security/platform_api/models"
 	"sync"
+
+	"code.byted.org/byte_security/platform_api/models"
 )
 
 type StoreIF interface {
 	MI
+	ModelInterface
 	Query(*models.NewQuery) (interface{}, error)
 	Count(*models.NewQuery) (int, error)
 	GetType() string

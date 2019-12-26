@@ -31,6 +31,7 @@ type addrManager struct {
 	underWeightAddrTS map[string]int64
 	cluster           string
 	idc               string
+	serviceName       string
 	lastRefreshTS     int64
 }
 
@@ -86,7 +87,7 @@ func (man *addrManager) fastCntFail(ipPort string) {
 	man.detector.addOneAddr(ipPort)
 }
 
-func newAddrManager(cluster, idc string) (*addrManager, error) {
+func newAddrManager(cluster, idc, serviceName string) (*addrManager, error) {
 	detector := getDetector()
 
 	man := &addrManager{
@@ -96,6 +97,7 @@ func newAddrManager(cluster, idc string) (*addrManager, error) {
 		underWeightAddrTS: make(map[string]int64),
 		cluster:           cluster,
 		idc:               idc,
+		serviceName:       serviceName,
 		lastRefreshTS:     0,
 	}
 
@@ -104,7 +106,7 @@ func newAddrManager(cluster, idc string) (*addrManager, error) {
 
 var testAddr = os.Getenv("TEST_TOSAPI_ADDR")
 
-func getEndpoints(idc, cluster string) (consul.Endpoints, error) {
+func getEndpoints(idc, cluster, serviceName string) (consul.Endpoints, error) {
 	if testAddr != "" {
 		addrList := strings.Split(testAddr, ";")
 		if len(addrList) == 0 {
@@ -117,7 +119,7 @@ func getEndpoints(idc, cluster string) (consul.Endpoints, error) {
 		}
 		return ret, nil
 	}
-	name := DEFAULT_SERVICE_NAME
+	name := serviceName
 	if idc != "" {
 		name += ".service." + idc
 	}
@@ -256,7 +258,7 @@ func (man *addrManager) calNewAddrList(candiAddrList consul.Endpoints) []addr {
 
 func (man *addrManager) refresh() {
 	man.lastRefreshTS = time.Now().Unix()
-	endpoints, err := getEndpoints(man.idc, man.cluster)
+	endpoints, err := getEndpoints(man.idc, man.cluster, man.serviceName)
 	if err != nil || len(endpoints) == 0 {
 		man.lastRefreshTS = time.Now().Unix()
 		return

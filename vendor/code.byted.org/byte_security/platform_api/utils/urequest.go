@@ -9,6 +9,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"code.byted.org/inf/infsecc"
 )
 
 // http.get
@@ -35,6 +37,10 @@ func HttpDelete(url string, retObj interface{}) error {
 func HttpGetWithToken(url, token string, retObj interface{}) error {
 	req, _ := http.NewRequest("GET", url, nil)
 	if token != "" {
+		t, err := infsecc.GetToken(false) // os.Getenv(TokenStringEnv)
+		if err == nil {
+			req.Header.Add("X-Dps-Token", t) // TCE env enable
+		}
 		req.Header.Add("Authorization", token)
 	}
 	resp, err := http.DefaultClient.Do(req)
@@ -74,7 +80,6 @@ func HttpPost(url string, params interface{}, retObj interface{}) error {
 // http post with header
 func HttpPostWithHeader(urlStr string, header map[string]string, body interface{}, retObj interface{}) error {
 	bodyArray, err := json.Marshal(body)
-	fmt.Printf("%s", string(bodyArray))
 	if err != nil {
 		return err
 	}

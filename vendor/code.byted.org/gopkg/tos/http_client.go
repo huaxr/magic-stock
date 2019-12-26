@@ -2,6 +2,7 @@ package tos
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -10,11 +11,18 @@ import (
 )
 
 const clusterSep = "$"
+const connectionPoolSep = "$$" // see  https://bytedance.feishu.cn/space/doc/doccnd33ItuvZOmoViIV7Kk5Ifg#
 const maxConnRetryTimes = 2
+const connectionPoolReuseSpan = time.Duration(60) * time.Second
 
 var dialer = net.Dialer{Timeout: 3 * time.Second}
 var availableEndpoints = []string{
 	"tos-cn-north.byted.org",
+	"tos-cn-north-lf.byted.org",
+	"tos-cn-north-hl.byted.org",
+	"tos-cn-north-lq.byted.org",
+	"tos-cn-north-1.byted.org",
+	"tos-cn-north-90.byted.org",
 }
 
 // 1. use only conn succ ratio to decide quality
@@ -33,6 +41,10 @@ func isIPAddr(s string) bool {
 	return h != "" && net.ParseIP(h) != nil
 }
 
+func isPsm(s string) bool {
+	return strings.Contains(s, defaultServiceName)
+}
+
 func isEndpointValidDomain(addr string) bool {
 	match := false
 	for _, endpoint := range availableEndpoints {
@@ -44,18 +56,23 @@ func isEndpointValidDomain(addr string) bool {
 }
 
 // NewHttpClient returns HttpClient with `http://{YOUR_SERVICE}/path/to/your/api` support
-func newHttpClient(cluster, idc, endpoint string) (*httpClient, error) {
+func newHttpClient(cluster, idc, endpoint, serviceName string) (*httpClient, error) {
 	var addrMan *addrManager = nil
 	var err error = nil
 	if endpoint == "" {
-		addrMan, err = newAddrManager(cluster, idc)
-	}
-	if err != nil {
-		return nil, err
+		addrMan, err = newAddrManager(cluster, idc, serviceName)
+		if err != nil {
+			return nil, err
+		}
+	} else if !isEndpointValidDomain(endpoint) {
+		return nil, errors.New("endpoint is not a valid domain")
 	}
 
 	transport := &http.Transport{
 		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+			if idx := strings.Index(addr, connectionPoolSep); idx > 0 {
+				addr = addr[:idx]
+			}
 			if idx := strings.Index(addr, clusterSep); idx > 0 {
 				addr = addr[:idx] // rm cluster name
 			}
@@ -98,10 +115,16 @@ func newHttpClient(cluster, idc, endpoint string) (*httpClient, error) {
 }
 
 func (c *httpClient) do(req *http.Request) (*http.Response, error) {
-	if c.cluster != "" && !isIPAddr(req.URL.Host) {
-		// add cluster name as a part of host
-		//	in order to identity http connection pool
-		req.URL.Host += clusterSep + c.cluster
+	if !isIPAddr(req.URL.Host) {
+		if c.cluster != "" {
+			// add cluster name as a part of host
+			//	in order to identity http connection pool
+			req.URL.Host += clusterSep + c.cluster
+		}
+		if isPsm(req.URL.Host) {
+			req.URL.Host += connectionPoolSep + fmt.Sprintf("%d", time.Now().Truncate(connectionPoolReuseSpan).Unix())
+		}
 	}
+
 	return c.client.Do(req)
 }

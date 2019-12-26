@@ -10,15 +10,14 @@ type Resource struct {
 	Result map[string][]string
 }
 
-func (p *Resource) HasPerm(typ , perm string) bool {
+func (p *Resource) HasPerm(typ, perm string) bool {
 	res, ok := p.Result[typ]
 	if !ok {
 		return false
 	}
-	if utils.ContainsString(res, "all") {
+	ok_admin := Authentication.JudgeHasKaNiAdminPerm(res)
+	if ok_admin {
 		return true
 	}
 	return utils.ContainsString(res, perm)
 }
-
-

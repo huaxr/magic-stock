@@ -15,8 +15,9 @@ var (
 type ErrRes struct {
 	Success int `json:"success"`
 	Err     struct {
-		Code    int    `json:"code"`
-		Message string `json:"message"`
+		HttpCode int
+		Code     int    `json:"code"`
+		Message  string `json:"message"`
 	} `json:"error"`
 	RemoteAddr string `json:"-"`
 	RequestID  string `json:"-"`
@@ -33,6 +34,7 @@ func DecodeErr(res *http.Response) error {
 		errRes.Err.Code = res.StatusCode
 		errRes.Err.Message = http.StatusText(res.StatusCode)
 	}
+	errRes.Err.HttpCode = res.StatusCode
 	errRes.RequestID = res.Header.Get("X-Tos-Request-Id")
 	errRes.RemoteAddr = res.Request.Host
 	return errRes

@@ -23,8 +23,6 @@ type Vulnerability struct {
 	AppID      int
 	BusinessId int `gorm:"index"` // 所属业务线
 
-	VType         string //漏洞类型 普通反射XSS  TODO 取消这两个字段 改为TypeId
-	VKind         string //漏洞种类  Web漏洞
 	TypeId        int
 	Status        string //状态 pending ignore, done, process
 	TicketId      int    //工单id
@@ -39,7 +37,8 @@ type Vulnerability struct {
 	KeepSecret     bool
 	AssetTypeKey   string // 所属资产，如domain, psm 等
 	AssetTypeValue string
-	CreatedTime    time.Time   // 创建时间
+	CreatedTime    time.Time // 创建时间
+	LimitTime      time.Time
 	Extra          common.JSON `sql:"type:json" json:"object,omitempty"`
 }
 

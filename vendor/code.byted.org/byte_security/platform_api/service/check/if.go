@@ -54,12 +54,18 @@ type AuthenticationIF interface {
 	GetKaNi(user string) map[string][]string
 	QueryEmployeeHasPerm(user, typ, perm string) bool
 	QueryEmployeeAllPerm(user, typ string) []string
+	// 判断用户是否存在all 和 admin 权限
+	JudgeHasKaNiAdminPerm(perms []string) bool
 	JudgeHasKaNiPerm(typ string, perms []string) bool
 
 	// 查询角色权限
 	GetKaNiHasRoleUrl(user_email, role_name string) string
+	// 查询用户所有角色
+	GetKaNiRolesUrl(user_email string) string
+	// 获取用户所有角色
+	GetKaNiRoles(user_email string) []string
 	// 判断用户是否存在 role_name 的角色
-	JudgeHasKaNiRole(user_email, role_name string) bool
+	JudgeHasKaNiRole(auth *models.AuthResult, role_name string) bool
 }
 
 // 安全检测接口

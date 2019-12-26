@@ -11,24 +11,24 @@ import (
 
 type Ticket struct {
 	gorm.Model
-	Title   string
-	Desc    string
-	Type    string
-	Creator auth.User   `gorm:"ForeignKey:UserID"`
-	UserId  int         `gorm:"index"` // 创建者
-	State   string      `gorm:"index"` // ('pending', '处理中'),  ('finished', '完成'),  ('cancelled', '取消'), ('rejected', '拒绝')
-	Detail  common.JSON `sql:"type:json" json:"detail"`
-	//EventId int // 如果是事件产生的ticket， 那么这个ticket和事件对应起来, 方便从事件页跳转到该工单
-	Extra        common.JSON `sql:"type:json" json:"extra,omitempty"`
-	TicketSource string    `gorm:"index"`  // event, normal, vuln
-	Psm string   `gorm:"index"`// 对应psm
-	Asset string `gorm:"index"`// 对应资产
-	AssetOwner string // 资产的拥有者
-	//AssetTable string // 资产类型
-	AssetType string // domain, host
-	Level int // 风险级别， 也就是事件的风险级别
-	Group string // 资产所属组
-	CurrentPriority int // 当前节点
+	Title           string
+	Desc            string
+	Type            string
+	Creator         auth.User   `gorm:"ForeignKey:UserID"`
+	UserId          int         `gorm:"index"` // 创建者
+	State           string      `gorm:"index"` // ('pending', '处理中'),  ('finished', '完成'),  ('cancelled', '取消'), ('rejected', '拒绝')
+	Detail          common.JSON `sql:"type:json" json:"detail"`
+	Extra           common.JSON `sql:"type:json" json:"extra,omitempty"`
+	TicketSource    string      `gorm:"index"` // event, normal, vuln
+	Psm             string      `gorm:"index"` // 对应psm
+	Asset           string      `gorm:"index"` // 对应资产
+	AssetOwner      string      // 资产的拥有者
+	AssetType       string      // domain, host
+	Level           int         // 风险级别， 也就是事件的风险级别
+	Group           string      // 资产所属组
+	CurrentPriority int         // 当前节点
+	BusinessID      int         `json:"business_id"`
+	ProductID       int         `json:"product_id"`
 }
 
 func (Ticket) TableName() string {

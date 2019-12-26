@@ -14,6 +14,8 @@ import (
 	"magic/stock/utils"
 	"strings"
 
+	"gopkg.in/fatih/set.v0"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -91,20 +93,20 @@ func (d *PredictControl) getMinMax(da map[string]float64) (float64, float64) {
 	return min, max
 }
 
-func (d *PredictControl) ParseStockPerTicket(param map[string]float64, field string, coders map[string]bool) map[string]bool {
+func (d *PredictControl) ParseStockPerTicket(param map[string]float64, field string, coders set.Interface) set.Interface {
 	tmp := coders
 	if len(param) > 0 {
 		min, max := d.getMinMax(param)
 		var codes []Codes
 		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where(fmt.Sprintf("%s >= ? and %s <= ?", field, field), min, max).Scan(&codes)
 		for _, i := range codes {
-			tmp[i.Code] = true
+			tmp.Add(i.Code)
 		}
 	}
 	return tmp
 }
 
-func (d *PredictControl) ParseLastDayRange(param map[string]float64, date string, field string, coders map[string]bool) map[string]bool {
+func (d *PredictControl) ParseLastDayRange(param map[string]float64, date string, field string, coders set.Interface) set.Interface {
 	tmp := coders
 	if len(param) > 0 {
 		min, max := d.getMinMax(param)
@@ -112,7 +114,7 @@ func (d *PredictControl) ParseLastDayRange(param map[string]float64, date string
 		var codes []Codes
 		store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Select("code").Where(fmt.Sprintf("date = ? and %s >= ? and %s <= ?", field, field), date, min, max).Scan(&codes)
 		for _, i := range codes {
-			tmp[i.Code] = true
+			tmp.Add(i.Code)
 		}
 	}
 	return tmp
@@ -156,8 +158,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	}
 	var where_belongs, where_locations, where_concepts []string
 	var args_belongs, args_locationgs, args_concepts []interface{}
-	var coders = map[string]bool{}
 	var all_codes = []string{}
+
+	sets := set.New(set.ThreadSafe)
 
 	if len(post.Query.Belongs) > 0 {
 		var codes []Codes
@@ -168,9 +171,8 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		where_str := strings.Join(where_belongs, " OR ")
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_belongs...).Scan(&codes)
 		for _, i := range codes {
-			coders[i.Code] = true
+			sets.Add(i.Code)
 		}
-		log.Println(where_str, args_belongs)
 	}
 
 	if len(post.Query.Locations) > 0 {
@@ -182,9 +184,8 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		where_str := strings.Join(where_locations, " OR ")
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_locationgs...).Scan(&codes)
 		for _, i := range codes {
-			coders[i.Code] = true
+			sets.Add(i.Code)
 		}
-		log.Println(where_str, args_locationgs)
 	}
 
 	if len(post.Query.Concepts) > 0 || len(post.Query.Labels) > 0 {
@@ -197,47 +198,48 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		where_str := strings.Join(where_concepts, " OR ")
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_concepts...).Scan(&codes)
 		for _, i := range codes {
-			coders[i.Code] = true
+			sets.Add(i.Code)
 		}
-		log.Println(where_str, args_concepts)
 	}
 
-	coders = d.ParseStockPerTicket(post.Query.PerTickets.Shouyiafter, "shouyiafter", coders)
-	coders = d.ParseStockPerTicket(post.Query.PerTickets.Jiaquanshouyi, "jiaquanshouyi", coders)
-	coders = d.ParseStockPerTicket(post.Query.PerTickets.Jinzichanafter, "jinzichanafter", coders)
-	coders = d.ParseStockPerTicket(post.Query.PerTickets.Jingyingxianjinliu, "jingyingxianjinliu", coders)
-	coders = d.ParseStockPerTicket(post.Query.PerTickets.Gubengongjijin, "gubengongjijin", coders)
-	coders = d.ParseStockPerTicket(post.Query.PerTickets.Weifenpeilirun, "weifenpeilirun", coders)
+	sets = d.ParseStockPerTicket(post.Query.PerTickets.Shouyiafter, "shouyiafter", sets)
+	sets = d.ParseStockPerTicket(post.Query.PerTickets.Jiaquanshouyi, "jiaquanshouyi", sets)
+	sets = d.ParseStockPerTicket(post.Query.PerTickets.Jinzichanafter, "jinzichanafter", sets)
+	sets = d.ParseStockPerTicket(post.Query.PerTickets.Jingyingxianjinliu, "jingyingxianjinliu", sets)
+	sets = d.ParseStockPerTicket(post.Query.PerTickets.Gubengongjijin, "gubengongjijin", sets)
+	sets = d.ParseStockPerTicket(post.Query.PerTickets.Weifenpeilirun, "weifenpeilirun", sets)
 
-	coders = d.ParseLastDayRange(post.Query.LastDayRange.LastPercent, post.Date, "percent", coders)
-	coders = d.ParseLastDayRange(post.Query.LastDayRange.LastAmplitude, post.Date, "amplitude", coders)
-	coders = d.ParseLastDayRange(post.Query.LastDayRange.LastTurnoverrate, post.Date, "turnover_rate", coders)
-	coders = d.ParseLastDayRange(post.Query.LastDayRange.LastPrice, post.Date, "shou", coders)
+	sets = d.ParseLastDayRange(post.Query.LastDayRange.LastPercent, post.Date, "percent", sets)
+	sets = d.ParseLastDayRange(post.Query.LastDayRange.LastAmplitude, post.Date, "amplitude", sets)
+	sets = d.ParseLastDayRange(post.Query.LastDayRange.LastTurnoverrate, post.Date, "turnover_rate", sets)
+	sets = d.ParseLastDayRange(post.Query.LastDayRange.LastPrice, post.Date, "shou", sets)
 
 	// 盈利能力
-	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlZongzichanlirunlv, "yl_zongzichanlirunlv", coders)
-	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlZhuyingyewulirunlv, "yl_zhuyingyewulirunlv", coders)
-	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlZongzichanjinglirunlv, "yl_zongzichanjinglirunlv", coders)
-	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlYingyelirunlv, "yl_yingyelirunlv", coders)
-	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlXiaoshoujinglilv, "yl_xiaoshoujinglilv", coders)
-	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlGubenbaochoulv, "yl_gubenbaochoulv", coders)
-	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlJingzichanbaochoulv, "yl_jingzichanbaochoulv", coders)
-	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlZichanbaochoulv, "yl_zichanbaochoulv", coders)
+	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlZongzichanlirunlv, "yl_zongzichanlirunlv", sets)
+	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlZhuyingyewulirunlv, "yl_zhuyingyewulirunlv", sets)
+	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlZongzichanjinglirunlv, "yl_zongzichanjinglirunlv", sets)
+	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlYingyelirunlv, "yl_yingyelirunlv", sets)
+	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlXiaoshoujinglilv, "yl_xiaoshoujinglilv", sets)
+	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlGubenbaochoulv, "yl_gubenbaochoulv", sets)
+	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlJingzichanbaochoulv, "yl_jingzichanbaochoulv", sets)
+	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlZichanbaochoulv, "yl_zichanbaochoulv", sets)
 	// 成长能力
-	coders = d.ParseStockPerTicket(post.Query.CzAbility.CzZhuyingyewushouruzengzhanglv, "cz_zhuyingyewushouruzengzhanglv", coders)
-	coders = d.ParseStockPerTicket(post.Query.CzAbility.CzJinglirunzengzhanglv, "cz_jinglirunzengzhanglv", coders)
-	coders = d.ParseStockPerTicket(post.Query.CzAbility.CzJingzichanzengzhanglv, "cz_jingzichanzengzhanglv", coders)
-	coders = d.ParseStockPerTicket(post.Query.CzAbility.CzZongzichanzengzhanglv, "cz_zongzichanzengzhanglv", coders)
+	sets = d.ParseStockPerTicket(post.Query.CzAbility.CzZhuyingyewushouruzengzhanglv, "cz_zhuyingyewushouruzengzhanglv", sets)
+	sets = d.ParseStockPerTicket(post.Query.CzAbility.CzJinglirunzengzhanglv, "cz_jinglirunzengzhanglv", sets)
+	sets = d.ParseStockPerTicket(post.Query.CzAbility.CzJingzichanzengzhanglv, "cz_jingzichanzengzhanglv", sets)
+	sets = d.ParseStockPerTicket(post.Query.CzAbility.CzZongzichanzengzhanglv, "cz_zongzichanzengzhanglv", sets)
 	// 运营能力
-	coders = d.ParseStockPerTicket(post.Query.YyAbility.YyYingshouzhangkuanzhouzhuanlv, "yy_yingshouzhangkuanzhouzhuanlv", coders)
-	coders = d.ParseStockPerTicket(post.Query.YyAbility.YyCunhuozhouzhuanglv, "yy_cunhuozhouzhuanglv", coders)
-	coders = d.ParseStockPerTicket(post.Query.YyAbility.YyLiudongzichanzhouzhuanglv, "yy_liudongzichanzhouzhuanglv", coders)
-	coders = d.ParseStockPerTicket(post.Query.YyAbility.YyZongzichanzhouzhuanglv, "yy_zongzichanzhouzhuanglv", coders)
-	coders = d.ParseStockPerTicket(post.Query.YyAbility.YyGudongquanyizhouzhuanglv, "yy_gudongquanyizhouzhuanglv", coders)
+	sets = d.ParseStockPerTicket(post.Query.YyAbility.YyYingshouzhangkuanzhouzhuanlv, "yy_yingshouzhangkuanzhouzhuanlv", sets)
+	sets = d.ParseStockPerTicket(post.Query.YyAbility.YyCunhuozhouzhuanglv, "yy_cunhuozhouzhuanglv", sets)
+	sets = d.ParseStockPerTicket(post.Query.YyAbility.YyLiudongzichanzhouzhuanglv, "yy_liudongzichanzhouzhuanglv", sets)
+	sets = d.ParseStockPerTicket(post.Query.YyAbility.YyZongzichanzhouzhuanglv, "yy_zongzichanzhouzhuanglv", sets)
+	sets = d.ParseStockPerTicket(post.Query.YyAbility.YyGudongquanyizhouzhuanglv, "yy_gudongquanyizhouzhuanglv", sets)
 
-	for k, _ := range coders {
-		all_codes = append(all_codes, k)
+	for _, k := range sets.List() {
+		all_codes = append(all_codes, k.(string))
 	}
+
+	log.Println("查询范围", all_codes)
 
 	var predicts []dal.Predict
 	var total int
@@ -249,6 +251,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		tmp = tmp.Where("code IN (?)", all_codes)
 	}
 	tmp.Count(&total)
+
 	if !utils.ContainsString(OrderLimit, post.Order) {
 		post.Order = "score"
 	}

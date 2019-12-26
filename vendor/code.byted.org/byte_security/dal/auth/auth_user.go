@@ -8,11 +8,11 @@ type User struct {
 	gorm.Model
 	UserName  string `gorm:"not null;unique"`
 	RealName  string
+	Email     string
 	UserNum   string
 	GroupId   string
 	AvatarUrl string
 	Leader    string
-	Email     string
 }
 
 func (User) TableName() string {

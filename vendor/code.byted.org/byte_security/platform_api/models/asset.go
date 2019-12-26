@@ -59,6 +59,16 @@ type PsmDetail struct {
 	UpdatedTime time.Time       `json:"updated_time"`
 }
 
+type RepoDetail struct {
+	Name     string `json:"name"`
+	Owner    string `json:"owner"`
+	RepoName string `json:"repo_name"`
+	GroupId  string `json:"group_id"`
+	HttpUrl  string `json:"http_url"`
+	Desc     string `json:"desc"`
+	Lang     string `json:"lang"`
+}
+
 type HostList struct {
 	Level        int    `json:"level"`
 	RelateTicket int    `json:"related_ticket"`
@@ -139,12 +149,20 @@ type RelatedHost struct {
 	VulnCount   int    `json:"vuln_count"`
 }
 
+type RelatedWebsite struct {
+	Wappalyzer dal_common.JSON `sql:"type:json" json:"wappalyzer"` // web 指纹
+	Url        string
+	Owner      string
+	GroupId    string
+}
+
 type RelatedResult struct {
-	Psm    []RelatedPsm    `json:"psm"`
-	Repo   []RelatedRepo   `json:"repo"`
-	Domain []RelatedDomain `json:"domain"`
-	Host   []RelatedHost   `json:"host"`
-	Total  int             `json:"total"`
+	Psm     []RelatedPsm     `json:"psm"`
+	Repo    []RelatedRepo    `json:"repo"`
+	Domain  []RelatedDomain  `json:"domain"`
+	Host    []RelatedHost    `json:"host"`
+	Website []RelatedWebsite `json:"website"`
+	Total   int              `json:"total"`
 }
 
 type DomainNameTimeResult struct {

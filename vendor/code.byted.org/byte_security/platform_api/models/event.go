@@ -10,11 +10,12 @@ import (
 )
 
 type EventOption struct {
-	Title  string `json:"title"`
-	Ids    []int  `json:"ids"`
-	Option string `json:"option"`
-	Token  string `json:"token"`
-	User   string `json:"user"` // lark bot option user
+	Title    string `json:"title"`
+	Ids      []int  `json:"ids"`
+	Option   string `json:"option"`
+	Token    string `json:"token"`
+	User     string `json:"user"` // lark bot option user
+	TicketID int    `json:"ticket_id"`
 }
 
 type LarkUserInfo struct {

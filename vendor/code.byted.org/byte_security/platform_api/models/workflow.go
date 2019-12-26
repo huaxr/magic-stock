@@ -1,8 +1,11 @@
 package models
 
 import (
-	"code.byted.org/byte_security/dal/common"
 	"time"
+
+	"code.byted.org/byte_security/platform_api/service/lark_bot"
+
+	"code.byted.org/byte_security/dal/common"
 )
 
 type CreateTicketRequestAuto struct {
@@ -15,10 +18,11 @@ type CreateTicketRequestAuto struct {
 }
 
 type CreateTicketRequestHand struct {
-	Detail map[string]interface{} `json:"detail"`
-	FlowId int                    `json:"flow_id"`
-	Title  string                 `json:"title"`
-	Desc   string                 `json:"desc"`
+	Detail    map[string]interface{} `json:"detail"`
+	FlowId    int                    `json:"flow_id"`
+	Title     string                 `json:"title"`
+	Desc      string                 `json:"desc"`
+	Submitter string                 `json:"submitter"`
 }
 
 type CreateTicketRequestHIDS struct {
@@ -71,6 +75,13 @@ type AckOptionRequest struct {
 type AddSub struct {
 	TicketId int    `json:"ticket_id"`
 	UserName string `json:"user_name"`
+}
+
+type DelHandler struct {
+	TicketId int    `json:"ticket_id"`
+	NodeId   int    `json:"node_id"`
+	UserName string `json:"user_name"`
+	Option   string `json:"option"` // node sub
 }
 
 // result
@@ -141,5 +152,20 @@ type RiskResult struct {
 	Level       int                    `json:"level"`
 	TicketCount int                    `json:"ticket_count"`
 	EventCount  int                    `json:"event_count"`
-	VulnCount int `json:"vuln_count"`
+	VulnCount   int                    `json:"vuln_count"`
+}
+
+type TicketUser struct {
+	TicketID int    `json:"ticket_id"`
+	UserName string `json:"user_name"`
+}
+
+type TicketLarkTemplate struct {
+	HandlerType string                  `json:"handler_type"`
+	Title       string                  `json:"title"`
+	Handler     string                  `json:"handler"`
+	Content     string                  `json:"content"`
+	Source      string                  `json:"source"`
+	URL         string                  `json:"url"`
+	Receivers   []lark_bot.ReceiverInfo `json:"receiver"`
 }

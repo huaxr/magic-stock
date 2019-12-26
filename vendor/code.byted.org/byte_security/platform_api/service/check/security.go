@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"code.byted.org/byte_security/platform_api/utils"
-	"golang.org/x/net/html"
 )
 
 var (
@@ -28,7 +27,8 @@ type SecCheck struct {
 }
 
 func (s *SecCheck) PreventXSS(content string) string {
-	return html.EscapeString(content)
+	//return html.EscapeString(content)
+	return content
 }
 
 func (s *SecCheck) PreventSSRF(url string) error {

@@ -4,6 +4,8 @@
 package core
 
 import (
+	"log"
+
 	"code.byted.org/byte_security/platform_api/core/engine"
 	"code.byted.org/byte_security/platform_api/core/store"
 	"code.byted.org/byte_security/platform_api/service/conf"
@@ -13,7 +15,12 @@ import (
 func init() {
 	Backend = new(backend)
 	Backend.Store = store.InitStore(cc.Store, false)
-	Backend.Engine, _ = engine.InitEngine(cc.ES, false, false)
+	store.DB = Backend.Store
+	es, err := engine.InitEngine(cc.ES, false, false)
+	if err != nil {
+		log.Println(err)
+	}
+	Backend.Engine = es
 	//Backend.Redis = o.initRedis()
 }
 

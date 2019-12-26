@@ -31,7 +31,7 @@ const (
 	HttpHeaderUserAgent   = "User-Agent"
 	defaultServiceName    = "toutiao.tos.tosapi"
 	MinPartSize           = 5 * 1024 * 1024
-	Version               = "v1.0.4"
+	Version               = "v1.0.7"
 
 	TosCopyDstBucket = "dstBucket"
 	TosCopyDstObject = "dstObject"
@@ -45,11 +45,12 @@ func init() {
 }
 
 type options struct {
-	Cluster  string
-	Bucket   string
-	Token    string
-	IDC      string
-	Endpoint string
+	Cluster     string
+	Bucket      string
+	Token       string
+	IDC         string
+	Endpoint    string
+	ServiceName string
 }
 
 type Option func(o *options)
@@ -57,6 +58,7 @@ type Option func(o *options)
 /********** User can set Content-Type/MD5/Meta info Start **********/
 const (
 	HTTPHeaderContentType = "Content-Type"
+	HTTPHeaderTosUserData = "X-Tos-User-Data"
 )
 
 type (
@@ -69,6 +71,10 @@ type (
 
 func ContentType(value string) ObjOption {
 	return setHeader(HTTPHeaderContentType, value)
+}
+
+func TosUserData(value string) ObjOption {
+	return setHeader(HTTPHeaderTosUserData, value)
 }
 
 func setHeader(key string, value interface{}) ObjOption {
@@ -137,6 +143,12 @@ func WithIDC(idc string) Option {
 	}
 }
 
+func WithServiceName(service string) Option {
+	return func(o *options) {
+		o.ServiceName = service
+	}
+}
+
 type Tos struct {
 	opts       options
 	httpClient *httpClient
@@ -154,8 +166,11 @@ func NewTos(ops ...Option) (*Tos, error) {
 	if cli.opts.Bucket == "" {
 		return nil, errors.New("bucket not set")
 	}
+	if cli.opts.ServiceName == "" {
+		cli.opts.ServiceName = defaultServiceName
+	}
 
-	httpClient, err := newHttpClient(cli.opts.Cluster, cli.opts.IDC, cli.opts.Endpoint)
+	httpClient, err := newHttpClient(cli.opts.Cluster, cli.opts.IDC, cli.opts.Endpoint, cli.opts.ServiceName)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +185,7 @@ func (t *Tos) makeuri(object string) string {
 	} else if t.opts.Endpoint != "" {
 		return "http://" + t.opts.Endpoint + "/" + t.opts.Bucket + "/" + object
 	}
-	name := defaultServiceName
+	name := t.opts.ServiceName
 	if t.opts.IDC != "" {
 		name += ".service." + t.opts.IDC
 	}
@@ -218,17 +233,24 @@ func (t *Tos) doHttpReq(ctx context.Context, req *http.Request) (*http.Response,
 	} else {
 		req.URL.RawQuery += "timeout=" + timeout.String()
 	}
+	startTime := time.Now()
+	var connConsume, respConsume time.Duration
 	req.Header.Set(TosAccessHeader, t.opts.Token)
 	req.Header.Set(HttpHeaderUserAgent, userAgent())
 	trace := &httptrace.ClientTrace{
 		GotConn: func(connInfo httptrace.GotConnInfo) {
 			req.Host = connInfo.Conn.RemoteAddr().String()
+			connConsume = time.Since(startTime)
+		},
+		GotFirstResponseByte: func() {
+			respConsume = time.Since(startTime)
 		},
 	}
+
 	ctx = httptrace.WithClientTrace(ctx, trace)
 	resp, err := t.httpClient.do(req.WithContext(ctx))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%v: Host: %v, GotConn Consume: %v, GotFirstResponseByte: %v", err, req.Host, connConsume, respConsume)
 	}
 	resp.Request.Host = req.Host
 	if resp.StatusCode >= 400 {
@@ -361,6 +383,16 @@ func (r *withContentLengthReader) Read(p []byte) (int, error) {
 func (t *Tos) PutObject(ctx context.Context, object string, size int64, r io.Reader, ops ...ObjOption) error {
 	body := &withContentLengthReader{R: r, N: size}
 	resp, err := t.doReq(ctx, "PUT", object, body, ops...)
+	if err != nil {
+		return err
+	}
+	resp.Body.Close()
+	return nil
+}
+
+// discard an object only for cvg calc
+func (t *Tos) DiscardObject(ctx context.Context, object string) error {
+	resp, err := t.doReq(ctx, "DELETE", t.makeuri(object)+"?discardobject", nil)
 	if err != nil {
 		return err
 	}

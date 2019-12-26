@@ -1,15 +1,16 @@
 package session
 
 import (
+	"log"
+	"net/http"
+
 	"code.byted.org/byte_security/platform_api/service/middleware/session/storage/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/context"
-	"log"
-	"net/http"
 )
 
 const (
-	DefaultKey  = "session"
+	DefaultKey  = "bs_session"
 	errorFormat = "[sessions] ERROR! %s\n"
 )
 

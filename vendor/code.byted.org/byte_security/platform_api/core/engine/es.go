@@ -4,14 +4,15 @@
 package engine
 
 import (
-	"code.byted.org/byte_security/platform_api/utils"
 	"context"
 	"fmt"
-	"gopkg.in/olivere/elastic.v5"
 	"log"
 	"os"
 	"sync"
 	"time"
+
+	"code.byted.org/byte_security/platform_api/utils"
+	"gopkg.in/olivere/elastic.v5"
 )
 
 const (

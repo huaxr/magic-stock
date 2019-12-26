@@ -77,13 +77,14 @@ func (p *param) ParseParamsToWhereArgs(c *gin.Context, allowed []string, using_b
 		if value != "" {
 			if strings.Contains(k, LTE) {
 				field := strings.Replace(k, LTE, NONE, 1)
-				where_str = append(where_str, fmt.Sprintf("`%s` < ?", field))
+				// if you use `%s`, which means you can't use v.business_id as query statement
+				where_str = append(where_str, fmt.Sprintf("%s < ?", field))
 				args = append(args, value)
 				continue
 			}
 			if strings.Contains(k, GTE) {
 				field := strings.Replace(k, GTE, NONE, 1)
-				where_str = append(where_str, fmt.Sprintf("`%s` > ?", field))
+				where_str = append(where_str, fmt.Sprintf("%s > ?", field))
 				args = append(args, value)
 				continue
 			}
@@ -94,14 +95,14 @@ func (p *param) ParseParamsToWhereArgs(c *gin.Context, allowed []string, using_b
 					var tmp_where_str []string
 					var tmp_args []interface{}
 					for _, i := range multi_query {
-						tmp_where_str = append(tmp_where_str, fmt.Sprintf("`%s` like ?", k))
+						tmp_where_str = append(tmp_where_str, fmt.Sprintf("%s like ?", k))
 						tmp_args = append(tmp_args, p.addPrefix(i, PERCENT))
 					}
 					w := strings.Join(tmp_where_str, JORN_OR)
 					where_str = append(where_str, LBracket+w+RBracket)
 					args = append(args, tmp_args...)
 				} else {
-					where_str = append(where_str, fmt.Sprintf("`%s` like ?", k))
+					where_str = append(where_str, fmt.Sprintf("%s like ?", k))
 					args = append(args, p.addPrefix(value, PERCENT))
 				}
 			} else {
@@ -109,14 +110,14 @@ func (p *param) ParseParamsToWhereArgs(c *gin.Context, allowed []string, using_b
 					var tmp_where_str []string
 					var tmp_args []interface{}
 					for _, i := range multi_query {
-						tmp_where_str = append(tmp_where_str, fmt.Sprintf("`%s` = ?", k))
+						tmp_where_str = append(tmp_where_str, fmt.Sprintf("%s = ?", k))
 						tmp_args = append(tmp_args, i)
 					}
 					w := strings.Join(tmp_where_str, JORN_OR)
 					where_str = append(where_str, LBracket+w+RBracket)
 					args = append(args, tmp_args...)
 				} else {
-					where_str = append(where_str, fmt.Sprintf("`%s` = ?", k))
+					where_str = append(where_str, fmt.Sprintf("%s = ?", k))
 					args = append(args, value)
 				}
 			}
@@ -136,7 +137,7 @@ func (p *param) GetParamsSpecific(c *gin.Context, allowed []string) (string, []i
 
 func (p *param) GetPagination(c *gin.Context) (int, int) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	page_size, _ := strconv.Atoi(c.DefaultQuery("page_size", "1000"))
+	page_size, _ := strconv.Atoi(c.DefaultQuery("page_size", "50"))
 	offset := page_size * (page - 1)
 	return offset, page_size
 }

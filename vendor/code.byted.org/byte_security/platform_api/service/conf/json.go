@@ -24,6 +24,7 @@ type config struct {
 	SessionSecret   string `json:"session_secret"`
 	RedisCluster    string `json:"redis_cluster"`
 	Host            string `json:"host"`
+	WebHost         string `json:"web_host"`
 	HostMethod      string `json:"host_method"`
 	SSO             string `json:"sso"`
 	ES              string `json:"es"`

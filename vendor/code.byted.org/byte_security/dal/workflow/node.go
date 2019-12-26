@@ -1,42 +1,29 @@
 package workflow
 
 import (
-	"code.byted.org/byte_security/dal/auth"
+	"time"
+
 	"code.byted.org/byte_security/dal/common"
-	"code.byted.org/gopkg/gorm"
 )
 
 type Node struct {
-	gorm.Model
-	Type     string //('review', '审批'), ('run', '执行')
-	Name     string // Node 的名称
-	Desc     string
-	FlowId   int `gorm:"index"`
-	TicketId int `gorm:"index"`
-	Priority int       // 优先级链
-	State    string  `gorm:"index"`  // 状态  pending, rejected, finished, abort
-	Operator auth.User `gorm:"ForeignKey:UserId"`
-	Extra    common.JSON `sql:"type:json" json:"extra,omitempty"`
-}
-
-type NodeTemplate struct {
-	gorm.Model
-	Type     string //('review', '审批'), ('run', '执行')
-	Name     string // Node 的名称
-	Desc     string
-	FlowId   int
-	Priority int    // 优先级链
-	State    string // 状态  pending, rejected, finished
-	//Operators []auth.User `gorm:"many2many:byte_security_workflow_nodetemp_user;association_jointable_foreignkey:user_id;jointable_foreignkey:node_id"`
-	Operator auth.User `gorm:"ForeignKey:UserId"`
-	UserNames common.JSON `sql:"type:json" json:"extra,omitempty"` // 可以有多个处理人
-	Extra    common.JSON `sql:"type:json" json:"extra,omitempty"`
+	ID          uint        `gorm:"primary_key" json:"id"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
+	DeletedAt   *time.Time  `sql:"index" json:"deleted_at"`
+	Name        string      `json:"name"`                              // Node 的名称
+	Desc        string      `json:"desc"`                              // 后期去掉冗余字段
+	TicketID    int         `json:"ticket_id" gorm:"index"`            // 关联的ticket
+	FlowID      int         `json:"flow_id" gorm:"index"`              // 关联的工作流ID
+	Priority    int         `json:"priority"`                          // 优先级链
+	State       string      `json:"state" gorm:"index"`                // 状态 pending:处理中, rejected:驳回, finished:完成, suspended:挂起, urgent:已加急
+	HandlerType string      `json:"handler_type"`                      // 处理方式：human指定人员，robot自动函数处理，auto自动获取
+	Handler     string      `json:"handler"`                           // 当handler_type为机器人时，填写机器人ID
+	NodeType    string      `json:"node_type" gorm:"DEFAULT:approval"` // 节点类别：approval 需要审批，notify 仅通知
+	Extra       common.JSON `sql:"type:json" json:"extra,omitempty"`
+	Type        string      `json:"type"` // TODO: DELETE
 }
 
 func (Node) TableName() string {
 	return "byte_security_workflow_node"
-}
-
-func (NodeTemplate) TableName() string {
-	return "byte_security_workflow_node_template"
 }
