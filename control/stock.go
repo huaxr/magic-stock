@@ -91,6 +91,30 @@ func (d *PredictControl) getMinMax(da map[string]float64) (float64, float64) {
 	return min, max
 }
 
+func (d *PredictControl) ParseStockPerTicket(param map[string]float64, field string, coders map[string]bool) map[string]bool {
+	tmp := coders
+	if len(param) > 0 {
+		min, max := d.getMinMax(param)
+		var codes []Codes
+		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where(fmt.Sprintf("%s >= ? and %s <= ?", field, field), min, max).Scan(&codes)
+		for _, i := range codes {
+			tmp[i.Code] = true
+		}
+	}
+	return tmp
+}
+
+func (d *PredictControl) ParseLastDayRange(param map[string]float64, date string, field string, coders map[string]bool) map[string]bool {
+	tmp := coders
+	min, max := d.getMinMax(param)
+	var codes []Codes
+	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Select("code").Where(fmt.Sprintf("date = ? and %s >= ? and %s <= ?"), date, min, max).Scan(&codes)
+	for _, i := range codes {
+		tmp[i.Code] = true
+	}
+	return tmp
+}
+
 type Codes struct {
 	Code string
 }
@@ -176,50 +200,37 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		log.Println(where_str, args_concepts)
 	}
 
-	if len(post.Query.PerTickets.Shouyiafter) > 0 {
-		min, max := d.getMinMax(post.Query.PerTickets.Shouyiafter)
-		var codes []Codes
-		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("shouyiafter >= ? and shouyiafter <= ?", min, max).Scan(&codes)
-		for _, i := range codes {
-			coders[i.Code] = true
-		}
-	}
+	coders = d.ParseStockPerTicket(post.Query.PerTickets.Shouyiafter, "shouyiafter", coders)
+	coders = d.ParseStockPerTicket(post.Query.PerTickets.Jiaquanshouyi, "jiaquanshouyi", coders)
+	coders = d.ParseStockPerTicket(post.Query.PerTickets.Jinzichanafter, "jinzichanafter", coders)
+	coders = d.ParseStockPerTicket(post.Query.PerTickets.Jingyingxianjinliu, "jingyingxianjinliu", coders)
+	coders = d.ParseStockPerTicket(post.Query.PerTickets.Gubengongjijin, "gubengongjijin", coders)
+	coders = d.ParseStockPerTicket(post.Query.PerTickets.Weifenpeilirun, "weifenpeilirun", coders)
 
-	if len(post.Query.PerTickets.Jinzichanafter) > 0 {
-		min, max := d.getMinMax(post.Query.PerTickets.Jinzichanafter)
-		var codes []Codes
-		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("jinzichanafter >= ? and jinzichanafter <= ?", min, max).Scan(&codes)
-		for _, i := range codes {
-			coders[i.Code] = true
-		}
-	}
+	coders = d.ParseLastDayRange(post.Query.LastDayRange.LastPercent, post.Date, "percent", coders)
+	coders = d.ParseLastDayRange(post.Query.LastDayRange.LastAmplitude, post.Date, "amplitude", coders)
+	coders = d.ParseLastDayRange(post.Query.LastDayRange.LastTurnoverrate, post.Date, "turnover_rate", coders)
 
-	if len(post.Query.PerTickets.Jingyingxianjinliu) > 0 {
-		min, max := d.getMinMax(post.Query.PerTickets.Jingyingxianjinliu)
-		var codes []Codes
-		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("jingyingxianjinliu >= ? and jingyingxianjinliu <= ?", min, max).Scan(&codes)
-		for _, i := range codes {
-			coders[i.Code] = true
-		}
-	}
-
-	if len(post.Query.PerTickets.Gubengongjijin) > 0 {
-		min, max := d.getMinMax(post.Query.PerTickets.Gubengongjijin)
-		var codes []Codes
-		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("gubengongjijin >= ? and gubengongjijin <= ?", min, max).Scan(&codes)
-		for _, i := range codes {
-			coders[i.Code] = true
-		}
-	}
-
-	if len(post.Query.PerTickets.Weifenpeilirun) > 0 {
-		min, max := d.getMinMax(post.Query.PerTickets.Weifenpeilirun)
-		var codes []Codes
-		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where("weifenpeilirun >= ? and weifenpeilirun <= ?", min, max).Scan(&codes)
-		for _, i := range codes {
-			coders[i.Code] = true
-		}
-	}
+	// 盈利能力
+	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlZongzichanlirunlv, "yl_zongzichanlirunlv", coders)
+	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlZhuyingyewulirunlv, "yl_zhuyingyewulirunlv", coders)
+	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlZongzichanjinglirunlv, "yl_zongzichanjinglirunlv", coders)
+	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlYingyelirunlv, "yl_yingyelirunlv", coders)
+	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlXiaoshoujinglilv, "yl_xiaoshoujinglilv", coders)
+	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlGubenbaochoulv, "yl_gubenbaochoulv", coders)
+	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlJingzichanbaochoulv, "yl_jingzichanbaochoulv", coders)
+	coders = d.ParseStockPerTicket(post.Query.YlAbility.YlZichanbaochoulv, "yl_zichanbaochoulv", coders)
+	// 成长能力
+	coders = d.ParseStockPerTicket(post.Query.CzAbility.CzZhuyingyewushouruzengzhanglv, "cz_zhuyingyewushouruzengzhanglv", coders)
+	coders = d.ParseStockPerTicket(post.Query.CzAbility.CzJinglirunzengzhanglv, "cz_jinglirunzengzhanglv", coders)
+	coders = d.ParseStockPerTicket(post.Query.CzAbility.CzJingzichanzengzhanglv, "cz_jingzichanzengzhanglv", coders)
+	coders = d.ParseStockPerTicket(post.Query.CzAbility.CzZongzichanzengzhanglv, "cz_zongzichanzengzhanglv", coders)
+	// 运营能力
+	coders = d.ParseStockPerTicket(post.Query.YyAbility.YyYingshouzhangkuanzhouzhuanlv, "yy_yingshouzhangkuanzhouzhuanlv", coders)
+	coders = d.ParseStockPerTicket(post.Query.YyAbility.YyCunhuozhouzhuanglv, "yy_cunhuozhouzhuanglv", coders)
+	coders = d.ParseStockPerTicket(post.Query.YyAbility.YyLiudongzichanzhouzhuanglv, "yy_liudongzichanzhouzhuanglv", coders)
+	coders = d.ParseStockPerTicket(post.Query.YyAbility.YyZongzichanzhouzhuanglv, "yy_zongzichanzhouzhuanglv", coders)
+	coders = d.ParseStockPerTicket(post.Query.YyAbility.YyGudongquanyizhouzhuanglv, "yy_gudongquanyizhouzhuanglv", coders)
 
 	for k, _ := range coders {
 		all_codes = append(all_codes, k)

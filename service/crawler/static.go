@@ -558,7 +558,7 @@ func (craw *Crawler) GetStockPerTicket(code string, proxy bool) {
 	}
 }
 
-// 对每个字段自动打标吧 哈哈哈
+// 对每个字段自动打标吧 哈哈哈 注意： 需要大量的算力  差不多2小时左右
 func (craw *Crawler) CalcCaiWuForPreTicket(code string) {
 	var per dal.StockPerTicket
 	store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Where("code = ?", code).Find(&per)
