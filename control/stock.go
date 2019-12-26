@@ -108,7 +108,7 @@ func (d *PredictControl) ParseLastDayRange(param map[string]float64, date string
 	tmp := coders
 	min, max := d.getMinMax(param)
 	var codes []Codes
-	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Select("code").Where(fmt.Sprintf("date = ? and %s >= ? and %s <= ?"), date, min, max).Scan(&codes)
+	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Select("code").Where(fmt.Sprintf("date = ? and %s >= ? and %s <= ?", field, field), date, min, max).Scan(&codes)
 	for _, i := range codes {
 		tmp[i.Code] = true
 	}
