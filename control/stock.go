@@ -93,8 +93,8 @@ func (d *PredictControl) getMinMax(da map[string]float64) (float64, float64) {
 	return min, max
 }
 
-func (d *PredictControl) ParseStockPerTicket(param map[string]float64, field string, coders set.Interface) set.Interface {
-	tmp := coders
+func (d *PredictControl) ParseStockPerTicket(param map[string]float64, field string) set.Interface {
+	tmp := set.New(set.ThreadSafe)
 	if len(param) > 0 {
 		min, max := d.getMinMax(param)
 		var codes []Codes
@@ -106,8 +106,8 @@ func (d *PredictControl) ParseStockPerTicket(param map[string]float64, field str
 	return tmp
 }
 
-func (d *PredictControl) ParseLastDayRange(param map[string]float64, date string, field string, coders set.Interface) set.Interface {
-	tmp := coders
+func (d *PredictControl) ParseLastDayRange(param map[string]float64, date string, field string) set.Interface {
+	tmp := set.New(set.ThreadSafe)
 	if len(param) > 0 {
 		min, max := d.getMinMax(param)
 		log.Println(field, min, max)
@@ -160,7 +160,38 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	var args_belongs, args_locationgs, args_concepts []interface{}
 	var all_codes = []string{}
 
-	sets := set.New(set.ThreadSafe)
+	belong_set := set.New(set.ThreadSafe)
+	location_set := set.New(set.ThreadSafe)
+	concept_set := set.New(set.ThreadSafe)
+	per_ticket_set1 := set.New(set.ThreadSafe)
+	per_ticket_set2 := set.New(set.ThreadSafe)
+	per_ticket_set3 := set.New(set.ThreadSafe)
+	per_ticket_set4 := set.New(set.ThreadSafe)
+	per_ticket_set5 := set.New(set.ThreadSafe)
+	per_ticket_set6 := set.New(set.ThreadSafe)
+
+	last_day_set1 := set.New(set.ThreadSafe)
+	last_day_set2 := set.New(set.ThreadSafe)
+	last_day_set3 := set.New(set.ThreadSafe)
+	last_day_set4 := set.New(set.ThreadSafe)
+
+	ability_set1 := set.New(set.ThreadSafe)
+	ability_set2 := set.New(set.ThreadSafe)
+	ability_set3 := set.New(set.ThreadSafe)
+	ability_set4 := set.New(set.ThreadSafe)
+	ability_set5 := set.New(set.ThreadSafe)
+	ability_set6 := set.New(set.ThreadSafe)
+	ability_set7 := set.New(set.ThreadSafe)
+	ability_set8 := set.New(set.ThreadSafe)
+	ability_set9 := set.New(set.ThreadSafe)
+	ability_set10 := set.New(set.ThreadSafe)
+	ability_set11 := set.New(set.ThreadSafe)
+	ability_set12 := set.New(set.ThreadSafe)
+	ability_set13 := set.New(set.ThreadSafe)
+	ability_set14 := set.New(set.ThreadSafe)
+	ability_set15 := set.New(set.ThreadSafe)
+	ability_set16 := set.New(set.ThreadSafe)
+	ability_set17 := set.New(set.ThreadSafe)
 
 	if len(post.Query.Belongs) > 0 {
 		var codes []Codes
@@ -171,8 +202,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		where_str := strings.Join(where_belongs, " OR ")
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_belongs...).Scan(&codes)
 		for _, i := range codes {
-			sets.Add(i.Code)
+			belong_set.Add(i.Code)
 		}
+		log.Println(where_str, args_belongs)
 	}
 
 	if len(post.Query.Locations) > 0 {
@@ -184,8 +216,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		where_str := strings.Join(where_locations, " OR ")
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_locationgs...).Scan(&codes)
 		for _, i := range codes {
-			sets.Add(i.Code)
+			location_set.Add(i.Code)
 		}
+		log.Println(where_str, args_locationgs)
 	}
 
 	if len(post.Query.Concepts) > 0 || len(post.Query.Labels) > 0 {
@@ -198,48 +231,53 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		where_str := strings.Join(where_concepts, " OR ")
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_concepts...).Scan(&codes)
 		for _, i := range codes {
-			sets.Add(i.Code)
+			concept_set.Add(i.Code)
 		}
+		log.Println(where_str, args_concepts)
 	}
 
-	sets = d.ParseStockPerTicket(post.Query.PerTickets.Shouyiafter, "shouyiafter", sets)
-	sets = d.ParseStockPerTicket(post.Query.PerTickets.Jiaquanshouyi, "jiaquanshouyi", sets)
-	sets = d.ParseStockPerTicket(post.Query.PerTickets.Jinzichanafter, "jinzichanafter", sets)
-	sets = d.ParseStockPerTicket(post.Query.PerTickets.Jingyingxianjinliu, "jingyingxianjinliu", sets)
-	sets = d.ParseStockPerTicket(post.Query.PerTickets.Gubengongjijin, "gubengongjijin", sets)
-	sets = d.ParseStockPerTicket(post.Query.PerTickets.Weifenpeilirun, "weifenpeilirun", sets)
+	per_ticket_set1 = d.ParseStockPerTicket(post.Query.PerTickets.Shouyiafter, "shouyiafter")
+	per_ticket_set2 = d.ParseStockPerTicket(post.Query.PerTickets.Jiaquanshouyi, "jiaquanshouyi")
+	per_ticket_set3 = d.ParseStockPerTicket(post.Query.PerTickets.Jinzichanafter, "jinzichanafter")
+	per_ticket_set4 = d.ParseStockPerTicket(post.Query.PerTickets.Jingyingxianjinliu, "jingyingxianjinliu")
+	per_ticket_set5 = d.ParseStockPerTicket(post.Query.PerTickets.Gubengongjijin, "gubengongjijin")
+	per_ticket_set6 = d.ParseStockPerTicket(post.Query.PerTickets.Weifenpeilirun, "weifenpeilirun")
 
-	sets = d.ParseLastDayRange(post.Query.LastDayRange.LastPercent, post.Date, "percent", sets)
-	sets = d.ParseLastDayRange(post.Query.LastDayRange.LastAmplitude, post.Date, "amplitude", sets)
-	sets = d.ParseLastDayRange(post.Query.LastDayRange.LastTurnoverrate, post.Date, "turnover_rate", sets)
-	sets = d.ParseLastDayRange(post.Query.LastDayRange.LastPrice, post.Date, "shou", sets)
+	last_day_set1 = d.ParseLastDayRange(post.Query.LastDayRange.LastPercent, post.Date, "percent")
+	last_day_set2 = d.ParseLastDayRange(post.Query.LastDayRange.LastAmplitude, post.Date, "amplitude")
+	last_day_set3 = d.ParseLastDayRange(post.Query.LastDayRange.LastTurnoverrate, post.Date, "turnover_rate")
+	last_day_set4 = d.ParseLastDayRange(post.Query.LastDayRange.LastPrice, post.Date, "shou")
 
 	// 盈利能力
-	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlZongzichanlirunlv, "yl_zongzichanlirunlv", sets)
-	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlZhuyingyewulirunlv, "yl_zhuyingyewulirunlv", sets)
-	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlZongzichanjinglirunlv, "yl_zongzichanjinglirunlv", sets)
-	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlYingyelirunlv, "yl_yingyelirunlv", sets)
-	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlXiaoshoujinglilv, "yl_xiaoshoujinglilv", sets)
-	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlGubenbaochoulv, "yl_gubenbaochoulv", sets)
-	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlJingzichanbaochoulv, "yl_jingzichanbaochoulv", sets)
-	sets = d.ParseStockPerTicket(post.Query.YlAbility.YlZichanbaochoulv, "yl_zichanbaochoulv", sets)
+	ability_set1 = d.ParseStockPerTicket(post.Query.YlAbility.YlZongzichanlirunlv, "yl_zongzichanlirunlv")
+	ability_set2 = d.ParseStockPerTicket(post.Query.YlAbility.YlZhuyingyewulirunlv, "yl_zhuyingyewulirunlv")
+	ability_set3 = d.ParseStockPerTicket(post.Query.YlAbility.YlZongzichanjinglirunlv, "yl_zongzichanjinglirunlv")
+	ability_set4 = d.ParseStockPerTicket(post.Query.YlAbility.YlYingyelirunlv, "yl_yingyelirunlv")
+	ability_set5 = d.ParseStockPerTicket(post.Query.YlAbility.YlXiaoshoujinglilv, "yl_xiaoshoujinglilv")
+	ability_set6 = d.ParseStockPerTicket(post.Query.YlAbility.YlGubenbaochoulv, "yl_gubenbaochoulv")
+	ability_set7 = d.ParseStockPerTicket(post.Query.YlAbility.YlJingzichanbaochoulv, "yl_jingzichanbaochoulv")
+	ability_set8 = d.ParseStockPerTicket(post.Query.YlAbility.YlZichanbaochoulv, "yl_zichanbaochoulv")
 	// 成长能力
-	sets = d.ParseStockPerTicket(post.Query.CzAbility.CzZhuyingyewushouruzengzhanglv, "cz_zhuyingyewushouruzengzhanglv", sets)
-	sets = d.ParseStockPerTicket(post.Query.CzAbility.CzJinglirunzengzhanglv, "cz_jinglirunzengzhanglv", sets)
-	sets = d.ParseStockPerTicket(post.Query.CzAbility.CzJingzichanzengzhanglv, "cz_jingzichanzengzhanglv", sets)
-	sets = d.ParseStockPerTicket(post.Query.CzAbility.CzZongzichanzengzhanglv, "cz_zongzichanzengzhanglv", sets)
+	ability_set9 = d.ParseStockPerTicket(post.Query.CzAbility.CzZhuyingyewushouruzengzhanglv, "cz_zhuyingyewushouruzengzhanglv")
+	ability_set10 = d.ParseStockPerTicket(post.Query.CzAbility.CzJinglirunzengzhanglv, "cz_jinglirunzengzhanglv")
+	ability_set11 = d.ParseStockPerTicket(post.Query.CzAbility.CzJingzichanzengzhanglv, "cz_jingzichanzengzhanglv")
+	ability_set12 = d.ParseStockPerTicket(post.Query.CzAbility.CzZongzichanzengzhanglv, "cz_zongzichanzengzhanglv")
 	// 运营能力
-	sets = d.ParseStockPerTicket(post.Query.YyAbility.YyYingshouzhangkuanzhouzhuanlv, "yy_yingshouzhangkuanzhouzhuanlv", sets)
-	sets = d.ParseStockPerTicket(post.Query.YyAbility.YyCunhuozhouzhuanglv, "yy_cunhuozhouzhuanglv", sets)
-	sets = d.ParseStockPerTicket(post.Query.YyAbility.YyLiudongzichanzhouzhuanglv, "yy_liudongzichanzhouzhuanglv", sets)
-	sets = d.ParseStockPerTicket(post.Query.YyAbility.YyZongzichanzhouzhuanglv, "yy_zongzichanzhouzhuanglv", sets)
-	sets = d.ParseStockPerTicket(post.Query.YyAbility.YyGudongquanyizhouzhuanglv, "yy_gudongquanyizhouzhuanglv", sets)
+	ability_set13 = d.ParseStockPerTicket(post.Query.YyAbility.YyYingshouzhangkuanzhouzhuanlv, "yy_yingshouzhangkuanzhouzhuanlv")
+	ability_set14 = d.ParseStockPerTicket(post.Query.YyAbility.YyCunhuozhouzhuanglv, "yy_cunhuozhouzhuanglv")
+	ability_set15 = d.ParseStockPerTicket(post.Query.YyAbility.YyLiudongzichanzhouzhuanglv, "yy_liudongzichanzhouzhuanglv")
+	ability_set16 = d.ParseStockPerTicket(post.Query.YyAbility.YyZongzichanzhouzhuanglv, "yy_zongzichanzhouzhuanglv")
+	ability_set17 = d.ParseStockPerTicket(post.Query.YyAbility.YyGudongquanyizhouzhuanglv, "yy_gudongquanyizhouzhuanglv")
 
-	for _, k := range sets.List() {
+	coders := set.Intersection(belong_set, location_set, concept_set,
+		per_ticket_set1, per_ticket_set2, per_ticket_set3, per_ticket_set4, per_ticket_set5, per_ticket_set6,
+		last_day_set1, last_day_set2, last_day_set3, last_day_set4,
+		ability_set1, ability_set2, ability_set3, ability_set4, ability_set5, ability_set6, ability_set7, ability_set8,
+		ability_set9, ability_set10, ability_set11, ability_set12, ability_set13, ability_set14, ability_set15, ability_set16, ability_set17)
+
+	for _, k := range coders.List() {
 		all_codes = append(all_codes, k.(string))
 	}
-
-	log.Println("查询范围", all_codes)
 
 	var predicts []dal.Predict
 	var total int
@@ -251,7 +289,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		tmp = tmp.Where("code IN (?)", all_codes)
 	}
 	tmp.Count(&total)
-
 	if !utils.ContainsString(OrderLimit, post.Order) {
 		post.Order = "score"
 	}
