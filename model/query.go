@@ -3,10 +3,11 @@
 package model
 
 type NewQuery struct {
-	Type     interface{}
-	Where    interface{}
-	Args     []interface{}
-	Distinct string
-	Limit    int
-	Offset   int
+	Type       interface{}
+	Where      interface{}
+	Args       []interface{}
+	SelectOnly string
+	Distinct   string
+	Limit      int
+	Offset     int
 }

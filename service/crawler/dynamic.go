@@ -92,7 +92,6 @@ func (craw *Crawler) GetAllTicketTodayDetail(code, name, today string, proxy boo
 					}
 					store.MysqlClient.GetDB().Save(&dh)
 					fmt.Println(code, name, date, kai, high, low, shou, zhangdiee, percent, tc, tm, zhenfu, huanshou)
-
 				}
 			}
 		}

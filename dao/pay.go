@@ -13,7 +13,7 @@ type PayDaoIF interface {
 	Delete(id int) error
 	Update(id int, m map[string]interface{}) error
 	Query(where string, args []interface{}) (*dal.Pay, error)
-	QueryAll(where string, args []interface{}, offset, limit int) (*[]dal.Pay, error)
+	QueryAll(where string, args []interface{}, offset, limit int, select_only string) (*[]dal.Pay, error)
 	Count(where string, args []interface{}) (int, error)
 }
 
@@ -61,13 +61,14 @@ func (m *MysqlPay) Count(where string, args []interface{}) (int, error) {
 	return m.Store.Count(query_obj)
 }
 
-func (m *MysqlPay) QueryAll(where string, args []interface{}, offset, limit int) (*[]dal.Pay, error) {
+func (m *MysqlPay) QueryAll(where string, args []interface{}, offset, limit int, select_only string) (*[]dal.Pay, error) {
 	query_obj := m.Store.NewQuery()
 	query_obj.Type = []dal.Pay{}
 	query_obj.Where = where
 	query_obj.Args = args
 	query_obj.Limit = limit
 	query_obj.Offset = offset
+	query_obj.SelectOnly = select_only
 	result, err := m.Store.Query(query_obj)
 	if err != nil {
 		return nil, err

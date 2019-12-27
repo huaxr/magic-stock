@@ -12,7 +12,7 @@ type PredictServiceIF interface {
 	Delete(id int) error
 	Update(id int, m map[string]interface{}) error
 	Query(where string, args []interface{}) (*dal.Predict, error)
-	QueryAll(where string, args []interface{}, offset, limit int) (*[]dal.Predict, error)
+	QueryAll(where string, args []interface{}, offset, limit int, select_only string) (*[]dal.Predict, error)
 	Count(where string, args []interface{}) (int, error)
 }
 
@@ -44,8 +44,8 @@ func (m *PredictService) Query(where string, args []interface{}) (*dal.Predict, 
 	return m.dao.Query(where, args)
 }
 
-func (m *PredictService) QueryAll(where string, args []interface{}, offset, limit int) (*[]dal.Predict, error) {
-	return m.dao.QueryAll(where, args, offset, limit)
+func (m *PredictService) QueryAll(where string, args []interface{}, offset, limit int, select_only string) (*[]dal.Predict, error) {
+	return m.dao.QueryAll(where, args, offset, limit, select_only)
 }
 
 func (m *PredictService) Count(where string, args []interface{}) (int, error) {

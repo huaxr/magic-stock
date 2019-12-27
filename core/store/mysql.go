@@ -88,9 +88,11 @@ func (m *Mysql) Query(query *model.NewQuery) (interface{}, error) {
 		a = reflect.New(reflect.TypeOf(query.Type)).Interface()
 		tmp = m.db.Model(a)
 	}
-
 	if query.Where != nil {
 		tmp = tmp.Where(query.Where, query.Args...)
+	}
+	if query.SelectOnly != "" {
+		tmp = tmp.Select(query.SelectOnly)
 	}
 	if query.Limit != 0 {
 		tmp = tmp.Limit(query.Limit)
@@ -146,6 +148,7 @@ func (e *Mysql) NewQuery() *model.NewQuery {
 	// bug report: the pointer object will use limit offset
 	// so extra query params should clear before return and put back to pool
 	q.Distinct = ""
+	q.SelectOnly = ""
 	q.Limit = 0
 	q.Offset = 0
 	return q

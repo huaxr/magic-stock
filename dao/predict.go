@@ -13,7 +13,7 @@ type PredictDaoIF interface {
 	Delete(id int) error
 	Update(id int, m map[string]interface{}) error
 	Query(where string, args []interface{}) (*dal.Predict, error)
-	QueryAll(where string, args []interface{}, offset, limit int) (*[]dal.Predict, error)
+	QueryAll(where string, args []interface{}, offset, limit int, select_only string) (*[]dal.Predict, error)
 	Count(where string, args []interface{}) (int, error)
 }
 
@@ -61,13 +61,14 @@ func (m *MysqlPredict) Count(where string, args []interface{}) (int, error) {
 	return m.Store.Count(query_obj)
 }
 
-func (m *MysqlPredict) QueryAll(where string, args []interface{}, offset, limit int) (*[]dal.Predict, error) {
+func (m *MysqlPredict) QueryAll(where string, args []interface{}, offset, limit int, select_only string) (*[]dal.Predict, error) {
 	query_obj := m.Store.NewQuery()
 	query_obj.Type = []dal.Predict{}
 	query_obj.Where = where
 	query_obj.Args = args
 	query_obj.Limit = limit
 	query_obj.Offset = offset
+	query_obj.SelectOnly = select_only
 	result, err := m.Store.Query(query_obj)
 	if err != nil {
 		return nil, err

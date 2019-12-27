@@ -29,7 +29,7 @@ type UserServiceIF interface {
 	Delete(id int) error
 	Update(id int, m map[string]interface{}) error
 	Query(where string, args []interface{}) (*dal.User, error)
-	QueryAll(where string, args []interface{}, offset, limit int) (*[]dal.User, error)
+	QueryAll(where string, args []interface{}, offset, limit int, select_only string) (*[]dal.User, error)
 	Count(where string, args []interface{}) (int, error)
 	CreateUserIfNotExist(user *dal.User, token string) (us *dal.User, err error)
 	LoginWx(code, token string) (*dal.User, error)
@@ -68,8 +68,8 @@ func (m *UserService) Query(where string, args []interface{}) (*dal.User, error)
 	return m.dao.Query(where, args)
 }
 
-func (m *UserService) QueryAll(where string, args []interface{}, offset, limit int) (*[]dal.User, error) {
-	return m.dao.QueryAll(where, args, offset, limit)
+func (m *UserService) QueryAll(where string, args []interface{}, offset, limit int, select_only string) (*[]dal.User, error) {
+	return m.dao.QueryAll(where, args, offset, limit, select_only)
 }
 
 func (m *UserService) Count(where string, args []interface{}) (int, error) {

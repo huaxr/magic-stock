@@ -344,10 +344,6 @@ func (craw *Crawler) HasLimitUpInTheseDays(result *model.CalcResult, recent_days
 	return ArrayHasLimitUp(result.RecentPercent, recent_days)
 }
 
-func xx(x interface{}) {
-
-}
-
 func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	// 今日线金叉 6 和 15线
 	jincha1 := result.AveDailyPrice1[0] > result.AveDailyPrice2[0] && result.AveDailyPrice1[1] < result.AveDailyPrice2[1]
@@ -441,7 +437,9 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	// 涨停股
 	zhangting := result.RecentPercent[0] > 9.94
 	// 一字板
-	yiziban := result.RecentPercent[0] > 9.94 && result.RecentClose[0] == result.RecentOpen[0]
+	yiziban := result.RecentPercent[0] > 9.94 && result.RecentOpen[0] == result.RecentLow[0]
+	// T 字板
+	tziban := result.RecentPercent[0] > 9.94 && result.RecentOpen[0] == result.RecentClose[0] && result.RecentClose[0] > result.RecentLow[0]
 
 	// 当前价格在短期均线上方
 	priceaboveave6 := result.RecentClose[0] >= result.AveDailyPrice1[0]
@@ -570,9 +568,13 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str += "涨停股; "
 	}
 	if yiziban {
-		score += 1
 		cond_str += "一字板; "
 	}
+
+	if tziban {
+		cond_str += "T字板; "
+	}
+
 	if gaoweihuitiao1 || gaoweihuitiao2 || gaoweihuitiao3 {
 		cond_str += "高位回调; "
 	}
@@ -728,7 +730,15 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	rand.Seed(time.Now().Unix())
 	n := rand.Int() % len(seed)
 
-	p := dal.Predict{Code: code, Name: name, Condition: cond_str, BadCondition: bad_cond_str, Finance: finance, Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount, Score: score*2 + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0]}
+	if score*3 > 93 {
+		score = 31
+	}
+
+	if score < 0 {
+		score = 0
+	}
+
+	p := dal.Predict{Code: code, Name: name, Condition: cond_str, BadCondition: bad_cond_str, Finance: finance, Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount, Score: score*3 + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0]}
 	if utils.TellEnv() == "loc" {
 		err := store.MysqlClient.GetOnlineDB().Save(&p).Error
 		if err != nil {

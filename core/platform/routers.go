@@ -27,7 +27,6 @@ func (r *Router) addRouters() {
 	router.GET("/labels", control.PredictControlGlobal.GetLabels)
 	router.GET("/belongs", control.PredictControlGlobal.GetBelongs)
 	router.GET("/locations", control.PredictControlGlobal.GetLocations)
-	router.GET("/organization_forms", control.PredictControlGlobal.GetOrganizationalForms)
 	router.POST("/predicts_list", control.PredictControlGlobal.PredictList)
 	router.GET("/stock/detail", control.PredictControlGlobal.GetDetail)
 	router.GET("/stock/fund", control.PredictControlGlobal.GetFunds)

@@ -14,7 +14,7 @@ type PayServiceIF interface {
 	Delete(id int) error
 	Update(id int, m map[string]interface{}) error
 	Query(where string, args []interface{}) (*dal.Pay, error)
-	QueryAll(where string, args []interface{}, offset, limit int) (*[]dal.Pay, error)
+	QueryAll(where string, args []interface{}, offset, limit int, select_only string) (*[]dal.Pay, error)
 	Count(where string, args []interface{}) (int, error)
 	// 更新支付标志位, 发送短信, 生成真实订单数据
 	UpdatePaySuccessAndGenerateIndent(order_id string)
@@ -48,8 +48,8 @@ func (m *PayService) Query(where string, args []interface{}) (*dal.Pay, error) {
 	return m.dao.Query(where, args)
 }
 
-func (m *PayService) QueryAll(where string, args []interface{}, offset, limit int) (*[]dal.Pay, error) {
-	return m.dao.QueryAll(where, args, offset, limit)
+func (m *PayService) QueryAll(where string, args []interface{}, offset, limit int, select_only string) (*[]dal.Pay, error) {
+	return m.dao.QueryAll(where, args, offset, limit, select_only)
 }
 
 func (m *PayService) Count(where string, args []interface{}) (int, error) {
