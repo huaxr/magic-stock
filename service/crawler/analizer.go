@@ -476,15 +476,15 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	cond_str, bad_cond_str, finance := "", "", ""
 
 	if jincha1 {
-		score += 2
+		score += 4
 		cond_str += "6与15日均线(金叉); "
 	}
 	if jincha3 {
-		score += 2
+		score += 4
 		cond_str += "15与30日均线(金叉); "
 	}
 	if jincha5 {
-		score += 2
+		score += 4
 		cond_str += "6与15周均线(金叉); "
 	}
 	if liangnengbigger1 && liangnengbigger2 {
@@ -498,23 +498,23 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str += "T字板; "
 	}
 	if zhangting {
-		score += 1
+		score += 3
 		cond_str += "昨日涨停; "
 	}
 	if tufangjuliang {
-		score += 1
+		score += 2
 		cond_str += "突放巨量; "
 	}
 	if wulianyang {
-		score += 1
+		score += 3
 		cond_str += "五连阳; "
 	}
 	if !wulianyang && silianyang {
-		score += 1
+		score += 2
 		cond_str += "四连阳; "
 	}
 	if !wulianyang && !silianyang && sanlianyang {
-		score += 1
+		score += 3
 		cond_str += "三连阳; "
 	}
 	if changshangying {
@@ -530,23 +530,23 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str += "高开高走; "
 	}
 	if priceshangyang1 {
-		score += 1
+		score += 2
 		cond_str += "6日均线上扬; "
 	}
 	if priceshangyang2 {
-		score += 1
+		score += 2
 		cond_str += "15日均线上扬; "
 	}
 	if priceshangyang3 {
-		score += 1
+		score += 2
 		cond_str += "30日均线上扬; "
 	}
 	if priceshangyang4 {
-		score += 1
+		score += 2
 		cond_str += "6周均线上扬; "
 	}
 	if priceshangyang5 {
-		score += 1
+		score += 2
 		cond_str += "15周均线上扬; "
 	}
 	if gaokaidizou {
@@ -580,37 +580,37 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str += "近期收盘价与30日均线粘合; "
 	}
 	if simuchicangcount > 0 {
-		score += 1
+		score += 3
 		cond_str += fmt.Sprintf("%d个私募持仓; ", simuchicangcount)
 	}
 	if jigouchicangcount > 0 {
-		score += 1
+		score += 3
 		cond_str += fmt.Sprintf("%d个基金持仓; ", jigouchicangcount)
 	}
 
 	// 量价
 	if liangnengbuduanbigger {
-		score += 1
+		score += 2
 		cond_str += "量能不断放大; "
 	}
 	if jincha7 || jincha8 {
-		score += 1
+		score += 3
 		cond_str += "10日与40日量能均线交金叉; "
 	}
 	if liangshangyang1 {
-		score += 1
+		score += 3
 		cond_str += "连续5日量能10日均线上扬; "
 	}
 	if liangshangyang2 {
-		score += 1
+		score += 3
 		cond_str += "连续5日量能40日均线上扬; "
 	}
 	if liangnengbigger1 {
-		score += 1
+		score += 3
 		cond_str += "连续5日量能站上10日均线; "
 	}
 	if liangnengbigger2 {
-		score += 1
+		score += 3
 		cond_str += "连续5日量能站上40日均线; "
 	}
 	if guoyi {
@@ -653,7 +653,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 
 	if liangnengsmaller1 || liangnengsmaller2 {
-		score -= 2
+		score -= 4
 		bad_cond_str += "量能萎靡; "
 	}
 	if st {
@@ -661,15 +661,15 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		bad_cond_str += "ST板块; "
 	}
 	if sicha1 {
-		score -= 2
+		score -= 4
 		bad_cond_str += "(死叉)6与15日均线; "
 	}
 	if sicha3 {
-		score -= 2
+		score -= 4
 		bad_cond_str += "(死叉)15与30日均线; "
 	}
 	if sicha5 {
-		score -= 2
+		score -= 4
 		bad_cond_str += "(死叉)6与15周均线; "
 	}
 	if pricexiajiang1 {
@@ -677,21 +677,21 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		bad_cond_str += "6日均线下挫; "
 	}
 	if pricexiajiang2 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "15日均线下挫; "
 	}
 	if pricexiajiang3 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "30日均线下挫; "
 	}
 
 	if pricexiajiang4 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "6周均线下挫; "
 	}
 
 	if pricexiajiang5 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "15周均线下挫; "
 	}
 	if pricelowave6 {
@@ -747,21 +747,16 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	middle := strings.Count(finance, "一般")
 	low := strings.Count(finance, "偏低")
 	bad := strings.Count(finance, "较差")
-	score += high*2 + middle*1 + low*-1 + bad*-2
+	score += high*4 + middle*3 + low*-1 + bad*-2
 	fmt.Println(code, name, cond_str, bad_cond_str, finance)
 	seed := []int{1, 2, 3, 4, 5, 6}
 	rand.Seed(time.Now().Unix())
 	n := rand.Int() % len(seed)
-
-	if score*3 > 93 {
-		score = 31
-	}
-
 	if score < 0 {
 		score = 0
 	}
 
-	p := dal.Predict{Code: code, Name: name, Condition: cond_str, BadCondition: bad_cond_str, Finance: finance, Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount, Score: score*3 + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0]}
+	p := dal.Predict{Code: code, Name: name, Condition: cond_str, BadCondition: bad_cond_str, Finance: finance, Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount, Score: score + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0]}
 	if utils.TellEnv() == "loc" {
 		err := store.MysqlClient.GetOnlineDB().Save(&p).Error
 		if err != nil {
