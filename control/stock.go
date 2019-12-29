@@ -322,7 +322,7 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	date := c.DefaultQuery("date", "")
 	code := c.DefaultQuery("code", "")
 	if code == "" || date == "" {
-		d.Response(c, nil, errors.New("证券代码空"))
+		d.Response(c, nil, errors.New("证券/日期代码空"))
 		return
 	}
 	var TicketHistory []dal.TicketHistory
@@ -341,13 +341,13 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("code = ? and date = ?", code, date).Find(&Predict)
 
 	var StockCashFlow []dal.StockCashFlow
-	store.MysqlClient.GetDB().Model(&dal.StockCashFlow{}).Where("code = ?", code).Find(&StockCashFlow)
+	store.MysqlClient.GetDB().Model(&dal.StockCashFlow{}).Where("code = ?", code).Order("date asc").Find(&StockCashFlow)
 
 	var StockLiabilities []dal.StockLiabilities
-	store.MysqlClient.GetDB().Model(&dal.StockLiabilities{}).Where("code = ?", code).Find(&StockLiabilities)
+	store.MysqlClient.GetDB().Model(&dal.StockLiabilities{}).Where("code = ?", code).Order("date asc").Find(&StockLiabilities)
 
 	var StockProfit []dal.StockProfit
-	store.MysqlClient.GetDB().Model(&dal.StockProfit{}).Where("code = ?", code).Find(&StockProfit)
+	store.MysqlClient.GetDB().Model(&dal.StockProfit{}).Where("code = ?", code).Order("date asc").Find(&StockProfit)
 
 	var PerTickets dal.StockPerTicket
 	store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Where("code = ?", code).Find(&PerTickets)

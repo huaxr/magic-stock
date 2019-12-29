@@ -69,14 +69,20 @@ func TestGetConcept(t *testing.T) {
 
 // 获取所有股票简介信息
 func TestCrawler_GetAllTicketCodeInfo(t *testing.T) {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("institutional_type = ?", "").Find(&code)
 	go func() {
-		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000 and id <= 2005").Find(&code)
-		for _, i := range code {
-			CrawlerGlobal.GetAllTicketCodeInfo(i, false)
+		for _, i := range code[0 : (len(code)-1)/2] {
+			CrawlerGlobal.GetAllTicketCodeInfo2(i, false)
+			time.Sleep(2 * time.Second)
 		}
 	}()
-
+	go func() {
+		for _, i := range code[(len(code)-1)/2 : (len(code) - 1)] {
+			CrawlerGlobal.GetAllTicketCodeInfo2(i, true)
+			time.Sleep(2 * time.Second)
+		}
+	}()
 	select {}
 
 }

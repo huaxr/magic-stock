@@ -204,7 +204,6 @@ func (craw *Crawler) GetAllTicketCodeInfo(code dal.Code, proxy bool) {
 		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://quotes.money.163.com/f10/gszl_%s.html#01f01", code.Code))
 	}
 	CompanyName := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_l_01 > table > tbody > tr:nth-child(3) > td:nth-child(2)")).Text())
-	OrganizationalForm := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_l_01 > table > tbody > tr:nth-child(1) > td:nth-child(2)")).Text())
 	Location := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_l_01 > table > tbody > tr:nth-child(1) > td:nth-child(4)")).Text())
 	Address := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_l_01 > table > tbody > tr:nth-child(2) > td:nth-child(4)")).Text())
 	NetAddress := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_l_01 > table > tbody > tr:nth-child(9) > td:nth-child(2)")).Text())
@@ -212,9 +211,8 @@ func (craw *Crawler) GetAllTicketCodeInfo(code dal.Code, proxy bool) {
 	BusinessScope := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_l_01 > table > tbody > tr:nth-child(12) > td:nth-child(2)")).Text())
 	EstablishmentTime := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_r_01 > table > tbody > tr:nth-child(1) > td:nth-child(2)")).Text())
 	ListingDate := strings.TrimSpace(doc.Find(fmt.Sprintf("body > div.area > div.col_r_01 > table > tbody > tr:nth-child(2) > td:nth-child(2)")).Text())
-	fmt.Println(code.ID, code.Name, CompanyName, OrganizationalForm, Location, Address, NetAddress, MajorBusinesses, BusinessScope, EstablishmentTime, ListingDate)
+	fmt.Println(code.ID, code.Name, CompanyName, Location, Address, NetAddress, MajorBusinesses, BusinessScope, EstablishmentTime, ListingDate)
 	code.CompanyName = CompanyName
-	code.OrganizationalForm = OrganizationalForm
 	code.Location = Location
 	code.Address = Address
 	code.NetAddress = NetAddress
@@ -222,6 +220,27 @@ func (craw *Crawler) GetAllTicketCodeInfo(code dal.Code, proxy bool) {
 	code.BusinessScope = BusinessScope
 	code.EstablishmentTime = EstablishmentTime
 	code.ListingDate = ListingDate
+	store.MysqlClient.GetDB().Save(&code)
+}
+
+// 拓展股票公司简介信息(用新浪api更牛)
+func (craw *Crawler) GetAllTicketCodeInfo2(code dal.Code, proxy bool) {
+	var doc *goquery.Document
+	if !proxy {
+		doc, _ = craw.NewDocument(fmt.Sprintf("http://vip.stock.finance.sina.com.cn/corp/go.php/vCI_CorpInfo/stockid/%s.phtml", code.Code))
+	} else {
+		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://vip.stock.finance.sina.com.cn/corp/go.php/vCI_CorpInfo/stockid/%s.phtml", code.Code))
+	}
+	OrganizationalForm := strings.TrimSpace(doc.Find(fmt.Sprintf("#comInfo1 > tbody > tr:nth-child(6) > td:nth-child(4)")).Text())
+	OrganizationalForm = utils.ConvertToString(OrganizationalForm, "gbk", "utf-8")
+	InstitutionalType := strings.TrimSpace(doc.Find(fmt.Sprintf("#comInfo1 > tbody > tr:nth-child(6) > td:nth-child(2)")).Text())
+	HistoryNames := strings.TrimSpace(doc.Find(fmt.Sprintf("#comInfo1 > tbody > tr:nth-child(17) > td.ccl")).Text())
+	InstitutionalType = utils.ConvertToString(InstitutionalType, "gbk", "utf-8")
+	HistoryNames = utils.ConvertToString(HistoryNames, "gbk", "utf-8")
+	fmt.Println(code.ID, code.Name, OrganizationalForm, HistoryNames, InstitutionalType)
+	code.OrganizationalForm = OrganizationalForm
+	code.InstitutionalType = InstitutionalType
+	code.HistoryNames = HistoryNames
 	store.MysqlClient.GetDB().Save(&code)
 }
 

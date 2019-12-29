@@ -393,6 +393,14 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	gaoweihuitiao2 := result.RecentPercent[0] < 3 && result.RecentPercent[1] < 3 && result.RecentPercent[2] < 9 && result.RecentPercent[3] > 9 && (result.RecentPercent[0]+result.RecentPercent[1]+result.RecentPercent[2]+result.RecentPercent[3] < 3)
 	gaoweihuitiao3 := result.RecentPercent[0] < 3 && result.RecentPercent[1] < 3 && result.RecentPercent[2] < 3 && result.RecentPercent[3] < 9 && result.RecentPercent[4] > 9 && (result.RecentPercent[0]+result.RecentPercent[1]+result.RecentPercent[2]+result.RecentPercent[3]+result.RecentPercent[4] < 3)
 
+	// 低开高走
+	dikaigaozou := (result.RecentClose[1]-result.RecentOpen[0])/result.RecentClose[1] > 0.02 && result.RecentPercent[0] > 3
+	// 高开低走
+	gaokaidizou := (result.RecentOpen[0]-result.RecentClose[1])/result.RecentOpen[0] > 0.02 && result.RecentPercent[0] < -3
+	// 低开低走
+	dikaidizou := (result.RecentClose[1]-result.RecentOpen[0])/result.RecentClose[1] > 0.02 && result.RecentPercent[0] < -5
+	// 高开高走
+	gaokaigaozou := (result.RecentOpen[0]-result.RecentClose[1])/result.RecentOpen[0] > 0.02 && result.RecentPercent[0] > 5
 	// 连续5日量能10均线上扬
 	liangshangyang1 := result.AveCount1[0] > result.AveCount1[1] && result.AveCount1[1] > result.AveCount1[2] && result.AveCount1[2] > result.AveCount1[3] && result.AveCount1[3] > result.AveCount1[4] && result.AveCount1[4] > result.AveCount1[5]
 	// 连续5日量能40均线上扬
@@ -402,20 +410,22 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	liangnengbigger1 := result.AveCount1[0] < result.RecentCount[0] && result.AveCount1[1] < result.RecentCount[1] && result.AveCount1[2] < result.RecentCount[2] && result.AveCount1[3] < result.RecentCount[3] && result.AveCount1[4] < result.RecentCount[4]
 	// 连续5日量能站上40均线
 	liangnengbigger2 := result.AveCount2[0] < result.RecentCount[0] && result.AveCount2[1] < result.RecentCount[1] && result.AveCount2[2] < result.RecentCount[2] && result.AveCount2[3] < result.RecentCount[3] && result.AveCount2[4] < result.RecentCount[4]
+	// 连续5日量能低于10均线
+	liangnengsmaller1 := result.AveCount1[0] > result.RecentCount[0] && result.AveCount1[1] > result.RecentCount[1] && result.AveCount1[2] > result.RecentCount[2] && result.AveCount1[3] > result.RecentCount[3] && result.AveCount1[4] > result.RecentCount[4]
+	// 连续5日量能低于40均线
+	liangnengsmaller2 := result.AveCount2[0] > result.RecentCount[0] && result.AveCount2[1] > result.RecentCount[1] && result.AveCount2[2] > result.RecentCount[2] && result.AveCount2[3] > result.RecentCount[3] && result.AveCount2[4] > result.RecentCount[4]
+
 	// 量能不断放大
 	liangnengbuduanbigger := result.RecentCount[0] > result.RecentCount[1] && result.RecentCount[1] > result.RecentCount[2] && result.RecentCount[2] > result.RecentCount[3]
 	// 突放巨量
 	tufangjuliang := (result.RecentCount[0]-result.RecentCount[1])/result.RecentCount[1] > 5 || (result.RecentCount[1]-result.RecentCount[2])/result.RecentCount[1] > 5
 
-	// 量能小于10日均线
-	liangnengsmall1 := result.AveCount1[0] > result.RecentCount[0]
-	// 量能小于40日均线
-	liangnengsmall2 := result.AveCount2[0] > result.RecentCount[0]
-
 	// 3 连阳
 	sanlianyang := result.RecentPercent[0] > 0 && result.RecentPercent[1] > 0 && result.RecentPercent[2] > 0 && result.RecentPercent[3] > 0
+	// 4 连阳
+	silianyang := sanlianyang && result.RecentPercent[4] > 0
 	// 5连阳
-	wulianyang := sanlianyang && result.RecentPercent[4] > 0 && result.RecentPercent[5] > 0
+	wulianyang := silianyang && result.RecentPercent[5] > 0
 
 	// 近期长上影
 	changshangying := craw.HasTopLine(result, 1)
@@ -464,53 +474,60 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 
 	score := 0 // max 37  // low 17
 	cond_str, bad_cond_str, finance := "", "", ""
-	if priceaboveave6 {
-		score += 1
-		cond_str += fmt.Sprintf("收盘价在6日均线上方; ")
-	}
-	if priceaboveave15 {
-		score += 1
-		cond_str += fmt.Sprintf("收盘价在15日均线上方; ")
-	}
-	if priceaboveave30 {
-		score += 1
-		cond_str += fmt.Sprintf("收盘价在30日均线上方; ")
-	}
-	if pricelowave6 {
-		score -= 1
-		bad_cond_str += fmt.Sprintf("收盘价在6日均线下方; ")
-	}
-	if pricelowave15 {
-		score -= 1
-		bad_cond_str += fmt.Sprintf("收盘价在15日均线下方; ")
-	}
-	if pricelowave30 {
-		score -= 1
-		bad_cond_str += fmt.Sprintf("收盘价在30日均线下方; ")
-	}
+
 	if jincha1 {
 		score += 2
-		cond_str += "6日均线与15日均线交金叉; "
-	}
-	if sicha1 {
-		score -= 2
-		bad_cond_str += "6日均线与15日均线交死叉; "
+		cond_str += "6与15日均线(金叉); "
 	}
 	if jincha3 {
 		score += 2
-		cond_str += "15日均线与30日均线交金叉; "
-	}
-	if sicha3 {
-		score -= 2
-		bad_cond_str += "15日均线与30日均线交死叉; "
+		cond_str += "15与30日均线(金叉); "
 	}
 	if jincha5 {
 		score += 2
-		cond_str += "6周均线与15周均线交金叉; "
+		cond_str += "6与15周均线(金叉); "
 	}
-	if sicha5 {
-		score -= 2
-		bad_cond_str += "6周均线与15周均线交死叉; "
+	if liangnengbigger1 && liangnengbigger2 {
+		// 这里只是给量能连续五日站上的打个标签而已
+		cond_str += "量能活跃; "
+	}
+	if yiziban {
+		cond_str += "一字板; "
+	}
+	if tziban {
+		cond_str += "T字板; "
+	}
+	if zhangting {
+		score += 1
+		cond_str += "昨日涨停; "
+	}
+	if tufangjuliang {
+		score += 1
+		cond_str += "突放巨量; "
+	}
+	if wulianyang {
+		score += 1
+		cond_str += "五连阳; "
+	}
+	if !wulianyang && silianyang {
+		score += 1
+		cond_str += "四连阳; "
+	}
+	if !wulianyang && !silianyang && sanlianyang {
+		score += 1
+		cond_str += "三连阳; "
+	}
+	if changshangying {
+		cond_str += "长上影; "
+	}
+	if changxiaying {
+		cond_str += "长下影; "
+	}
+	if dikaigaozou {
+		cond_str += "低开高走; "
+	}
+	if gaokaigaozou {
+		cond_str += "高开高走; "
 	}
 	if priceshangyang1 {
 		score += 1
@@ -524,7 +541,6 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		score += 1
 		cond_str += "30日均线上扬; "
 	}
-
 	if priceshangyang4 {
 		score += 1
 		cond_str += "6周均线上扬; "
@@ -533,7 +549,129 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		score += 1
 		cond_str += "15周均线上扬; "
 	}
+	if gaokaidizou {
+		cond_str += "高开低走; "
+	}
+	if dikaidizou {
+		cond_str += "低开低走; "
+	}
+	if gaoweihuitiao1 || gaoweihuitiao2 || gaoweihuitiao3 {
+		cond_str += "高位回调; "
+	}
+	if priceaboveave6 {
+		score += 1
+		cond_str += fmt.Sprintf("收盘价在6日均线上方; ")
+	}
+	if priceaboveave15 {
+		score += 1
+		cond_str += fmt.Sprintf("收盘价在15日均线上方; ")
+	}
+	if priceaboveave30 {
+		score += 1
+		cond_str += fmt.Sprintf("收盘价在30日均线上方; ")
+	}
+	if junjialianhe1 {
+		cond_str += "近期收盘价与6日均线粘合; "
+	}
+	if junjialianhe2 {
+		cond_str += "近期收盘价与15日均线粘合; "
+	}
+	if junjialianhe3 {
+		cond_str += "近期收盘价与30日均线粘合; "
+	}
+	if simuchicangcount > 0 {
+		score += 1
+		cond_str += fmt.Sprintf("%d个私募持仓; ", simuchicangcount)
+	}
+	if jigouchicangcount > 0 {
+		score += 1
+		cond_str += fmt.Sprintf("%d个基金持仓; ", jigouchicangcount)
+	}
 
+	// 量价
+	if liangnengbuduanbigger {
+		score += 1
+		cond_str += "量能不断放大; "
+	}
+	if jincha7 || jincha8 {
+		score += 1
+		cond_str += "10日与40日量能均线交金叉; "
+	}
+	if liangshangyang1 {
+		score += 1
+		cond_str += "连续5日量能10日均线上扬; "
+	}
+	if liangshangyang2 {
+		score += 1
+		cond_str += "连续5日量能40日均线上扬; "
+	}
+	if liangnengbigger1 {
+		score += 1
+		cond_str += "连续5日量能站上10日均线; "
+	}
+	if liangnengbigger2 {
+		score += 1
+		cond_str += "连续5日量能站上40日均线; "
+	}
+	if guoyi {
+		cond_str += "成交额过亿; "
+	}
+	// 基本面 现金流量表
+	if up1 {
+		score += 1
+		cond_str += "经营现金流量净额非负; "
+	}
+	if up2 {
+		score += 1
+		cond_str += "投资现金流量净额非负; "
+	}
+	if up3 {
+		score += 1
+		cond_str += "筹资现金流量净额非负; "
+	}
+	if up4 {
+		score += 1
+		cond_str += "期末现金及现金等价物余额非负; "
+	}
+	// 基本面 利润表
+	if pup1 {
+		score += 1
+		cond_str += "营业总收入非负; "
+	}
+	if pup2 {
+		score += 1
+		cond_str += "净利润非负; "
+	}
+	// 基本面 资产负债表
+	if lup1 {
+		score += 1
+		cond_str += "总资产不断增加; "
+	}
+	if done1 {
+		score += 1
+		cond_str += "总负债不断减小; "
+	}
+
+	if liangnengsmaller1 || liangnengsmaller2 {
+		score -= 2
+		bad_cond_str += "量能萎靡; "
+	}
+	if st {
+		score -= 3
+		bad_cond_str += "ST板块; "
+	}
+	if sicha1 {
+		score -= 2
+		bad_cond_str += "(死叉)6与15日均线; "
+	}
+	if sicha3 {
+		score -= 2
+		bad_cond_str += "(死叉)15与30日均线; "
+	}
+	if sicha5 {
+		score -= 2
+		bad_cond_str += "(死叉)6与15周均线; "
+	}
 	if pricexiajiang1 {
 		score -= 2
 		bad_cond_str += "6日均线下挫; "
@@ -556,162 +694,47 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		score -= 1
 		bad_cond_str += "15周均线下挫; "
 	}
-
-	if changshangying {
-		cond_str += "长上影; "
+	if pricelowave6 {
+		score -= 1
+		bad_cond_str += fmt.Sprintf("收盘价在6日均线下方; ")
 	}
-	if changxiaying {
-		cond_str += "长下影; "
+	if pricelowave15 {
+		score -= 1
+		bad_cond_str += fmt.Sprintf("收盘价在15日均线下方; ")
 	}
-	if zhangting {
-		score += 1
-		cond_str += "涨停股; "
-	}
-	if yiziban {
-		cond_str += "一字板; "
-	}
-
-	if tziban {
-		cond_str += "T字板; "
-	}
-
-	if gaoweihuitiao1 || gaoweihuitiao2 || gaoweihuitiao3 {
-		cond_str += "高位回调; "
-	}
-	if junjialianhe1 {
-		cond_str += "近5天6日均线与收盘价粘合; "
-	}
-	if junjialianhe2 {
-		cond_str += "近5天15日均线与收盘价粘合; "
-	}
-	if junjialianhe3 {
-		cond_str += "近5天30日均线与收盘价粘合; "
-	}
-	if sanlianyang {
-		score += 1
-		cond_str += "三连阳; "
-	}
-	if wulianyang {
-		score += 1
-		cond_str += "五连阳; "
-	}
-	// 量价
-	if jincha7 || jincha8 {
-		score += 1
-		cond_str += "10日与40日量能均线交金叉; "
-	}
-	if liangshangyang1 {
-		score += 1
-		cond_str += "连续5日量能10日均线上扬; "
-	}
-	if liangshangyang2 {
-		score += 1
-		cond_str += "连续5日量能40日均线上扬; "
-	}
-	if liangnengbigger1 {
-		score += 1
-		cond_str += "连续5日量能站上10日均线; "
-	}
-	if liangnengbigger2 {
-		score += 1
-		cond_str += "连续5日量能站上40日均线; "
-	}
-	if liangnengsmall1 {
-		score -= 2
-		bad_cond_str += "成交量(不活跃)低于10日均线; "
-	}
-	if liangnengsmall2 {
-		score -= 2
-		bad_cond_str += "成交量(不活跃)低于40日均线; "
-	}
-	if liangnengbuduanbigger {
-		score += 1
-		cond_str += "量能不断放大; "
-	}
-	if tufangjuliang {
-		score += 1
-		cond_str += "突放巨量; "
-	}
-	if guoyi {
-		cond_str += "成交额过亿; "
-	}
-	// 基本面 现金流量表
-	if up1 {
-		score += 1
-		cond_str += "经营现金流量净额非负; "
+	if pricelowave30 {
+		score -= 1
+		bad_cond_str += fmt.Sprintf("收盘价在30日均线下方; ")
 	}
 	if !up1 {
 		score -= 1
-		bad_cond_str += "经营现金流量净额出现负值(亏损可能); "
-	}
-	if up2 {
-		score += 1
-		cond_str += "投资现金流量净额非负; "
+		bad_cond_str += "(亏损可能)经营现金流量净额出现负值; "
 	}
 	if !up2 {
 		score -= 1
-		bad_cond_str += "投资现金流量净额出现负值(亏损可能); "
-	}
-	if up3 {
-		score += 1
-		cond_str += "筹资现金流量净额非负; "
+		bad_cond_str += "(亏损可能)投资现金流量净额出现负值; "
 	}
 	if !up3 {
 		score -= 1
-		bad_cond_str += "筹资现金流量净额出现负值(亏损可能); "
-	}
-	if up4 {
-		score += 1
-		cond_str += "期末现金及现金等价物余额非负; "
+		bad_cond_str += "(亏损可能)筹资现金流量净额出现负值; "
 	}
 	if !up4 {
 		score -= 1
-		bad_cond_str += "期末现金及现金等价物余额出现负值(亏损可能); "
-	}
-	// 基本面 利润表
-	if pup1 {
-		score += 1
-		cond_str += "营业总收入非负; "
+		bad_cond_str += "(亏损可能)期末现金及现金等价物余额出现负值; "
 	}
 	if !pup1 {
 		score -= 2
 		bad_cond_str += "营业总收入亏损; "
 	}
-	if pup2 {
-		score += 1
-		cond_str += "净利润非负; "
-	}
 	if !pup2 {
 		score -= 2
 		bad_cond_str += "净利润亏损; "
 	}
-	// 基本面 资产负债表
-	if lup1 {
-		score += 1
-		cond_str += "总资产不断增加; "
-	}
-	if done1 {
-		score += 1
-		cond_str += "总负债不断减小; "
-	}
-	// 机构持仓情况
-	// 十大流通股东信息
-	if simuchicangcount > 0 {
-		score += 1
-		cond_str += fmt.Sprintf("%d个私募持仓; ", simuchicangcount)
-	}
-	if jigouchicangcount > 0 {
-		score += 1
-		cond_str += fmt.Sprintf("%d个基金持仓; ", jigouchicangcount)
-	}
 
-	if st {
-		score -= 3
-		bad_cond_str += "ST垃圾股; "
-	}
 	if score < 0 {
 		score = 0
 	}
+
 	finance += ""
 	var per dal.StockPerTicket
 	err := store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Where("code = ?", code).Find(&per).Error
