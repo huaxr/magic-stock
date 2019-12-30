@@ -127,10 +127,10 @@ func (u *UserService) PayWxJsAPi(authentication *model.AuthResult) (*anypay.WeRe
 }
 
 func (u *UserService) PayWxH5(c *gin.Context) string {
-	_auth, _ := c.Get("auth")
-	authentication := _auth.(*model.AuthResult)
-	user, _ := u.Query("id = ?", []interface{}{authentication.Uid})
-	return wechat.WechatGlobal.H5Pay(c.ClientIP(), user.OpenId)
+	//_auth, _ := c.Get("auth")
+	//authentication := _auth.(*model.AuthResult)
+	//user, _ := u.Query("id = ?", []interface{}{authentication.Uid})
+	return wechat.WechatGlobal.H5Pay(c.ClientIP())
 }
 
 func (m *UserService) genName() string {

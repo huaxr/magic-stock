@@ -56,7 +56,7 @@ func (w *WeChat) JSApiPay(openid string, money string) (*anypay.WeResJsApi, stri
 	return nil, ""
 }
 
-func (w *WeChat) H5Pay(ip, open string) string {
+func (w *WeChat) H5Pay(ip string) string {
 	nonce_str := strings.Replace(uuid.Must(uuid.NewV4()).String(), "-", "", -1)
 	out_trade_no, _ := encrypt.MD5Client.Encrypt(nonce_str)
 	notify_url := "https://stock.zhixiutec.com/api/callback/" + out_trade_no
@@ -75,34 +75,14 @@ func (w *WeChat) H5Pay(ip, open string) string {
 	}
 	post_data = post_data + "</xml>"
 	log.Println("H5支付Post data", post_data)
-	//headers = {'Content-Type': 'binary'}
-	//	# 解决post_data 中文编码问题
-	//	url = "https://api.mch.weixin.qq.com/pay/unifiedorder"
-	//	res = requests.post(url, data=post_data.encode(), headers=headers, verify=False)
-	//	# 提交订单信息
-	//	# res.text.encode('utf-8')
-	//	print(res.text.encode('latin_1').decode('utf8'))
-	//	pattern = re.compile("<mweb_url><!\[CDATA\[(.*?)]]></mweb_url")
-	//
-	//	redicrt_url = pattern.findall(res.text)[0]
-	//	# 匹配微信回调函数，调用微信app进行支付
-	//	# self.redirect(redicrt_url)
-	//	print("the url is url", redicrt_url)
-	//
-	//	return redicrt_url, out_trade_no
 	buf := new(bytes.Buffer)
 	json.NewEncoder(buf).Encode(post_data)
 	req, _ := http.Post("https://api.mch.weixin.qq.com/pay/unifiedorder", "binary", buf)
-	//req.Body
-	//req.Header.Add("Content-Type", "binary")
-	//resp, err := http.DefaultClient.Do(req)
-	//if err != nil {
-	//	log.Println(err)
-	//}
+
 	defer req.Body.Close()
 	body, _ := ioutil.ReadAll(req.Body)
 	log.Println("H5 微信端返回", string(body))
 	xx := H5PayCompile.FindStringSubmatch(string(body))
 	log.Println(xx)
-	return xx
+	return xx[0]
 }
