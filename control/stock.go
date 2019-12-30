@@ -371,15 +371,9 @@ func (d *PredictControl) GetFunds(c *gin.Context) {
 		d.Response(c, nil, errors.New("证券代码为空"))
 		return
 	}
-	var FundHoldRank []dal.FundHoldRank
-	var Funds []model.StockFund
-	store.MysqlClient.GetDB().Model(&dal.FundHoldRank{}).Where("code = ?", code).Offset(offset).Limit(limit).Find(&FundHoldRank)
-	for _, i := range FundHoldRank {
-		var fund dal.FundRank
-		store.MysqlClient.GetDB().Model(&dal.FundRank{}).Where("fund_code = ?", i.FundCode).Find(&fund)
-		Funds = append(Funds, model.StockFund{FundInfo: fund, Percent: i.Percent})
-	}
-	d.Response(c, Funds, nil)
+	var StockFund []dal.StockFund
+	store.MysqlClient.GetDB().Model(&dal.StockFund{}).Where("code = ?", code).Offset(offset).Limit(limit).Order("percent_jingzhi desc").Find(&StockFund)
+	d.Response(c, StockFund, nil)
 }
 
 func (d *PredictControl) FundHold(c *gin.Context) {
