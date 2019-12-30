@@ -99,7 +99,11 @@ func (d *UserControl) PayByWeChatJsApi(c *gin.Context) {
 }
 
 func (d *UserControl) PayByWeChatH5(c *gin.Context) {
-	web_url := adapter.UserServiceGlobal.PayWxH5(c)
+	web_url, err := adapter.UserServiceGlobal.PayWxH5(c)
+	if err != nil {
+		d.Response(c, nil, err)
+		return
+	}
 	d.Response(c, web_url, nil)
 }
 

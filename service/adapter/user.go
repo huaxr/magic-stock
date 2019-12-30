@@ -34,7 +34,7 @@ type UserServiceIF interface {
 	CreateUserIfNotExist(user *dal.User, token string) (us *dal.User, err error)
 	LoginWx(code, token string) (*dal.User, error)
 	PayWxJsAPi(authentication *model.AuthResult) (*anypay.WeResJsApi, error)
-	PayWxH5(c *gin.Context) string
+	PayWxH5(c *gin.Context) (string, error)
 	SaveUserConditions(query *model.GetPredicts, auth *model.AuthResult) error
 	EditUserConditions(query *model.EditPredicts, auth *model.AuthResult) error
 	DeleteUserConditions(id int, auth *model.AuthResult) error
@@ -126,7 +126,7 @@ func (u *UserService) PayWxJsAPi(authentication *model.AuthResult) (*anypay.WeRe
 	return payment, nil
 }
 
-func (u *UserService) PayWxH5(c *gin.Context) string {
+func (u *UserService) PayWxH5(c *gin.Context) (string, error) {
 	//_auth, _ := c.Get("auth")
 	//authentication := _auth.(*model.AuthResult)
 	//user, _ := u.Query("id = ?", []interface{}{authentication.Uid})

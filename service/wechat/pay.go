@@ -4,6 +4,7 @@ package wechat
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -55,7 +56,7 @@ func (w *WeChat) JSApiPay(openid string, money string) (*anypay.WeResJsApi, stri
 	return nil, ""
 }
 
-func (w *WeChat) H5Pay(ip string) string {
+func (w *WeChat) H5Pay(ip string) (string, error) {
 	nonce_str := strings.Replace(uuid.Must(uuid.NewV4()).String(), "-", "", -1)
 	out_trade_no, _ := encrypt.MD5Client.Encrypt(nonce_str)
 	notify_url := "https://stock.zhixiutec.com/api/callback/" + out_trade_no
@@ -73,26 +74,25 @@ func (w *WeChat) H5Pay(ip string) string {
 		post_data = post_data + "<" + xml1 + ">" + xml2 + "</" + xml1 + ">"
 	}
 	post_data = post_data + "</xml>"
-	log.Println("H5支付Post data", post_data)
-
 	client := &http.Client{}
-	// build a new request, but not doing the POST yet
 	req, err := http.NewRequest("POST", "https://api.mch.weixin.qq.com/pay/unifiedorder", bytes.NewBuffer([]byte(post_data)))
 	if err != nil {
 		fmt.Println("出现错误1", err)
+		return "", err
 	}
-	// you can then set the Header here
-	// I think the content-type should be "application/xml" like json...
 	req.Header.Add("Content-Type", "application/xml; charset=utf-8")
-	// now POST it
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Println("出现错误", err)
+		return "", err
 	}
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
-	log.Println("H5 微信端返回", string(body))
 	xx := H5PayCompile.FindStringSubmatch(string(body))
-	log.Println(xx)
-	return ""
+	if len(xx) == 2 {
+		log.Println("回调url为:", xx[1])
+		return xx[1], nil
+	}
+	log.Println("失败", xx)
+	return "", errors.New("失败")
 }
