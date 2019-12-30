@@ -14,14 +14,14 @@ func (r *Router) bindRouters() {
 
 func (r *Router) addRouters() {
 	router := r.Router.Group("/api")
+	router.POST("/callback/:order_id", control.UserControlGlobal.TradeCallBack)
+	router.POST("/h5_pay", control.UserControlGlobal.PayByWeChatH5)
 	router.GET("/wx_login", control.UserControlGlobal.LoginByWeChat)
 	router.GET("/logout", control.UserControlGlobal.LogOut)
 	router.Use(normal.LoginRequired())
 	{
 		router.GET("/user", control.UserControlGlobal.GetUserInfo)
 		router.POST("/jsapi_pay", control.UserControlGlobal.PayByWeChatJsApi)
-		//router.POST("/h5_pay", control.UserControlGlobal.PayByWeChatH5)
-		router.POST("/callback/:order_id", control.UserControlGlobal.TradeCallBack)
 		router.GET("/my_conditions", control.UserControlGlobal.GetConditions)
 		router.POST("/edit_condition", control.UserControlGlobal.EditUserConditions)
 		router.POST("/delete_condition", control.UserControlGlobal.DeleteUserConditions)

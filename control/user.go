@@ -99,8 +99,8 @@ func (d *UserControl) PayByWeChatJsApi(c *gin.Context) {
 }
 
 func (d *UserControl) PayByWeChatH5(c *gin.Context) {
-	adapter.UserServiceGlobal.PayWxH5(c)
-	d.Response(c, nil, nil)
+	web_url := adapter.UserServiceGlobal.PayWxH5(c)
+	d.Response(c, web_url, nil)
 }
 
 func (d *UserControl) TradeCallBack(c *gin.Context) {

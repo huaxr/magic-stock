@@ -34,7 +34,7 @@ type UserServiceIF interface {
 	CreateUserIfNotExist(user *dal.User, token string) (us *dal.User, err error)
 	LoginWx(code, token string) (*dal.User, error)
 	PayWxJsAPi(authentication *model.AuthResult) (*anypay.WeResJsApi, error)
-	PayWxH5(c *gin.Context)
+	PayWxH5(c *gin.Context) string
 	SaveUserConditions(query *model.GetPredicts, auth *model.AuthResult) error
 	EditUserConditions(query *model.EditPredicts, auth *model.AuthResult) error
 	DeleteUserConditions(id int, auth *model.AuthResult) error
@@ -126,11 +126,11 @@ func (u *UserService) PayWxJsAPi(authentication *model.AuthResult) (*anypay.WeRe
 	return payment, nil
 }
 
-func (u *UserService) PayWxH5(c *gin.Context) {
+func (u *UserService) PayWxH5(c *gin.Context) string {
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
 	user, _ := u.Query("id = ?", []interface{}{authentication.Uid})
-	wechat.WechatGlobal.H5Pay(c.ClientIP(), user.OpenId)
+	return wechat.WechatGlobal.H5Pay(c.ClientIP(), user.OpenId)
 }
 
 func (m *UserService) genName() string {

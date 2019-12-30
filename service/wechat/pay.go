@@ -56,7 +56,7 @@ func (w *WeChat) JSApiPay(openid string, money string) (*anypay.WeResJsApi, stri
 	return nil, ""
 }
 
-func (w *WeChat) H5Pay(ip, open string) {
+func (w *WeChat) H5Pay(ip, open string) string {
 	nonce_str := strings.Replace(uuid.Must(uuid.NewV4()).String(), "-", "", -1)
 	out_trade_no, _ := encrypt.MD5Client.Encrypt(nonce_str)
 	notify_url := "https://stock.zhixiutec.com/api/callback/" + out_trade_no
@@ -104,4 +104,5 @@ func (w *WeChat) H5Pay(ip, open string) {
 	log.Println("H5 微信端返回", string(body))
 	xx := H5PayCompile.FindStringSubmatch(string(body))
 	log.Println(xx)
+	return xx
 }
