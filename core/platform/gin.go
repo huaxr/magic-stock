@@ -58,7 +58,7 @@ func (r *Router) EnableHTML() {
 
 func (r *Router) bindLoc() {
 	// register your middleware here by order
-	r.Router.Use(normal.DebugCORS(), normal.LoginRequired())
+	r.Router.Use(normal.DebugCORS())
 	r.bindRouters()
 	//r.EnableHTML()
 	r.Router.Run("0.0.0.0:8881")
@@ -66,7 +66,6 @@ func (r *Router) bindLoc() {
 
 func (r *Router) bindDev() {
 	r.Router.Use(normal.DebugCORS())
-	r.Router.Use(normal.LoginRequired())
 	r.bindRouters()
 	r.Router.Run()
 }
@@ -74,7 +73,6 @@ func (r *Router) bindDev() {
 func (r *Router) bindOnline() {
 	//r.Router.Use(normal.Recover())
 	r.Router.Use(normal.DebugCORS())
-	r.Router.Use(normal.LoginRequired())
 	r.bindRouters()
 	r.Router.Run("0.0.0.0:8081")
 }

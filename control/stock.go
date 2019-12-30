@@ -14,9 +14,8 @@ import (
 	"magic/stock/utils"
 	"strings"
 
-	"gopkg.in/fatih/set.v0"
-
 	"github.com/gin-gonic/gin"
+	"gopkg.in/fatih/set.v0"
 )
 
 type PredictIF interface {
@@ -389,9 +388,9 @@ func (d *PredictControl) FundHold(c *gin.Context) {
 		d.Response(c, nil, errors.New("机构代码为空"))
 		return
 	}
-	var FundHoldRank []dal.FundHoldRank
-	store.MysqlClient.GetDB().Model(&dal.FundHoldRank{}).Where("fund_code = ?", code).Find(&FundHoldRank)
-	d.Response(c, FundHoldRank, nil)
+	var StockFund []dal.StockFund
+	store.MysqlClient.GetDB().Model(&dal.StockFund{}).Where("fund_code = ?", code).Limit(50).Order("percent_jingzhi desc").Find(&StockFund)
+	d.Response(c, StockFund, nil)
 }
 
 func (d *PredictControl) TopHolderHold(c *gin.Context) {

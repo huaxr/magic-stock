@@ -22,17 +22,17 @@ func TestCrawler_GetFundHighHold(t *testing.T) {
 
 // 获取每只股票的基金持仓情况
 func TestGetStockAllFund(t *testing.T) {
-	go func() {
-		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 1538 and id < 2000").Find(&code)
-		for _, i := range code {
-			CrawlerGlobal.GetStockAllFund(i.Code, false)
-		}
-	}()
+	//go func() {
+	//	var code []dal.Code
+	//	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 1538 and id < 2000").Find(&code)
+	//	for _, i := range code {
+	//		CrawlerGlobal.GetStockAllFund(i.Code, false)
+	//	}
+	//}()
 
 	go func() {
 		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2767").Find(&code)
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 3357").Find(&code)
 		for _, i := range code {
 			CrawlerGlobal.GetStockAllFund(i.Code, true)
 		}

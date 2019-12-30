@@ -13,7 +13,7 @@ type StockFund struct {
 	Price              string `json:"price"`                // 持股市值(万元)
 	PercentJingzhi     string `json:"percent_jingzhi"`      // 占净值比例(%)
 	PercentSignalStock string `json:"percent_signal_stock"` // 占个股流通市值比例(%)
-	Date               string `json:"date"`                 // 日期
+	Date               string `gorm:"index" json:"date"`    // 日期
 }
 
 func (StockFund) TableName() string {
