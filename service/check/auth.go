@@ -87,7 +87,7 @@ func (a *authentication) checkSession(c *gin.Context) *model.AuthResult {
 	user := session.Get("user")
 	uid := session.Get("uid")
 	if user == nil || uid == nil {
-		if utils.TellEnv() == "loc" {
+		if utils.TellEnv() == "loc" || utils.TellEnv() == "online" {
 			user_obj, _ := dao.UserDao.Query("id = ?", []interface{}{888})
 			return &model.AuthResult{User: user_obj.UserName, Uid: int(user_obj.ID), Member: user_obj.IsMember, QueryLeft: user_obj.QueryLeft}
 		} else {
