@@ -4,7 +4,6 @@ package wechat
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -75,14 +74,26 @@ func (w *WeChat) H5Pay(ip string) string {
 	}
 	post_data = post_data + "</xml>"
 	log.Println("H5支付Post data", post_data)
-	buf := new(bytes.Buffer)
-	json.NewEncoder(buf).Encode(post_data)
-	req, _ := http.Post("https://api.mch.weixin.qq.com/pay/unifiedorder", "binary", buf)
 
+	client := &http.Client{}
+	// build a new request, but not doing the POST yet
+	req, err := http.NewRequest("POST", "https://api.mch.weixin.qq.com/pay/unifiedorder", bytes.NewBuffer([]byte(post_data)))
+	if err != nil {
+		fmt.Println(err)
+	}
+	// you can then set the Header here
+	// I think the content-type should be "application/xml" like json...
+	req.Header.Add("Content-Type", "application/xml; charset=utf-8")
+	// now POST it
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(resp)
 	defer req.Body.Close()
 	body, _ := ioutil.ReadAll(req.Body)
 	log.Println("H5 微信端返回", string(body))
 	xx := H5PayCompile.FindStringSubmatch(string(body))
 	log.Println(xx)
-	return xx[0]
+	return ""
 }
