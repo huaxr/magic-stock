@@ -42,6 +42,10 @@ type CrawlerIF interface {
 	GetStockCashFlow(code string, proxy bool)
 	// 获取股票每股的收益情况 运营能力 成长能力
 	GetStockPerTicket(code string, proxy bool)
+	// 获取分红 配股数据
+	GetProfitSharingAndStockOwnership(code string, proxy bool)
+	// 获取增发数据
+	GetZengFa(code string, proxy bool)
 	// 通过前几名来判断股票的价值 能力
 	CalcCaiWuForPreTicket(code string)
 	// 生成周线表

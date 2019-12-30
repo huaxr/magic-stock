@@ -751,22 +751,74 @@ func (craw *Crawler) CalcPercentTicketWeekly(code string) {
 
 }
 
-//// 计算涨跌幅， 放在history percent 点 (只需执行一次就把历史数据跑完)
-//func (craw *Crawler) CalcPercentForAllTicket(code string) {
-//	var th []dal.TicketHistory
-//	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ?", code).Order("date asc").Find(&th)
-//	var tmp dal.TicketHistory
-//
-//	for j, i := range th {
-//		if j == 0 {
-//			i.Percent = 0
-//			store.MysqlClient.GetDB().Save(&i)
-//			tmp = i
-//			continue
-//		}
-//		fmt.Println(i.Shou, tmp.Shou, i.Name, fmt.Sprintf("%.2f", (i.Shou-tmp.Shou)*100/tmp.Shou))
-//		i.Percent, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", (i.Shou-tmp.Shou)*100/tmp.Shou), 64)
-//		store.MysqlClient.GetDB().Save(&i)
-//		tmp = i
-//	}
-//}
+// 子公司
+// 分红 配股 增发
+func (craw *Crawler) GetProfitSharingAndStockOwnership(code string, proxy bool) {
+	var doc *goquery.Document
+	if !proxy {
+		doc, _ = craw.NewDocument(fmt.Sprintf("http://money.finance.sina.com.cn/corp/go.php/vISSUE_ShareBonus/stockid/%s.phtml", code))
+	} else {
+		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://money.finance.sina.com.cn/corp/go.php/vISSUE_ShareBonus/stockid/%s.phtml", code))
+	}
+	for i := 1; i <= 100; i++ {
+		a := doc.Find(fmt.Sprintf("#sharebonus_1 > tbody > tr:nth-child(%d) > td:nth-child(1)", i)).Text()
+		if len(a) == 0 {
+			break
+		}
+		b := doc.Find(fmt.Sprintf("#sharebonus_1 > tbody > tr:nth-child(%d) > td:nth-child(2)", i)).Text()
+		c := doc.Find(fmt.Sprintf("#sharebonus_1 > tbody > tr:nth-child(%d) > td:nth-child(3)", i)).Text()
+		d := doc.Find(fmt.Sprintf("#sharebonus_1 > tbody > tr:nth-child(%d) > td:nth-child(4)", i)).Text()
+		e := doc.Find(fmt.Sprintf("#sharebonus_1 > tbody > tr:nth-child(%d) > td:nth-child(5)", i)).Text()
+		e = utils.ConvertToString(e, "gbk", "utf-8")
+		log.Println(code, a, b, c, d, e)
+
+		x := dal.StockFengHong{Code: code, Date: a, SongGu: b, ZhuangZeng: c, PaiXi: d, Process: e}
+		store.MysqlClient.GetDB().Save(&x)
+	}
+	for i := 1; i <= 100; i++ {
+		f := doc.Find(fmt.Sprintf("#sharebonus_2 > tbody > tr:nth-child(%d) > td:nth-child(1)", i)).Text()
+		if len(f) == 0 {
+			break
+		}
+		g := doc.Find(fmt.Sprintf("#sharebonus_2 > tbody > tr:nth-child(%d) > td:nth-child(2)", i)).Text()
+		h := doc.Find(fmt.Sprintf("#sharebonus_2 > tbody > tr:nth-child(%d) > td:nth-child(3)", i)).Text()
+		j := doc.Find(fmt.Sprintf("#sharebonus_2 > tbody > tr:nth-child(%d) > td:nth-child(4)", i)).Text()
+		log.Println(code, f, g, h, j)
+		x := dal.StockPeiGu{Code: code, Date: f, Count: g, Price: h, Number: j}
+		store.MysqlClient.GetDB().Save(&x)
+	}
+
+}
+
+// 获取增发数据
+func (craw *Crawler) GetZengFa(code string, proxy bool) {
+	var doc *goquery.Document
+	if !proxy {
+		doc, _ = craw.NewDocument(fmt.Sprintf("http://money.finance.sina.com.cn/corp/go.php/vISSUE_AddStock/stockid/%s.phtml", code))
+	} else {
+		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://money.finance.sina.com.cn/corp/go.php/vISSUE_AddStock/stockid/%s.phtml", code))
+	}
+	for i := 0; i <= 100; i++ {
+		a := doc.Find(fmt.Sprintf("#addStock%d > thead > tr > th", i)).Text()
+		a = utils.ConvertToString(a, "gbk", "utf-8")
+		if len(a) == 0 {
+			break
+		}
+		a = a[len(a)-10 : len(a)]
+		b := doc.Find(fmt.Sprintf("#addStock%d > tbody > tr:nth-child(1) > td:nth-child(2)", i)).Text()
+		b = utils.ConvertToString(b, "gbk", "utf-8")
+		c := doc.Find(fmt.Sprintf("#addStock%d > tbody > tr:nth-child(2) > td:nth-child(2)", i)).Text()
+		c = utils.ConvertToString(c, "gbk", "utf-8")
+		d := doc.Find(fmt.Sprintf("#addStock%d > tbody > tr:nth-child(3) > td:nth-child(2)", i)).Text()
+		d = utils.ConvertToString(d, "gbk", "utf-8")
+		e := doc.Find(fmt.Sprintf("#addStock%d > tbody > tr:nth-child(4) > td:nth-child(2)", i)).Text()
+		e = utils.ConvertToString(e, "gbk", "utf-8")
+		f := doc.Find(fmt.Sprintf("#addStock%d > tbody > tr:nth-child(5)> td:nth-child(2)", i)).Text()
+		f = utils.ConvertToString(f, "gbk", "utf-8")
+		log.Println(code, a, b, c, d, e)
+
+		x := dal.StockZengFa{Code: code, Date: a, Way: b, Price: c, AllPrice: d, CostPrice: e, AllCount: f}
+		store.MysqlClient.GetDB().Save(&x)
+	}
+
+}

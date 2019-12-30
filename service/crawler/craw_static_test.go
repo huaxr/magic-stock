@@ -202,3 +202,23 @@ func TestCalcCaiWuForPreTicket(t *testing.T) {
 		CrawlerGlobal.CalcCaiWuForPreTicket(i.Code)
 	}
 }
+
+// 获取分红配股
+func TestGetProfitSharingAndStockOwnership(t *testing.T) {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 0").Find(&code)
+	for _, i := range code {
+		CrawlerGlobal.GetProfitSharingAndStockOwnership(i.Code, false)
+		time.Sleep(5 * time.Second)
+	}
+}
+
+// 获取增发
+func TestGetZengFa(t *testing.T) {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 0").Find(&code)
+	for _, i := range code {
+		CrawlerGlobal.GetZengFa(i.Code, true)
+		time.Sleep(5 * time.Second)
+	}
+}
