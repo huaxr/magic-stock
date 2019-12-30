@@ -43,7 +43,7 @@ type PredictIF interface {
 	GetConcepts(c *gin.Context)
 	GetLabels(c *gin.Context)
 
-	Response(c *gin.Context, data interface{}, err error)
+	Response(c *gin.Context, data interface{}, err error, param ...int)
 }
 
 var (
@@ -80,8 +80,8 @@ func (u *PredictControl) Exist(where string, args []interface{}) bool {
 	return c > 0
 }
 
-func (d *PredictControl) Response(c *gin.Context, data interface{}, err error) {
-	c.AbortWithStatusJSON(200, d.response.Response(data, err))
+func (d *PredictControl) Response(c *gin.Context, data interface{}, err error, param ...int) {
+	c.AbortWithStatusJSON(200, d.response.Response(data, err, param...))
 }
 
 func (d *PredictControl) getMinMax(da map[string]float64) (float64, float64) {
@@ -372,19 +372,26 @@ func (d *PredictControl) GetFunds(c *gin.Context) {
 		return
 	}
 	var StockFund []dal.StockFund
-	store.MysqlClient.GetDB().Model(&dal.StockFund{}).Where("code = ?", code).Offset(offset).Limit(limit).Order("percent_jingzhi desc").Find(&StockFund)
-	d.Response(c, StockFund, nil)
+	var total int
+	tmp := store.MysqlClient.GetDB().Model(&dal.StockFund{}).Where("code = ?", code)
+	tmp.Count(&total)
+	tmp.Offset(offset).Limit(limit).Order("percent_jingzhi desc").Find(&StockFund)
+	d.Response(c, StockFund, nil, total)
 }
 
 func (d *PredictControl) FundHold(c *gin.Context) {
+	offset, limit := check.ParamParse.GetPagination(c)
 	code := c.DefaultQuery("fund_code", "")
 	if code == "" {
 		d.Response(c, nil, errors.New("机构代码为空"))
 		return
 	}
 	var StockFund []dal.StockFund
-	store.MysqlClient.GetDB().Model(&dal.StockFund{}).Where("fund_code = ?", code).Limit(50).Order("percent_jingzhi desc").Find(&StockFund)
-	d.Response(c, StockFund, nil)
+	var total int
+	tmp := store.MysqlClient.GetDB().Model(&dal.StockFund{}).Where("fund_code = ?", code)
+	tmp.Count(&total)
+	tmp.Offset(offset).Limit(limit).Order("percent_jingzhi desc").Find(&StockFund)
+	d.Response(c, StockFund, nil, total)
 }
 
 func (d *PredictControl) TopHolderHold(c *gin.Context) {
