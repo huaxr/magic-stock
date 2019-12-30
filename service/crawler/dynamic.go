@@ -143,7 +143,7 @@ func (craw *Crawler) GetFundRanks() {
 	store.MysqlClient.GetDB().Exec("truncate table magic_stock_fund_rank")
 	var m = map[string]int{"股票型": 1, "指数型": 4, "混合型": 3, "QDII": 6, "LOF": 7}
 	for k, v := range m {
-		_, body, _ := gorequest.New().Get(fmt.Sprintf("https://fund.jrj.com.cn/json/netrank/open?type=%d&mana=0&limit=500&page=1&sort=6&order=1&vname=fundranklist", v)).End()
+		_, body, _ := gorequest.New().Get(fmt.Sprintf("https://fund.jrj.com.cn/json/netrank/open?type=%d&mana=0&limit=1000&page=1&sort=6&order=1&vname=fundranklist", v)).End()
 		if len(body) == 0 {
 			return
 		}
@@ -205,6 +205,37 @@ func (craw *Crawler) GetFundHighHold(date string) {
 		}
 	}
 	store.MysqlClient.GetDB().Exec("delete from magic_stock_fund_hold where name=''")
+}
+
+// 获取每只股票的所有基金持仓
+func (craw *Crawler) GetStockAllFund(code string, proxy bool) {
+	var doc *goquery.Document
+	if !proxy {
+		doc, _ = craw.NewDocument(fmt.Sprintf("https://fund.jrj.com.cn/fhs/detail/20190930/%s.shtml", code))
+	} else {
+		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("https://fund.jrj.com.cn/fhs/detail/20190930/%s.shtml", code))
+	}
+	time.Sleep(1 * time.Second)
+	for i := 2; i <= 10000; i++ {
+		a := doc.Find(fmt.Sprintf("body > div.data > div > div > table > tbody > tr:nth-child(%d) > td.tc", i)).Text()
+		if len(a) == 0 {
+			break
+		}
+		b := doc.Find(fmt.Sprintf("body > div.data > div > div > table > tbody > tr:nth-child(%d) > td.tl", i)).Text()
+		b = utils.ConvertToString(b, "gbk", "utf-8")
+		c := doc.Find(fmt.Sprintf("body > div.data > div > div > table > tbody > tr:nth-child(%d) > td:nth-child(3)", i)).Text()
+		d := doc.Find(fmt.Sprintf("body > div.data > div > div > table > tbody > tr:nth-child(%d) > td:nth-child(4)", i)).Text()
+
+		e := doc.Find(fmt.Sprintf("body > div.data > div > div > table > tbody > tr:nth-child(%d) > td:nth-child(5)", i)).Text()
+		f := doc.Find(fmt.Sprintf("body > div.data > div > div > table > tbody > tr:nth-child(%d) > td:nth-child(6)", i)).Text()
+		g := doc.Find(fmt.Sprintf("body > div.data > div > div > table > tbody > tr:nth-child(%d) > td:nth-child(7)", i)).Text()
+		h := doc.Find(fmt.Sprintf("body > div.data > div > div > table > tbody > tr:nth-child(%d) > td:nth-child(8)", i)).Text()
+		log.Println(code, a, b, c, d, e, f, g, h)
+		x := dal.StockFund{Code: code, FundCode: a, FundName: b, Count: c, PercentLiutong: d, Change: e, Price: f, PercentJingzhi: g, PercentSignalStock: h}
+		store.MysqlClient.GetDB().Save(&x)
+	}
+
+	//r := utils.ConvertToString(x, "gbk", "utf-8")
 }
 
 //// 每天收盘执行一次, 收集所有股票的当天股价和成交量  http://hq.sinajs.cn/list=sz000001

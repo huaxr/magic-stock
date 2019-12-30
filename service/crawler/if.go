@@ -15,9 +15,11 @@ type CrawlerIF interface {
 	// 把今日的收盘价 加入到周线均价的表中
 	AddTodayShouToWeek(code, last_week, last_day_to_delete, today string)
 	// 获取短期回报基金排行前300名
+	// Deprecate
 	GetFundRanks()
-	// 通过上面获取重仓股
+	// Deprecate 通过上面获取重仓股
 	GetFundHighHold(date string)
+	GetStockAllFund(code string, proxy bool)
 
 	// 获取上证所有数据代码和名称
 	GetAllTicketCode()

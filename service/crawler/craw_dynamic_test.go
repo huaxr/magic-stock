@@ -20,6 +20,26 @@ func TestCrawler_GetFundHighHold(t *testing.T) {
 	CrawlerGlobal.GetFundHighHold(today_str)
 }
 
+// 获取每只股票的基金持仓情况
+func TestGetStockAllFund(t *testing.T) {
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2000").Find(&code)
+		for _, i := range code {
+			CrawlerGlobal.GetStockAllFund(i.Code, false)
+		}
+	}()
+
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000").Find(&code)
+		for _, i := range code {
+			CrawlerGlobal.GetStockAllFund(i.Code, true)
+		}
+	}()
+	select {}
+}
+
 // 把今日收盘信息加入周线 （自动加入到线上）
 func TestAddTodayShouToWeek(t *testing.T) {
 	var code []dal.Code

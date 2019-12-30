@@ -18,22 +18,23 @@ func TestCrawler(t *testing.T) {
 	CrawlerGlobal.GetAllTicketCode()
 }
 
-// 获取所有股票概念信息
+// 获取所有股票概念信息 所属行业 GetAllTicketCodeBelong
+// 首先更新数据表 update magic_stock_code set concept = null   新浪api
 func TestGetAllTicketCodeConcept(T *testing.T) {
 	go func() {
 		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 1919 and id < 2000").Find(&code)
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2000").Find(&code)
 		for _, i := range code {
-			CrawlerGlobal.GetAllTicketCodeBelong(i, false)
+			CrawlerGlobal.GetAllTicketCodeConcept(i, false)
 			time.Sleep(2 * time.Second)
 		}
 	}()
 
 	go func() {
 		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 3684").Find(&code)
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000").Find(&code)
 		for _, i := range code {
-			CrawlerGlobal.GetAllTicketCodeBelong(i, true)
+			CrawlerGlobal.GetAllTicketCodeConcept(i, true)
 			time.Sleep(2 * time.Second)
 		}
 	}()

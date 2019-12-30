@@ -326,10 +326,10 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 		return
 	}
 	var TicketHistory []dal.TicketHistory
-	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", code, date).Limit(70).Order("date desc").Find(&TicketHistory)
+	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", code, date).Limit(70).Order("date asc").Find(&TicketHistory)
 
 	var TicketHistoryWeekly []dal.TicketHistoryWeekly
-	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", code, date).Limit(40).Order("date desc").Find(&TicketHistoryWeekly)
+	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", code, date).Limit(40).Order("date asc").Find(&TicketHistoryWeekly)
 
 	var Stockholder []dal.Stockholder
 	store.MysqlClient.GetDB().Model(&dal.Stockholder{}).Where("code = ?", code).Find(&Stockholder)
