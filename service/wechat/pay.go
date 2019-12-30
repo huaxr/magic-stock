@@ -79,7 +79,7 @@ func (w *WeChat) H5Pay(ip string) string {
 	// build a new request, but not doing the POST yet
 	req, err := http.NewRequest("POST", "https://api.mch.weixin.qq.com/pay/unifiedorder", bytes.NewBuffer([]byte(post_data)))
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("出现错误1", err)
 	}
 	// you can then set the Header here
 	// I think the content-type should be "application/xml" like json...
@@ -87,11 +87,10 @@ func (w *WeChat) H5Pay(ip string) string {
 	// now POST it
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("出现错误", err)
 	}
-	fmt.Println(resp)
-	defer req.Body.Close()
-	body, _ := ioutil.ReadAll(req.Body)
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
 	log.Println("H5 微信端返回", string(body))
 	xx := H5PayCompile.FindStringSubmatch(string(body))
 	log.Println(xx)
