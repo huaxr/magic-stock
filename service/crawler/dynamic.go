@@ -216,7 +216,17 @@ func (craw *Crawler) GetStockAllFund(code string, proxy bool) {
 		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("https://fund.jrj.com.cn/fhs/detail/20190930/%s.shtml", code))
 	}
 	time.Sleep(1 * time.Second)
+	//var err error
 	for i := 2; i <= 10000; i++ {
+		//a := ""
+		//if i == 2 {
+		//	a, err = dealPanic(doc, i, "body > div.data > div > div > table > tbody > tr:nth-child(%d) > td.tc")
+		//	if err != nil {
+		//		// 空指针错误
+		//		i -= 1
+		//		continue
+		//	}
+		//}
 		a := doc.Find(fmt.Sprintf("body > div.data > div > div > table > tbody > tr:nth-child(%d) > td.tc", i)).Text()
 		if len(a) == 0 {
 			break

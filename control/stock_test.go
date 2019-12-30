@@ -32,7 +32,7 @@ type Belong struct {
 	Belong string
 }
 
-// 获取belongs
+// 获取belong
 func TestGetBelongs(t *testing.T) {
 	rows, _ := store.MysqlClient.GetDB().Raw("select distinct(belong) from magic_stock_code order by convert(belong using gbk)").Rows()
 	var belongs []string
@@ -51,7 +51,7 @@ type Concept struct {
 	Name string
 }
 
-// 获取belongs
+// 获取concept
 func TestGetConcepts(t *testing.T) {
 	rows, _ := store.MysqlClient.GetDB().Raw("select distinct(name) from magic_stock_concept order by convert(name using gbk)").Rows()
 	var belongs []string
@@ -66,7 +66,7 @@ func TestGetConcepts(t *testing.T) {
 	log.Println(strings.Join(belongs, ","))
 }
 
-// 获取belongs
+// 获取labels
 func TestGetLabels(t *testing.T) {
 	rows, _ := store.MysqlClient.GetDB().Raw("select distinct(name) from magic_stock_labels order by convert(name using gbk)").Rows()
 	var belongs []string

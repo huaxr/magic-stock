@@ -140,7 +140,7 @@ func GetHolderByCode(code, concept string) int {
 
 func GetFundByCode(code string) int {
 	var count int
-	store.MysqlClient.GetDB().Model(&dal.FundHoldRank{}).Where("code = ?", code).Count(&count)
+	store.MysqlClient.GetDB().Model(&dal.StockFund{}).Where("code = ?", code).Count(&count)
 	return count
 }
 
@@ -499,7 +499,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if zhangting {
 		score += 3
-		cond_str += "昨日涨停; "
+		cond_str += "涨停股; "
 	}
 	if tufangjuliang {
 		score += 2

@@ -24,7 +24,7 @@ func TestCrawler_GetFundHighHold(t *testing.T) {
 func TestGetStockAllFund(t *testing.T) {
 	go func() {
 		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2000").Find(&code)
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 1538 and id < 2000").Find(&code)
 		for _, i := range code {
 			CrawlerGlobal.GetStockAllFund(i.Code, false)
 		}
@@ -32,7 +32,7 @@ func TestGetStockAllFund(t *testing.T) {
 
 	go func() {
 		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000").Find(&code)
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2767").Find(&code)
 		for _, i := range code {
 			CrawlerGlobal.GetStockAllFund(i.Code, true)
 		}
