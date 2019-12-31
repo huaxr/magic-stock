@@ -17,17 +17,17 @@ func (r *Router) bindRouters() {
 }
 
 func (r *Router) addCommon() {
-	router := r.Router.Group("/common")
+	router := r.Router.Group("/api")
 	router.GET("/captcha", control.CommonControlGlobal.ReloadCaptcha)
 	router.GET("/captcha/:captchaId", gin.WrapH(captcha.Server(captcha.StdWidth, captcha.StdHeight)))
-}
-
-func (r *Router) addRouters() {
-	router := r.Router.Group("/api")
 	router.POST("/callback/:order_id", control.UserControlGlobal.TradeCallBack)
 	router.POST("/h5_pay", control.UserControlGlobal.PayByWeChatH5)
 	router.GET("/wx_login", control.UserControlGlobal.LoginByWeChat)
 	router.GET("/logout", control.UserControlGlobal.LogOut)
+}
+
+func (r *Router) addRouters() {
+	router := r.Router.Group("/api")
 	router.Use(normal.LoginRequired())
 	{
 		router.GET("/user", control.UserControlGlobal.GetUserInfo)
