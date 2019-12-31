@@ -80,18 +80,23 @@ type CalcResult struct {
 }
 
 type PredictListResponse struct {
-	Name          string  `json:"name"`
-	Code          string  `json:"code"`
-	Price         float64 `json:"price"`          // 当前价格
-	Percent       float64 `json:"percent"`        // 涨幅
-	Location      string  `json:"location"`       // 地区
-	Form          string  `json:"form"`           // 组织形式
-	Belong        string  `json:"belong"`         // 所属行业
-	FundCount     int     `json:"fund_count"`     // 基金数量
-	SimuCount     int     `json:"simu_count"`     // 私募数量
-	Conditions    string  `json:"conditions"`     // 优点
-	BadConditions string  `json:"bad_conditions"` // 缺点
-	Finance       string  `json:"finance"`        // 财务指标
-	Date          string  `json:"date"`
-	Score         int     `json:"score"` // 得分
+	Name            string  `json:"name"`
+	Code            string  `json:"code"`
+	Price           float64 `json:"price"`            // 当前价格
+	Percent         float64 `json:"percent"`          // 涨幅
+	Location        string  `json:"location"`         // 地区
+	Form            string  `json:"form"`             // 组织形式
+	Belong          string  `json:"belong"`           // 所属行业
+	FundCount       int     `json:"fund_count"`       // 基金数量
+	SimuCount       int     `json:"simu_count"`       // 私募数量
+	FenghongCount   int     `json:"fenghong_count"`   // 分红次数
+	SongguCount     int     `json:"songgu_count"`     // 送股次数
+	ZhuangzengCount int     `json:"zhuangzeng_count"` // 转增次数
+	PeiguCount      int     `json:"peigu_count"`      // 配股次数
+	ZengfaCount     int     `json:"zengfa_count"`     // 增发次数
+	Conditions      string  `json:"conditions"`       // 优点
+	BadConditions   string  `json:"bad_conditions"`   // 缺点
+	Finance         string  `json:"finance"`          // 财务指标
+	Date            string  `json:"date"`
+	Score           int     `json:"score"` // 得分
 }

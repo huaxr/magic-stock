@@ -144,6 +144,21 @@ func GetFundByCode(code string) int {
 	return count
 }
 
+func GetFenghongByCode(code string) (int, int, int) {
+	var fenhong, songgu, zhuangzeng int
+	store.MysqlClient.GetDB().Model(&dal.StockFengHong{}).Where("pai_xi > ? and code = ?", 0, code).Count(&fenhong)
+	store.MysqlClient.GetDB().Model(&dal.StockFengHong{}).Where("song_gu > ? and code = ?", 0, code).Count(&songgu)
+	store.MysqlClient.GetDB().Model(&dal.StockFengHong{}).Where("zhuang_zeng > ? and code = ?", 0, code).Count(&zhuangzeng)
+	return fenhong, songgu, zhuangzeng
+}
+
+func GetPeiGuByCode(code string) (int, int) {
+	var pergu, zengfa int
+	store.MysqlClient.GetDB().Model(&dal.StockPeiGu{}).Where("code = ?", code).Count(&pergu)
+	store.MysqlClient.GetDB().Model(&dal.StockZengFa{}).Where("code = ?", code).Count(&zengfa)
+	return pergu, zengfa
+}
+
 func STStock(code string) bool {
 	var c int
 	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", code).Where("`concept` regexp ?", "ST").Count(&c)
@@ -471,6 +486,9 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 
 	// st
 	st := STStock(code)
+	// 分红配股的次数
+	fenhong, songgu, zhuangzeng := GetFenghongByCode(code)
+	pergu, zengfa := GetPeiGuByCode(code)
 
 	score := 0 // max 37  // low 17
 	cond_str, bad_cond_str, finance := "", "", ""
@@ -588,6 +606,24 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str += fmt.Sprintf("%d个基金持仓; ", jigouchicangcount)
 	}
 
+	if fenhong > 0 {
+		score += 1
+		cond_str += fmt.Sprintf("%d次分红; ", fenhong)
+	}
+	if songgu > 0 {
+		score += 1
+		cond_str += fmt.Sprintf("%d次送股; ", songgu)
+	}
+	if zhuangzeng > 0 {
+		score += 1
+		cond_str += fmt.Sprintf("%d次转增; ", zhuangzeng)
+	}
+	if pergu > 0 {
+		cond_str += fmt.Sprintf("%d次配股; ", pergu)
+	}
+	if zengfa > 0 {
+		cond_str += fmt.Sprintf("%d次增发; ", zengfa)
+	}
 	// 量价
 	if liangnengbuduanbigger {
 		score += 2
@@ -756,7 +792,10 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		score = 0
 	}
 
-	p := dal.Predict{Code: code, Name: name, Condition: cond_str, BadCondition: bad_cond_str, Finance: finance, Date: result.CurrDate, FundCount: jigouchicangcount, SMCount: simuchicangcount, Score: score + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0]}
+	p := dal.Predict{Code: code, Name: name, Condition: cond_str, BadCondition: bad_cond_str, Finance: finance,
+		Date: result.CurrDate, Score: score + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0],
+		FundCount: jigouchicangcount, SMCount: simuchicangcount, FenghongCount: fenhong, PeiguCount: pergu, ZhuangzengCount: zhuangzeng,
+		SongguCount: songgu, ZengfaCount: zengfa}
 	if utils.TellEnv() == "loc" {
 		err := store.MysqlClient.GetOnlineDB().Save(&p).Error
 		if err != nil {

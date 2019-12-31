@@ -748,11 +748,10 @@ func (craw *Crawler) CalcPercentTicketWeekly(code string) {
 		store.MysqlClient.GetDB().Save(&i)
 		tmp = i
 	}
-
 }
 
 // 子公司
-// 分红 配股 增发
+// 分红 配股 增发 （这些属于股票的历史数据 可以每三个月爬一次？ 2019-12-31 号爬取）
 func (craw *Crawler) GetProfitSharingAndStockOwnership(code string, proxy bool) {
 	var doc *goquery.Document
 	if !proxy {
