@@ -11,7 +11,7 @@ import (
 )
 
 func (ca *Captcha) NewCaptcha() string {
-	return conf.Config.Host + "/common/captcha/" + captcha.New() + ".png"
+	return conf.Config.Host + "/api/captcha/" + captcha.New() + ".png"
 }
 
 func (ca *Captcha) Check(c *gin.Context) bool {
