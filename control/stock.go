@@ -43,6 +43,8 @@ type PredictIF interface {
 	GetConcepts(c *gin.Context)
 	GetLabels(c *gin.Context)
 
+	GetFenHong(c *gin.Context)
+	GetPeiGuZhuangZeng(c *gin.Context)
 	Response(c *gin.Context, data interface{}, err error, param ...int)
 }
 
@@ -457,4 +459,51 @@ func (d *PredictControl) GetConcepts(c *gin.Context) {
 
 func (d *PredictControl) GetLabels(c *gin.Context) {
 	d.Response(c, LabelList, nil)
+}
+
+type FindRes struct {
+	Count int    `json:"count"`
+	Date  string `json:"date"`
+}
+
+func (d *PredictControl) GetFenHong(c *gin.Context) {
+	typ := c.DefaultQuery("type", "")
+	code := c.DefaultQuery("code", "")
+	if code == "" || typ == "" {
+		d.Response(c, nil, errors.New("code/type 为空"))
+		return
+	}
+	var response []FindRes
+	switch typ {
+	case "fh":
+		store.MysqlClient.GetDB().Model(&dal.StockFengHong{}).Select("pai_xi as count, date").Where("code = ? and count > 0", code).Scan(&response)
+	case "zz":
+		store.MysqlClient.GetDB().Model(&dal.StockFengHong{}).Select("zhuang_zeng as count, date").Where("code = ? and count > 0", code).Scan(&response)
+	case "sg":
+		store.MysqlClient.GetDB().Model(&dal.StockFengHong{}).Select("songgu as count, date").Where("code = ? and count > 0", code).Scan(&response)
+	}
+	d.Response(c, response, nil)
+}
+
+func (d *PredictControl) GetPeiGuZhuangZeng(c *gin.Context) {
+	typ := c.DefaultQuery("type", "")
+	code := c.DefaultQuery("code", "")
+	if code == "" || typ == "" {
+		d.Response(c, nil, errors.New("code/type 为空"))
+		return
+	}
+	switch typ {
+	case "pg":
+		var peigu []dal.StockPeiGu
+		store.MysqlClient.GetDB().Model(&dal.StockPeiGu{}).Where("code = ?", code).Find(&peigu)
+		d.Response(c, peigu, nil)
+		return
+	case "zf":
+		var peigu []dal.StockZengFa
+		store.MysqlClient.GetDB().Model(&dal.StockZengFa{}).Where("code = ?", code).Find(&peigu)
+		d.Response(c, peigu, nil)
+		return
+	}
+	d.Response(c, nil, errors.New("type 类型错误"))
+	return
 }
