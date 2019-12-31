@@ -18,21 +18,17 @@ import (
 
 func LoginRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if c.Request.URL.Path == "/api/wx_login" {
-			c.Next()
+		authentication := check.Authentication.JudgeApi(c)
+		if authentication.Err != nil {
+			// 注意: c.json 会对 & unicode 编码
+			log.Println("没有登录, 请登录")
+			//c.String(400, wechat.WechatGlobal.GetCodeUrl())
+			c.JSON(200, gin.H{"error_code": 2, "err_msg": "请登录", "data": wechat.WechatGlobal.GetCodeUrl()})
+			c.Abort()
+			return
 		} else {
-			authentication := check.Authentication.JudgeApi(c)
-			if authentication.Err != nil {
-				// 注意: c.json 会对 & unicode 编码
-				log.Println("没有登录, 请登录")
-				//c.String(400, wechat.WechatGlobal.GetCodeUrl())
-				c.JSON(200, gin.H{"error_code": 2, "err_msg": "请登录", "data": wechat.WechatGlobal.GetCodeUrl()})
-				c.Abort()
-				return
-			} else {
-				c.Set("auth", authentication)
-				c.Next()
-			}
+			c.Set("auth", authentication)
+			c.Next()
 		}
 	}
 }
