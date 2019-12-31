@@ -29,7 +29,11 @@ var (
 	ACCESSKEY      = "IFQP2FAGGH"
 	ACCESSSECRET   = "OTZRVIX7DD31KU1PH3ZRZBEPV02CBR324AC7ATEJNJHS398TNJ"
 	// 服务树
-	ServiceTree = "http://galaxy-api.bytedance.net/service_meta/api/v2/nodes/?name=" // security.soc.online
+	ServiceTree              = "http://galaxy-api.bytedance.net/service_meta/api/v2/nodes/?name=" // security.soc.online
+	GalaxyLeafNode           = "http://galaxy-api.bytedance.net/service_meta/api/v2/nodes/%d/children?only_leaf=true&pn=%d"
+	GalaxySingleNode         = "http://galaxy-api.bytedance.net/service_meta/api/v2/nodes/%d"
+	GalaxyNodeAclsCheck      = "http://paas-gw.byted.org/api/v1/node_acls/check/role?node_id=%d&user=%s&role=owner"
+	GalaxyNodeAclsCheckToken = "Bearer 709e4087848e744ee90efa189c93b3f7"
 	// PSM 获取相关信息
 	//PSM = "curl http://tce.byted.org/api/v3/3rd/services/get/service_detail/\?psm\=security.soc.online
 	//PSM2 = "curl http://tsearch.byted.org/search/\?keyword\=security.soc.online"
@@ -168,6 +172,75 @@ func WatchGroup3(name string) {
 	if grouper.Success {
 		result3 <- grouper.Employees[0]
 	}
+}
+
+type GalaxyNodeInfo struct {
+	Data         []map[string]interface{} `json:"data"`
+	ErrorMessage string                   `json:"error_message"`
+	ErrorCode    int                      `json:"error_code"`
+	//PageInfo     struct {
+	//	PN    int `json:"pn"`
+	//	RN    int `json:"rn"`
+	//	Total int `json:"total"`
+	//} `json:"page_info"`
+	PageInfo map[string]int `json:"page_info"`
+}
+
+type GalaxyLeafInfo struct {
+	Data         map[string]interface{} `json:"data"`
+	ErrorMessage string                 `json:"error_message"`
+	ErrorCode    int                    `json:"error_code"`
+}
+
+// 获得服务树节点下所有叶子节点
+func GetGalaxyAllLeafNode(node int, pn int) (data []map[string]interface{}, page map[string]int) {
+	var nodeInfo GalaxyNodeInfo
+	client := &http.Client{}
+	req, _ := http.NewRequest(GET, fmt.Sprintf(GalaxyLeafNode, node, pn), nil)
+	resp, _ := client.Do(req)
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	err := json.Unmarshal(body, &nodeInfo)
+	if err != nil || nodeInfo.ErrorCode != 0 || len(nodeInfo.Data) == 0 {
+		panic(err)
+	}
+	return nodeInfo.Data, nodeInfo.PageInfo
+}
+
+// 获得服务树叶子节点信息
+func GetGalaxySingleNode(node int) (data map[string]interface{}) {
+	var leafInfo GalaxyLeafInfo
+	client := &http.Client{}
+	req, _ := http.NewRequest(GET, fmt.Sprintf(GalaxySingleNode, node), nil)
+	resp, _ := client.Do(req)
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	err := json.Unmarshal(body, &leafInfo)
+	if err != nil || leafInfo.ErrorCode != 0 || len(leafInfo.Data) == 0 {
+		panic(err)
+	}
+	return leafInfo.Data
+}
+
+type NodeAclCheckRsp struct {
+	ErrorCode int    `json:"error_code"`
+	Data      string `json:"data"`
+}
+
+// 判断用户是否有某服务树叶子节点的权限
+func NodeAclCheck(nodeID int, userName string) bool {
+	var nodeAcl NodeAclCheckRsp
+	client := &http.Client{}
+	req, _ := http.NewRequest(GET, fmt.Sprintf(GalaxyNodeAclsCheck, nodeID, userName), nil)
+	req.Header.Add("Authorization", GalaxyNodeAclsCheckToken)
+	resp, _ := client.Do(req)
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	err := json.Unmarshal(body, &nodeAcl)
+	if err != nil || nodeAcl.ErrorCode != 0 {
+		panic(err)
+	}
+	return nodeAcl.Data == "true"
 }
 
 func GetGroupByName3(ctx context.Context, name string) map[string]interface{} {

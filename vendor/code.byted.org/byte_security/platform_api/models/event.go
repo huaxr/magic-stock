@@ -49,6 +49,7 @@ type ResultEventDetail struct {
 	CreatedAt time.Time       `json:"created_at"`
 	TimeStamp time.Time       `json:"timestamp"`
 	AssetType string          `json:"asset_type"`
+	Docs      string          `json:"docs"`
 }
 
 type ResultEventVulnDetail struct {
@@ -66,6 +67,7 @@ type ResultEventVulnDetail struct {
 	Handler   string    `json:"handler"` // 处理人
 	CreatedAt time.Time `json:"created_at"`
 	TimeStamp time.Time `json:"timestamp"`
+	Docs      string    `json:"docs"`
 
 	AssetType string `json:"asset_type"` // 标识时间详情中的资产类型  psm
 }
@@ -106,6 +108,19 @@ type CreateEventRequestAuto struct {
 	Details SubmitPostData `json:"details"`
 }
 
+type Event struct {
+	ID        int
+	Asset     string
+	Name      string // rule_str 改成name
+	Type      string // 事件类型 HIDS VULN
+	Level     int    // 事件等级
+	TimeStamp time.Time
+	Users     string
+	State     string
+	Handler   string // 处理人
+	TicketId  int
+}
+
 type AssetEventResult struct {
 	Id        int       `json:"id"`
 	Type      string    `json:"type"`
@@ -128,4 +143,22 @@ type EventResponse struct {
 	AssetDetail interface{} `json:"asset_detail"`
 	AssetType   string      `json:"asset_type"`
 	AssetValue  string      `json:"asset_value"`
+}
+
+type EventTrendParam struct {
+	StartTime   string `json:"start_time" form:"start_time"`
+	EndTime     string `json:"end_time" form:"end_time"`
+	Interval    int64  `json:"interval" form:"interval"`
+	Psm         string `json:"psm"`
+	GroupFields string `json:"group_fields"`
+}
+
+type EventTrendResult struct {
+	Bucket int    `json:"bucket"`
+	Type   string `json:"type"`
+	Count  int    `json:"count"`
+}
+
+type EventTypeResult struct {
+	Type string `json:"type"`
 }

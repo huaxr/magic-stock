@@ -19,7 +19,6 @@ type WechatServiceIF interface {
 const (
 	IP       = "62.234.65.214"
 	PAY_BODY = "知修科技数据服务"
-
 	//WX_APPID     = "wx882db180ce1b9351"
 	//WX_APPSECRET = "a23e4b2ac82832f0b5ade8ab80cfcd91"
 	WX_MCH             = "1546048431"

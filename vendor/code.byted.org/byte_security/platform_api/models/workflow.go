@@ -138,6 +138,7 @@ type AssetTicketResult struct {
 	UserName  string    `json:"user_name"`
 	CreatedAt time.Time `json:"created_at"`
 	State     string    `json:"state"`
+	Rules     []string  `json:"rules"`
 }
 
 type TicketProcessRes struct {
@@ -168,4 +169,25 @@ type TicketLarkTemplate struct {
 	Source      string                  `json:"source"`
 	URL         string                  `json:"url"`
 	Receivers   []lark_bot.ReceiverInfo `json:"receiver"`
+}
+
+type DashboardParam struct {
+	StartTime  string `json:"start_time" form:"start_time"`
+	EndTime    string `json:"end_time" form:"end_time"`
+	Interval   int64  `json:"interval" form:"interval"`
+	AssetType  string `json:"asset_type" form:"asset_type"`
+	BusinessID int    `json:"business_id" form:"business_id"`
+	ProductID  int    `json:"product_id" form:"product_id"`
+	TicketType string `json:"ticket_type" form:"ticket_type"`
+}
+
+type TicketTrendResult struct {
+	Bucket int `json:"bucket"`
+	Count  int `json:"count"`
+}
+
+type AssetRiskCount struct {
+	Psm    int `json:"psm"`
+	Domain int `json:"domain"`
+	Host   int `json:"host"`
 }

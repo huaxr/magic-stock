@@ -22,12 +22,12 @@ type HResults struct {
 	//Detail common.JSON   `sql:"type:json" json:"object,omitempty"`
 	RawLog  common.JSON `sql:"type:json" json:"raw_log,omitempty"` // TODO delete this field and query from es by uid
 	RuleMap common.JSON `sql:"type:json" json:"rule_map,omitempty"`
+	Docs    string      `json:"docs"` // 对应的知识库
 	//Users  common.JSON   `sql:"type:json" json:"object,omitempty"`
-	Users    string
-	State    string `gorm:"index"` // pending ignore, done, distort（误报）
-	Handler  string // 处理人
-	TicketId int    `gorm:"index"` // 对应工单
-
+	Users     string
+	State     string `gorm:"index"` // pending ignore, done, distort, hangup（误报）
+	Handler   string // 处理人
+	TicketId  int    `gorm:"index"` // 对应工单
 	Psm       string `gorm:"index"` // 对应psm
 	Group     string // 事件所属组
 	AssetType string `gorm:"index"` // 资产类型  host domain product ...

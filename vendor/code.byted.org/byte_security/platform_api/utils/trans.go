@@ -94,6 +94,18 @@ func GetRecentDayTimeStr(recent int) string {
 	return lastWeekDay
 }
 
+func GetWeekFirstDay() string {
+	now := time.Now()
+
+	offset := int(time.Monday - now.Weekday())
+	if offset > 0 {
+		offset = -6
+	}
+
+	weekStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local).AddDate(0, 0, offset).Format("2006-01-02")
+	return weekStart
+}
+
 func GetTableName(field string) (string, string) {
 	switch field {
 	case "host":

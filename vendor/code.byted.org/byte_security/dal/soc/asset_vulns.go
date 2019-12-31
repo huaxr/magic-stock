@@ -23,17 +23,17 @@ type Vulnerability struct {
 	AppID      int
 	BusinessId int `gorm:"index"` // 所属业务线
 
-	TypeId        int
-	Status        string //状态 pending ignore, done, process
-	TicketId      int    //工单id
-	EventId       int    //事件id
-	SysWorkflowId int
-	ContactOwner  string //联系人
-	EnclosedFile  string //附件
-	Suggestion    string `gorm:"type:text"` //修复建议
-	HandUp        bool   // 是否挂起 表示正在处理
-	TestType      string
-
+	TypeId         int
+	Status         string //状态 pending ignore, done, process
+	TicketId       int    //工单id
+	EventId        int    //事件id
+	SysWorkflowId  int
+	ContactOwner   string //联系人
+	EnclosedFile   string //附件
+	Suggestion     string `gorm:"type:text"` //修复建议
+	HandUp         bool   // 是否挂起 表示正在处理
+	TestType       string
+	Docs           string // 知识库id列表1,2,3
 	KeepSecret     bool
 	AssetTypeKey   string // 所属资产，如domain, psm 等
 	AssetTypeValue string

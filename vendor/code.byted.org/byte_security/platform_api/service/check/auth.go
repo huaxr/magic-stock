@@ -186,6 +186,11 @@ func (a *authentication) checkSession(c *gin.Context) *models.AuthResult {
 			UserName: user.(string),
 		})
 	}
+	// 切换用户组视角
+	change_group, ok := a.GetHeaderToken(c, "Group")
+	if u > 0 && ok {
+		return &models.AuthResult{User: user.(string), Group: change_group, Email: email.(string), Uid: uid.(int), Admin: false}
+	}
 	return &models.AuthResult{User: user.(string), Group: group.(string), Email: email.(string), Uid: uid.(int), Admin: u > 0}
 }
 

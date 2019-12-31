@@ -6,10 +6,20 @@ package platform
 import (
 	"magic/stock/control"
 	"magic/stock/service/middleware/normal"
+
+	"github.com/dchest/captcha"
+	"github.com/gin-gonic/gin"
 )
 
 func (r *Router) bindRouters() {
+	r.addCommon()
 	r.addRouters()
+}
+
+func (r *Router) addCommon() {
+	router := r.Router.Group("/common")
+	router.GET("/captcha", control.CommonControlGlobal.ReloadCaptcha)
+	router.GET("/captcha/:captchaId", gin.WrapH(captcha.Server(captcha.StdWidth, captcha.StdHeight)))
 }
 
 func (r *Router) addRouters() {

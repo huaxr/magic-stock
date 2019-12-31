@@ -125,6 +125,12 @@ type ProductCreate struct {
 	Desc   string `json:"desc"`
 	Key    string `json:"key"`
 	Status int    `json:"status"`
+
+	Code     string `json:"code"`      // 代号
+	Doc      string `json:"doc"`       // 文档
+	Tag      string `json:"tag"`       //（数据安全/代码安全/）
+	Type     string `json:"type"`      // 能力 0决策，1基线，2第三方扫描，3第三方监控，4第三方加固
+	FieldsId int    `json:"fields_id"` // 关联字段集（跟分析有关的能力）
 }
 
 type ProductStatusChange struct {
@@ -290,4 +296,55 @@ type CheckExpress struct {
 type CheckStrategyOffline struct {
 	StrategyOfflineID int    `json:"id"`
 	TestData          string `json:"data"`
+}
+
+// 能力
+type DataSourceDetail struct {
+	ID           int               `json:"id" form:"id"`
+	Name         string            `json:"name" form:"name"`
+	Code         string            `json:"code" form:"name"`
+	ConnInfo     map[string]string `json:"conn_info"form:"conn_info"`
+	SourceType   int               `json:"source_type" form:"source_type"`
+	IsEvent      bool              `json:"is_event" form:"is_event"`
+	RwType       int               `json:"rw_type" form:"rw_type"`
+	FieldsId     int               `json:"fields_id" form:"fields_id" `
+	FieldsDetail FieldsResponse    `json:"fields_detail" form:"fields_detail"`
+}
+type FieldsResponse struct {
+	ID            int                   `json:"id" form:"id"`
+	Name          string                `json:"name" `
+	Code          string                `json:"code" `
+	Desc          string                `json:"desc"`
+	FieldDetail   []*FieldDetail        `json:"field_detail" form:"field_detail"`
+	DataSourceUse []*DataSourceAbstract `json:"data_source_use"`
+}
+type DataSourceAbstract struct {
+	ID   int    `json:"id"`
+	Name string `json:"name" `
+	Code string `json:"code" `
+}
+type FieldDetail struct {
+	ID        int             `json:"id" form:"id"`
+	Name      string          `json:"name" form:"name"`
+	Type      string          `json:"type" form:"type"`
+	Desc      string          `json:"desc"`
+	SignField []*SignResponse `json:"sign_field"`
+}
+type SignResponse struct {
+	ID       int    `json:"id" form:"id"`
+	Name     string `json:"name" form:"name"`
+	Code     string `json:"code" form:"name"`
+	IsUnique bool   `json:"is_unique" form:"name"`
+	Type     int    `json:"type" form:"name"`
+	Scope    []int  `json:"scope" form:"scope"`
+}
+type DataSourceDetailResponse struct {
+	Data      DataSourceDetail `json:"data"`
+	ErrorCode int              `json:"error_code"`
+	ErrorMsg  string           `json:"error_msg"`
+}
+type FieldsDetailResponse struct {
+	Data      map[string]string `json:"data"`
+	ErrorCode int               `json:"error_code"`
+	ErrorMsg  string            `json:"error_msg"`
 }

@@ -23,6 +23,7 @@ type VulnResList struct {
 	ProductName    string `json:"product_name"`
 	AssetTypeKey   string `json:"asset_type_key"`
 	AssetTypeValue string `json:"asset_type_value"`
+	Docs           string `json:"docs"`
 
 	BusinessId int `json:"business_id"`
 }
@@ -45,6 +46,7 @@ type VulnResDetail struct {
 	Ticket_id    int        `json:"ticket_id"`
 	CreatedTime  time.Time  `json:"created"`
 	LimitTime    *time.Time `json:"limit_time"`
+	Docs         string     `json:"docs"`
 
 	Psm            string `json:"psm"`
 	TestType       string `json:"test_type"`
@@ -79,9 +81,16 @@ type SubmitPostData struct {
 	Detail       string `json:"detail"`
 	Suggestion   string `json:"suggestion"`
 	EnclosedFile string `json:"enclosed_file"`
+	Docs         string `json:"docs"` // 知识库ids
 
 	AssetTypeKey   string `json:"asset_type_key"`
 	AssetTypeValue string `json:"asset_type_value"`
+}
+
+type UpdateVulnDocs struct {
+	Docs string `json:"docs"`
+	Id   int    `json:"id"`
+	Type string `json:"type"` // event  vuln
 }
 
 type UpdatePostData struct {
