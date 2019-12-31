@@ -39,8 +39,7 @@ func (r *Router) addRouters() {
 		// 流通股东持仓
 		router.GET("/top_holder_hold", control.PredictControlGlobal.TopHolderHold)
 
-		router.GET("/fhsgzz", control.PredictControlGlobal.GetFenHong)
-		router.GET("/pgzf", control.PredictControlGlobal.GetPeiGuZhuangZeng)
-
+		router.GET("/stock/fhsgzz", control.PredictControlGlobal.GetFenHong)
+		router.GET("/stock/pgzf", control.PredictControlGlobal.GetPeiGuZhuangZeng)
 	}
 }

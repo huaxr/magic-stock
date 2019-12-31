@@ -6,7 +6,7 @@ type HttpResponse struct {
 	ErrorCode int         `json:"error_code"`
 	ErrMsg    interface{} `json:"err_msg"`
 	Data      interface{} `json:"data"`
-	Total     int         `json:"total"`
+	Total     int         `json:"total,omitempty"`
 }
 
 func (b *HttpResponse) Response(data interface{}, err error, param ...int) *HttpResponse {
