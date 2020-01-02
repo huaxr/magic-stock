@@ -12,7 +12,7 @@ import (
 
 // 获取具体日期的分析结果
 func TestGetData(t *testing.T) {
-	var date = "2019-12-30"
+	var date = "2019-12-31"
 	var code []dal.Code
 	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
 	for _, i := range code {

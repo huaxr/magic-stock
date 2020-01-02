@@ -14,6 +14,7 @@ type config struct {
 	Store         string `json:"store"`
 	SessionSecret string `json:"session_secret"`
 	Host          string `json:"host"`
+	WxRedirect    string `json:"wx_redirect"`
 }
 
 func init() {

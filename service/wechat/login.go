@@ -25,5 +25,5 @@ func (w *WeChat) GetAccessTokenByCode(code string) (*model.AccessTokenResponse, 
 }
 
 func (w *WeChat) GetCodeUrl() string {
-	return fmt.Sprintf(CodeUrl, STOCK_WX_APPID, url.QueryEscape(conf.Config.Host))
+	return fmt.Sprintf(CodeUrl, STOCK_WX_APPID, url.QueryEscape(conf.Config.WxRedirect))
 }
