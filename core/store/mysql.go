@@ -56,7 +56,7 @@ func init() {
 		go e.dbonline.AutoMigrate(&dal.Code{}, &dal.Stockholder{}, &dal.FundHoldRank{},
 			&dal.Predict{}, &dal.TicketHistoryWeekly{}, &dal.FundRank{}, dal.TicketHistory{}, &dal.User{}, &dal.Pay{},
 			&dal.StockCashFlow{}, &dal.StockProfit{}, &dal.StockLiabilities{}, &dal.Conditions{}, &dal.UserConditions{},
-			&dal.StockConcept{}, &dal.StockLabels{}, &dal.StockPerTicket{}, &dal.StockFund{}, &dal.StockFengHong{}, &dal.StockPeiGu{}, &dal.StockZengFa{})
+			&dal.StockConcept{}, &dal.StockLabels{}, &dal.StockPerTicket{}, &dal.StockFund{}, &dal.StockFengHong{}, &dal.StockPeiGu{}, &dal.StockZengFa{}, &dal.Price{})
 	}
 
 	e.typ = "mysql"
@@ -72,7 +72,7 @@ func init() {
 	go db.AutoMigrate(&dal.Code{}, &dal.Stockholder{}, &dal.FundHoldRank{},
 		&dal.Predict{}, &dal.TicketHistoryWeekly{}, &dal.FundRank{}, dal.TicketHistory{}, &dal.User{}, &dal.Pay{},
 		&dal.StockCashFlow{}, &dal.StockProfit{}, &dal.StockLiabilities{}, &dal.Conditions{}, &dal.UserConditions{},
-		&dal.StockConcept{}, &dal.StockLabels{}, &dal.StockPerTicket{}, &dal.StockFund{}, &dal.StockFengHong{}, &dal.StockPeiGu{}, &dal.StockZengFa{})
+		&dal.StockConcept{}, &dal.StockLabels{}, &dal.StockPerTicket{}, &dal.StockFund{}, &dal.StockFengHong{}, &dal.StockPeiGu{}, &dal.StockZengFa{}, &dal.Price{})
 	MysqlClient = e
 }
 

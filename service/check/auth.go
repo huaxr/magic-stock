@@ -13,6 +13,7 @@ import (
 	"magic/stock/utils"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -89,13 +90,17 @@ func (a *authentication) checkSession(c *gin.Context) *model.AuthResult {
 	if user == nil || uid == nil {
 		if utils.TellEnv() == "loc" {
 			user_obj, _ := dao.UserDao.Query("id = ?", []interface{}{888})
-			return &model.AuthResult{User: user_obj.UserName, Uid: int(user_obj.ID), Member: user_obj.IsMember, QueryLeft: user_obj.QueryLeft}
+			if time.Now().Before(user_obj.MemberExpireTime) {
+				return &model.AuthResult{User: user_obj.UserName, Uid: int(user_obj.ID), Member: true, QueryLeft: user_obj.QueryLeft}
+			} else {
+				return &model.AuthResult{User: user_obj.UserName, Uid: int(user_obj.ID), Member: false, QueryLeft: user_obj.QueryLeft}
+			}
 		} else {
 			return &model.AuthResult{errors.New("登录错误"), "", -1, false, 0}
 		}
 	}
 	user_obj, _ := dao.UserDao.Query("id = ?", []interface{}{uid})
-	return &model.AuthResult{User: user.(string), Uid: uid.(int), Member: user_obj.IsMember, QueryLeft: user_obj.QueryLeft}
+	return &model.AuthResult{User: user.(string), Uid: uid.(int), Member: time.Now().Before(user_obj.MemberExpireTime), QueryLeft: user_obj.QueryLeft}
 }
 
 func (a *authentication) getDebug() bool {

@@ -1,5 +1,4 @@
 // @Time:       2019/11/28 下午3:35
-// 微信果园api
 package control
 
 import (
@@ -78,18 +77,25 @@ func (d *UserControl) LoginByWeChat(c *gin.Context) {
 		d.Response(c, nil, err)
 		return
 	}
-	session := sessions.Default(c)
-	session.Set("user", user.UserName)
-	session.Set("uid", int(user.ID))
-	session.Save()
-	d.Response(c, "登录成功", nil)
+	if user.OpenId != "" {
+		session := sessions.Default(c)
+		session.Set("open_id", user.OpenId)
+		session.Set("uid", int(user.ID))
+		session.Save()
+		d.Response(c, "登录成功", nil)
+	} else {
+		d.Response(c, nil, errors.New("未知错误"))
+	}
 }
 
 func (d *UserControl) PayByWeChatJsApi(c *gin.Context) {
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
-	// 30元
-	res, err := adapter.UserServiceGlobal.PayWxJsAPi(authentication)
+
+	var post model.SpendType
+	err := c.BindJSON(&post)
+
+	res, err := adapter.UserServiceGlobal.PayWxJsAPi(authentication, &post)
 	if err != nil {
 		d.Response(c, nil, err)
 		return

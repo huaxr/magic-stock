@@ -7,6 +7,7 @@ import (
 	"magic/stock/core/store"
 	"magic/stock/dal"
 	"magic/stock/dao"
+	"time"
 )
 
 type PayServiceIF interface {
@@ -63,6 +64,16 @@ func (m *PayService) UpdatePaySuccessAndGenerateIndent(order_id string) {
 		return
 	}
 	payment.PaySuccess = true
-	// todo send ems
 	store.MysqlClient.GetDB().Save(payment)
+
+	// update user obj 续充和开通
+	user, _ := UserServiceGlobal.Query("id = ?", []interface{}{payment.UserId})
+	now := time.Now()
+	if now.Before(user.MemberExpireTime) {
+		user.MemberExpireTime = now.AddDate(0, 1*payment.Month, 0)
+	} else {
+		user.MemberExpireTime = user.MemberExpireTime.AddDate(0, 1*payment.Month, 0)
+
+	}
+	store.MysqlClient.GetDB().Save(user)
 }

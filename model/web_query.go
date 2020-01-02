@@ -123,3 +123,7 @@ type StockFund struct {
 	FundInfo dal.FundRank `json:"fund"`    // 机构信息
 	Percent  float64      `json:"percent"` // 机构购买此股占比
 }
+
+type SpendType struct {
+	Id int `json:"id"`
+}

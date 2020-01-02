@@ -165,69 +165,20 @@ func STStock(code string) bool {
 	return c > 0
 }
 
-func GetStockPercent(result *model.CalcResult, score int) (zhangdie, huanshoulv, zhenfures string, scores int) {
-	percent := result.RecentPercent[0]
-	huanshou := result.RecentTurnoverRate[0]
-	zhenfu := result.RecentAmplitude[0]
-	if percent >= 8 {
-		zhangdie = "涨幅高于8%; "
+func GetHistoryNameByCode(code string) (int, bool) {
+	var c dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", code).Find(&c)
+	if c.HistoryNames != "暂无更名记录" {
+		names := strings.Split(c.HistoryNames, " ")
+		for _, i := range names {
+			if strings.Contains(i, "ST") {
+				return len(names), true
+			}
+		}
+		return len(names), false
+	} else {
+		return 0, false
 	}
-
-	if percent >= 5 && percent <= 8 {
-		zhangdie = "涨幅介于5% ~ 8%; "
-	}
-
-	if percent >= 2 && percent <= 5 {
-		zhangdie = "涨幅介于2% ~ 5%; "
-	}
-
-	if percent >= -2 && percent <= 2 {
-		zhangdie = "涨跌幅介于-2% ~ 2%; "
-	}
-
-	if percent <= -8 {
-		zhangdie = "跌幅高于8%; "
-	}
-
-	if percent >= -8 && percent <= -5 {
-		zhangdie = "跌幅介于-8% ~ -5%; "
-	}
-
-	if percent >= -5 && percent <= -2 {
-		zhangdie = "跌幅介于-5% ~ -2%; "
-	}
-
-	if huanshou <= 5 {
-		huanshoulv = "换手率小于5%; "
-	}
-
-	if huanshou >= 5 && huanshou <= 10 {
-		huanshoulv = "换手率介于5% ~ 10%; "
-	}
-
-	if huanshou >= 10 {
-		score += 1
-		huanshoulv = "换手率大于10%; "
-	}
-
-	if zhenfu <= 5 {
-		zhenfures = "振幅小于5%; "
-	}
-
-	if zhenfu >= 5 && zhenfu <= 10 {
-		zhenfures = "振幅介于5% ~ 10%; "
-	}
-
-	if zhenfu >= 10 && zhenfu <= 15 {
-		score += 1
-		zhenfures = "振幅介于10% ~ 15%; "
-	}
-
-	if zhenfu >= 15 {
-		score += 1
-		zhenfures = "振幅大于15%; "
-	}
-	return zhangdie, huanshoulv, zhenfures, score
 }
 
 // 不断增加
@@ -490,6 +441,9 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	fenhong, songgu, zhuangzeng := GetFenghongByCode(code)
 	pergu, zengfa := GetPeiGuByCode(code)
 
+	// 历史更名次数
+	changename, has_st := GetHistoryNameByCode(code)
+
 	score := 0 // max 37  // low 17
 	cond_str, bad_cond_str, finance := "", "", ""
 
@@ -687,14 +641,15 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		score += 1
 		cond_str += "总负债不断减小; "
 	}
-
+	if changename > 0 {
+		bad_cond_str += fmt.Sprintf("历史更名%d次; ", changename)
+		if has_st {
+			bad_cond_str += "曾ST带帽; "
+		}
+	}
 	if liangnengsmaller1 || liangnengsmaller2 {
 		score -= 4
 		bad_cond_str += "量能萎靡; "
-	}
-	if st {
-		score -= 3
-		bad_cond_str += "ST板块; "
 	}
 	if sicha1 {
 		score -= 4
@@ -707,6 +662,10 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	if sicha5 {
 		score -= 4
 		bad_cond_str += "(死叉)6与15周均线; "
+	}
+	if st {
+		score -= 3
+		bad_cond_str += "ST板块; "
 	}
 	if pricexiajiang1 {
 		score -= 2

@@ -33,7 +33,7 @@ type UserServiceIF interface {
 	Count(where string, args []interface{}) (int, error)
 	CreateUserIfNotExist(user *dal.User, token string) (us *dal.User, err error)
 	LoginWx(code, token string) (*dal.User, error)
-	PayWxJsAPi(authentication *model.AuthResult) (*anypay.WeResJsApi, error)
+	PayWxJsAPi(authentication *model.AuthResult, post *model.SpendType) (*anypay.WeResJsApi, error)
 	PayWxH5(c *gin.Context) (string, error)
 	SaveUserConditions(query *model.GetPredicts, auth *model.AuthResult) error
 	EditUserConditions(query *model.EditPredicts, auth *model.AuthResult) error
@@ -77,7 +77,7 @@ func (m *UserService) Count(where string, args []interface{}) (int, error) {
 }
 
 func (u *UserService) CreateUserIfNotExist(user *dal.User, token string) (us *dal.User, err error) {
-	user_obj, err := u.Query("user_name = ?", []interface{}{user.UserName})
+	user_obj, err := u.Query("open_id = ?", []interface{}{user.OpenId})
 	if err != nil {
 		user_obj2, err := u.Query("share_token = ?", []interface{}{token})
 		if err == nil {
@@ -99,6 +99,7 @@ func (u *UserService) LoginWx(code, token string) (*dal.User, error) {
 	var user_info model.WxUserInfo
 	err = json.Unmarshal(res, &user_info)
 	if err != nil {
+		log.Println(err, "获取用户信息失败")
 		return nil, errors.New("获取用户信息失败")
 	}
 	avatar := user_info.Headimgurl
@@ -109,19 +110,26 @@ func (u *UserService) LoginWx(code, token string) (*dal.User, error) {
 	username := user_info.Nickname
 	openid := user_info.OpenId
 	uid := uuid.Must(uuid.NewV4()).String()
-	user := dal.User{OpenId: openid, UserName: username, Avatar: avatar, Sex: sex, City: city, Province: province, Country: country, IsMember: false, QueryLeft: 10, ShareToken: uid[0:12]}
+	user := dal.User{OpenId: openid, UserName: username, Avatar: avatar, Sex: sex, City: city, Province: province, Country: country, MemberExpireTime: time.Now(), QueryLeft: 10, ShareToken: uid[0:12]}
 	log.Println(user)
-	obj, _ := u.CreateUserIfNotExist(&user, token)
+	obj, err := u.CreateUserIfNotExist(&user, token)
 	return obj, nil
 }
 
-func (u *UserService) PayWxJsAPi(authentication *model.AuthResult) (*anypay.WeResJsApi, error) {
+func (u *UserService) getMoney(typ int) *dal.Price {
+	var price dal.Price
+	store.MysqlClient.GetDB().Model(&dal.Price{}).Where("id = ?", typ).Find(&price)
+	return &price
+}
+
+func (u *UserService) PayWxJsAPi(authentication *model.AuthResult, post *model.SpendType) (*anypay.WeResJsApi, error) {
+	price := u.getMoney(post.Id)
 	user, _ := u.Query("id = ?", []interface{}{authentication.Uid})
-	payment, NonceStr := wechat.WechatGlobal.JSApiPay(user.OpenId, strconv.Itoa(int(1)))
+	payment, NonceStr := wechat.WechatGlobal.JSApiPay(user.OpenId, strconv.Itoa(price.Spend*100))
 	if payment == nil {
 		return nil, errors.New("唤起支付调用失败")
 	}
-	pay_record := dal.Pay{UserId: authentication.Uid, Spend: 30, PaySuccess: false, OrderId: NonceStr}
+	pay_record := dal.Pay{UserId: authentication.Uid, Spend: price.Spend, PaySuccess: false, OrderId: NonceStr, Type: price.TypeDesc, Month: price.Month}
 	store.MysqlClient.GetDB().Save(&pay_record)
 	return payment, nil
 }

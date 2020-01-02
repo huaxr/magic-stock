@@ -24,6 +24,8 @@ func (r *Router) addCommon() {
 	router.POST("/h5_pay", control.UserControlGlobal.PayByWeChatH5)
 	router.GET("/wx_login", control.UserControlGlobal.LoginByWeChat)
 	router.GET("/logout", control.UserControlGlobal.LogOut)
+	router.GET("/payments", control.CommonControlGlobal.PaymentList)
+
 }
 
 func (r *Router) addRouters() {

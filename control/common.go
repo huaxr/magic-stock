@@ -2,6 +2,8 @@
 package control
 
 import (
+	"magic/stock/core/store"
+	"magic/stock/dal"
 	"magic/stock/model"
 	cap "magic/stock/service/captcha"
 
@@ -11,6 +13,7 @@ import (
 type CommonIF interface {
 	Response(c *gin.Context, data interface{}, err error)
 	ReloadCaptcha(c *gin.Context)
+	PaymentList(c *gin.Context)
 }
 
 var CommonControlGlobal CommonIF
@@ -34,4 +37,10 @@ func (d *CommonControl) Response(c *gin.Context, data interface{}, err error) {
 func (d *CommonControl) ReloadCaptcha(c *gin.Context) {
 	str := d.service.NewCaptcha()
 	d.Response(c, str, nil)
+}
+
+func (d *CommonControl) PaymentList(c *gin.Context) {
+	var res []dal.Price
+	store.MysqlClient.GetDB().Model(&dal.Price{}).Find(&res)
+	d.Response(c, res, nil)
 }
