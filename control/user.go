@@ -11,6 +11,7 @@ import (
 	"magic/stock/service/adapter"
 	sessions "magic/stock/service/middleware/session"
 	"magic/stock/service/wechat"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +20,7 @@ type UserIF interface {
 	Query(where string, args []interface{}) (*dal.User, error)
 	Exist(where string, args []interface{}) bool
 	GetUserInfo(c *gin.Context)
+	JudgeIsMember(c *gin.Context)
 	LoginByWeChat(c *gin.Context)
 	LogOut(c *gin.Context)
 	// 充值 (h5 和 jsapi)
@@ -63,6 +65,18 @@ func (d *UserControl) GetUserInfo(c *gin.Context) {
 	authentication := _auth.(*model.AuthResult)
 	user, err := d.Query("id = ?", []interface{}{authentication.Uid})
 	d.Response(c, user, err)
+}
+
+func (d *UserControl) JudgeIsMember(c *gin.Context) {
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
+	user, err := d.Query("id = ?", []interface{}{authentication.Uid})
+	if user.MemberExpireTime.After(time.Now()) {
+		d.Response(c, true, err)
+		return
+	} else {
+		d.Response(c, false, err)
+	}
 }
 
 func (d *UserControl) LoginByWeChat(c *gin.Context) {

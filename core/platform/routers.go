@@ -33,6 +33,7 @@ func (r *Router) addRouters() {
 	router.Use(normal.LoginRequired())
 	{
 		router.GET("/user", control.UserControlGlobal.GetUserInfo)
+		router.GET("/is_member", control.UserControlGlobal.JudgeIsMember)
 		router.POST("/jsapi_pay", control.UserControlGlobal.PayByWeChatJsApi)
 		router.GET("/my_conditions", control.UserControlGlobal.GetConditions)
 		router.POST("/edit_condition", control.UserControlGlobal.EditUserConditions)
