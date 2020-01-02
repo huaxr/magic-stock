@@ -93,6 +93,7 @@ func (d *UserControl) LoginByWeChat(c *gin.Context) {
 	}
 	if user.OpenId != "" {
 		session := sessions.Default(c)
+		session.Set("user", user.UserName)
 		session.Set("open_id", user.OpenId)
 		session.Set("uid", int(user.ID))
 		session.Save()
