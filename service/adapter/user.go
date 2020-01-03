@@ -79,17 +79,21 @@ func (m *UserService) Count(where string, args []interface{}) (int, error) {
 func (u *UserService) CreateUserIfNotExist(user *dal.User, token string) (us *dal.User, err error) {
 	user_obj, err := u.Query("open_id = ?", []interface{}{user.OpenId})
 	if err != nil {
+		store.MysqlClient.GetDB().Save(user)
+		user_obj = user
+
 		if token != "" {
 			user_obj2, err := u.Query("share_token = ?", []interface{}{token})
 			if err == nil {
 				user_obj2.QueryLeft += 20
 				store.MysqlClient.GetDB().Save(user_obj2)
+				// 保存拉新记录
+				share_record := dal.UserShare{ShareUserId: int(user_obj.ID), BeShareId: int(user_obj2.ID)}
+				store.MysqlClient.GetDB().Model(&share_record)
 			} else {
 				log.Println("该token不存在", token)
 			}
 		}
-		store.MysqlClient.GetDB().Save(user)
-		user_obj = user
 	}
 	return user_obj, err
 }

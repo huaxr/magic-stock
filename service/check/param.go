@@ -105,8 +105,8 @@ func (p *param) GetParamsSpecific(c *gin.Context, allowed []string) (string, []i
 
 func (p *param) GetPagination(c *gin.Context) (int, int) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	page_size, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
-	if page_size > 20 {
+	page_size, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
+	if page_size >= 20 {
 		page_size = 20
 	}
 	offset := page_size * (page - 1)
