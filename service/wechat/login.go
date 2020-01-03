@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"magic/stock/model"
 	"magic/stock/service/check"
 	"net/url"
@@ -14,7 +13,6 @@ import (
 
 func (w *WeChat) GetAccessTokenByCode(code string) (*model.AccessTokenResponse, error) {
 	res := check.Authentication.HttpGetWithToken(fmt.Sprintf(OpenIdUrl, code, STOCK_WX_APPID, STOCK_WX_APPSECRET, GrantType), "")
-	log.Println("GetAccessTokenByCode", string(res))
 	var response model.AccessTokenResponse
 	err := json.Unmarshal(res, &response)
 	if err != nil {

@@ -334,6 +334,14 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 		d.Response(c, nil, errors.New("证券代码空"))
 		return
 	}
+	var coder_obj dal.Code
+	err := store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ? or name = ?", code, code).Find(&coder_obj).Error
+	if err != nil {
+		d.Response(c, nil, errors.New("证券代码不存在"))
+		return
+	} else {
+		code = coder_obj.Code
+	}
 	if date == "" {
 		var x []PredictDate
 		store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("distinct(date) as date").Order("date desc").Scan(&x)
@@ -343,7 +351,7 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	}
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
-	err := d.doQueryLeft(authentication)
+	err = d.doQueryLeft(authentication)
 	if err != nil {
 		d.Response(c, nil, err)
 		return

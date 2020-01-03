@@ -2,6 +2,7 @@ package normal
 
 import (
 	"fmt"
+	"log"
 	"magic/stock/model"
 	"magic/stock/service/conf"
 	"magic/stock/service/wechat"
@@ -20,7 +21,7 @@ func LoginRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authentication := check.Authentication.JudgeApi(c)
 		if authentication.Err != nil {
-			// 注意: c.json 会对 & unicode 编码
+			log.Println("暂未登录")
 			token := c.DefaultQuery("token", "")
 			//c.String(400, wechat.WechatGlobal.GetCodeUrl())
 			c.JSON(200, gin.H{"error_code": 2, "err_msg": "请登录", "data": wechat.WechatGlobal.GetCodeUrl(conf.Config.WxRedirect + "?token=" + token)})

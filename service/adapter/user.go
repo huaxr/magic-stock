@@ -118,7 +118,7 @@ func (u *UserService) LoginWx(code, token string) (*dal.User, error) {
 	username := user_info.Nickname
 	openid := user_info.OpenId
 	uid := uuid.Must(uuid.NewV4()).String()
-	user := dal.User{OpenId: openid, UserName: username, Avatar: avatar, Sex: sex, City: city, Province: province, Country: country, MemberExpireTime: time.Now(), QueryLeft: 20, ShareToken: uid[0:24]}
+	user := dal.User{OpenId: openid, UserName: username, Avatar: avatar, Sex: sex, City: city, Province: province, Country: country, MemberExpireTime: time.Now(), QueryLeft: 20, ShareToken: uid[0:23]}
 	obj, err := u.CreateUserIfNotExist(&user, token)
 	return obj, nil
 }
