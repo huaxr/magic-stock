@@ -35,8 +35,8 @@ func dealPanic(doc *goquery.Document, i int, selector string) (str string, err e
 // 每天收盘执行一次, 收集所有股票的当天股价和成交量
 func (craw *Crawler) GetAllTicketTodayDetail(code, name, today string, proxy bool) error {
 	var doc *goquery.Document
-	for year := 2019; year <= 2019; year++ { // 马上 2020 了
-		for ji := 4; ji <= 4; ji++ { // 这里需要动态改
+	for year := 2020; year <= 2020; year++ { // 马上 2020 了
+		for ji := 1; ji <= 1; ji++ { // 这里需要动态改
 			if !proxy {
 				doc, _ = craw.NewDocument(fmt.Sprintf("http://quotes.money.163.com/trade/lsjysj_%s.html?year=%d&season=%d", code, year, ji))
 			} else {

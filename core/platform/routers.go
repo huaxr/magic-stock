@@ -25,7 +25,12 @@ func (r *Router) addCommon() {
 	router.GET("/wx_login", control.UserControlGlobal.LoginByWeChat)
 	router.GET("/logout", control.UserControlGlobal.LogOut)
 	router.GET("/payments", control.CommonControlGlobal.PaymentList)
-
+	router.GET("/predicts_dates", control.PredictControlGlobal.GetPredictDates)
+	router.GET("/conditions", control.PredictControlGlobal.GetConditions)
+	router.GET("/concepts", control.PredictControlGlobal.GetConcepts)
+	router.GET("/labels", control.PredictControlGlobal.GetLabels)
+	router.GET("/belongs", control.PredictControlGlobal.GetBelongs)
+	router.GET("/locations", control.PredictControlGlobal.GetLocations)
 }
 
 func (r *Router) addRouters() {
@@ -38,12 +43,6 @@ func (r *Router) addRouters() {
 		router.GET("/my_conditions", control.UserControlGlobal.GetConditions)
 		router.POST("/edit_condition", control.UserControlGlobal.EditUserConditions)
 		router.POST("/delete_condition", control.UserControlGlobal.DeleteUserConditions)
-		router.GET("/predicts_dates", control.PredictControlGlobal.GetPredictDates)
-		router.GET("/conditions", control.PredictControlGlobal.GetConditions)
-		router.GET("/concepts", control.PredictControlGlobal.GetConcepts)
-		router.GET("/labels", control.PredictControlGlobal.GetLabels)
-		router.GET("/belongs", control.PredictControlGlobal.GetBelongs)
-		router.GET("/locations", control.PredictControlGlobal.GetLocations)
 		router.POST("/predicts_list", control.PredictControlGlobal.PredictList)
 		router.GET("/stock/detail", control.PredictControlGlobal.GetDetail)
 		router.GET("/stock/fund", control.PredictControlGlobal.GetFunds)
@@ -51,7 +50,6 @@ func (r *Router) addRouters() {
 		router.GET("/fund_hold", control.PredictControlGlobal.FundHold)
 		// 流通股东持仓
 		router.GET("/top_holder_hold", control.PredictControlGlobal.TopHolderHold)
-
 		router.GET("/stock/fhsgzz", control.PredictControlGlobal.GetFenHong)
 		router.GET("/stock/pgzf", control.PredictControlGlobal.GetPeiGuZhuangZeng)
 	}
