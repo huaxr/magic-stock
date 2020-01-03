@@ -79,10 +79,14 @@ func (m *UserService) Count(where string, args []interface{}) (int, error) {
 func (u *UserService) CreateUserIfNotExist(user *dal.User, token string) (us *dal.User, err error) {
 	user_obj, err := u.Query("open_id = ?", []interface{}{user.OpenId})
 	if err != nil {
-		user_obj2, err := u.Query("share_token = ?", []interface{}{token})
-		if err == nil {
-			user_obj2.QueryLeft += 5
-			store.MysqlClient.GetDB().Save(user_obj2)
+		if token != "" {
+			user_obj2, err := u.Query("share_token = ?", []interface{}{token})
+			if err == nil {
+				user_obj2.QueryLeft += 20
+				store.MysqlClient.GetDB().Save(user_obj2)
+			} else {
+				log.Println("该token不存在", token)
+			}
 		}
 		store.MysqlClient.GetDB().Save(user)
 		user_obj = user
@@ -110,7 +114,7 @@ func (u *UserService) LoginWx(code, token string) (*dal.User, error) {
 	username := user_info.Nickname
 	openid := user_info.OpenId
 	uid := uuid.Must(uuid.NewV4()).String()
-	user := dal.User{OpenId: openid, UserName: username, Avatar: avatar, Sex: sex, City: city, Province: province, Country: country, MemberExpireTime: time.Now(), QueryLeft: 10, ShareToken: uid[0:12]}
+	user := dal.User{OpenId: openid, UserName: username, Avatar: avatar, Sex: sex, City: city, Province: province, Country: country, MemberExpireTime: time.Now(), QueryLeft: 20, ShareToken: uid[0:24]}
 	obj, err := u.CreateUserIfNotExist(&user, token)
 	return obj, nil
 }
@@ -145,10 +149,16 @@ func (m *UserService) genName() string {
 }
 
 func (u *UserService) SaveUserConditions(post *model.GetPredicts, authentication *model.AuthResult) error {
-	res, _ := json.Marshal(post.Query)
-	uc := dal.UserConditions{Name: u.genName(), UserId: authentication.Uid, Conditions: res}
-	err := store.MysqlClient.GetDB().Save(&uc).Error
-	return err
+	var count int
+	store.MysqlClient.GetDB().Model(&dal.UserConditions{}).Where("user_id = ?", authentication.Uid).Count(&count)
+	if count <= 10 {
+		res, _ := json.Marshal(post.Query)
+		uc := dal.UserConditions{Name: u.genName(), UserId: authentication.Uid, Conditions: res}
+		err := store.MysqlClient.GetDB().Save(&uc).Error
+		return err
+	} else {
+		return errors.New("用户条件多为10个, 改条件将不再保存")
+	}
 }
 
 func (u *UserService) EditUserConditions(query *model.EditPredicts, auth *model.AuthResult) error {

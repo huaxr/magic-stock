@@ -9,7 +9,6 @@ import (
 	"log"
 	"magic/stock/model"
 	"magic/stock/service/check"
-	"magic/stock/service/conf"
 	"net/url"
 )
 
@@ -24,6 +23,6 @@ func (w *WeChat) GetAccessTokenByCode(code string) (*model.AccessTokenResponse, 
 	return &response, nil
 }
 
-func (w *WeChat) GetCodeUrl() string {
-	return fmt.Sprintf(CodeUrl, STOCK_WX_APPID, url.QueryEscape(conf.Config.WxRedirect))
+func (w *WeChat) GetCodeUrl(redirect_url string) string {
+	return fmt.Sprintf(CodeUrl, STOCK_WX_APPID, url.QueryEscape(redirect_url))
 }

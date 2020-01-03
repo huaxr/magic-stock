@@ -128,20 +128,10 @@ type Codes struct {
 	Code string
 }
 
-func (d *PredictControl) PredictList(c *gin.Context) {
-	_auth, _ := c.Get("auth")
-	authentication := _auth.(*model.AuthResult)
-	var post model.GetPredicts
-	err := c.BindJSON(&post)
-	if err != nil {
-		d.Response(c, nil, err)
-		return
-	}
-
+func (d *PredictControl) doQueryLeft(authentication *model.AuthResult) error {
 	if !authentication.Member {
 		if authentication.QueryLeft == 0 {
-			d.Response(c, nil, errors.New("查询次数不足"))
-			return
+			return errors.New("查询次数不足")
 		} else {
 			user_obj, _ := UserControlGlobal.Query("id = ?", []interface{}{authentication.Uid})
 			left := user_obj.QueryLeft - 1
@@ -151,6 +141,23 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 			err := store.MysqlClient.GetDB().Save(&user_obj).Error
 			log.Println("查询次数剩余", authentication.User, authentication.QueryLeft, left, err)
 		}
+	}
+	return nil
+}
+
+func (d *PredictControl) PredictList(c *gin.Context) {
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
+	var post model.GetPredicts
+	err := c.BindJSON(&post)
+	if err != nil {
+		d.Response(c, nil, err)
+		return
+	}
+	err = d.doQueryLeft(authentication)
+	if err != nil {
+		d.Response(c, nil, err)
+		return
 	}
 	offset, limit := check.ParamParse.GetPagination(c)
 	// 如果用户提交查询并保存查询结果
@@ -327,11 +334,20 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 		d.Response(c, nil, errors.New("证券/日期代码空"))
 		return
 	}
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
+	err := d.doQueryLeft(authentication)
+	if err != nil {
+		d.Response(c, nil, err)
+		return
+	}
+
 	var TicketHistory []dal.TicketHistory
 	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", code, date).Limit(70).Order("date asc").Find(&TicketHistory)
 
-	var TicketHistoryWeekly []dal.TicketHistoryWeekly
-	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", code, date).Limit(40).Order("date asc").Find(&TicketHistoryWeekly)
+	//去掉周线数据
+	//var TicketHistoryWeekly []dal.TicketHistoryWeekly
+	//store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", code, date).Limit(40).Order("date asc").Find(&TicketHistoryWeekly)
 
 	var Stockholder []dal.Stockholder
 	store.MysqlClient.GetDB().Model(&dal.Stockholder{}).Where("code = ?", code).Find(&Stockholder)
@@ -362,7 +378,7 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	response.StockCashFlow = StockCashFlow
 	response.StockLiabilities = StockLiabilities
 	response.StockProfit = StockProfit
-	response.TicketHistoryWeekly = TicketHistoryWeekly
+	//response.TicketHistoryWeekly = TicketHistoryWeekly
 	response.PerTicket = PerTickets
 	d.Response(c, response, nil)
 }

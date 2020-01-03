@@ -106,8 +106,8 @@ type DeletePredicts struct {
 }
 
 type StockDetail struct {
-	TicketHistory       []dal.TicketHistory       `json:"ticket_history"`
-	TicketHistoryWeekly []dal.TicketHistoryWeekly `json:"ticket_history_weekly"`
+	TicketHistory []dal.TicketHistory `json:"ticket_history"`
+	//TicketHistoryWeekly []dal.TicketHistoryWeekly `json:"ticket_history_weekly"`
 	//FundHold            []dal.FundRank            `json:"fund_hold"`   // 持仓机构详情
 	Stockholder      []dal.Stockholder      `json:"stockholder"` // 十大流通股东
 	Stock            dal.Code               `json:"stock"`       // 股票详情
