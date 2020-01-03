@@ -27,6 +27,7 @@ func (r *Router) addCommon() {
 	router.GET("/payments", control.CommonControlGlobal.PaymentList)
 	router.GET("/predicts_dates", control.PredictControlGlobal.GetPredictDates)
 	router.GET("/conditions", control.PredictControlGlobal.GetConditions)
+	router.GET("/high_conditions", control.PredictControlGlobal.GetHighConditions)
 	router.GET("/concepts", control.PredictControlGlobal.GetConcepts)
 	router.GET("/labels", control.PredictControlGlobal.GetLabels)
 	router.GET("/belongs", control.PredictControlGlobal.GetBelongs)

@@ -39,6 +39,7 @@ type PredictIF interface {
 	// 获取所有地区的列表
 	GetLocations(c *gin.Context)
 	GetConditions(c *gin.Context)
+	GetHighConditions(c *gin.Context)
 	// 获取概念列表
 	GetConcepts(c *gin.Context)
 	GetLabels(c *gin.Context)
@@ -480,6 +481,16 @@ func (d *PredictControl) GetConditions(c *gin.Context) {
 	store.MysqlClient.GetDB().Model(&dal.Conditions{}).Find(&x)
 	for _, i := range x {
 		response[i.Type] = append(response[i.Type], i.Name)
+	}
+	d.Response(c, response, nil)
+}
+
+func (d *PredictControl) GetHighConditions(c *gin.Context) {
+	var x []dal.HighConditions
+	response := map[string][]dal.HighConditions{}
+	store.MysqlClient.GetDB().Model(&dal.HighConditions{}).Find(&x)
+	for _, i := range x {
+		response[i.Type] = append(response[i.Type], i)
 	}
 	d.Response(c, response, nil)
 }

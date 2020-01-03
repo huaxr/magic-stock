@@ -14,3 +14,16 @@ type Conditions struct {
 func (Conditions) TableName() string {
 	return "magic_stock_conditions"
 }
+
+// 高级条件表
+type HighConditions struct {
+	ID    uint   `gorm:"primary_key" json:"id"`
+	Type  string `json:"type"`  // 类型
+	Name  string `json:"name"`  // 条件名称
+	Field string `json:"field"` // 条件的字段名
+	Desc  string `json:"desc"`  // 描述
+}
+
+func (HighConditions) TableName() string {
+	return "magic_stock_conditions_high"
+}
