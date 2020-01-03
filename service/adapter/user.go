@@ -132,11 +132,11 @@ func (u *UserService) getMoney(typ int) *dal.Price {
 func (u *UserService) PayWxJsAPi(authentication *model.AuthResult, post *model.SpendType) (*anypay.WeResJsApi, error) {
 	price := u.getMoney(post.Id)
 	user, _ := u.Query("id = ?", []interface{}{authentication.Uid})
-	payment, NonceStr := wechat.WechatGlobal.JSApiPay(user.OpenId, strconv.Itoa(price.Spend*100))
+	payment, NonceStr := wechat.WechatGlobal.JSApiPay(user.OpenId, strconv.Itoa(price.Spend))
 	if payment == nil {
 		return nil, errors.New("唤起支付调用失败")
 	}
-	pay_record := dal.Pay{UserId: authentication.Uid, Spend: price.Spend, PaySuccess: false, OrderId: NonceStr, Type: price.TypeDesc, Month: price.Month}
+	pay_record := dal.Pay{UserId: authentication.Uid, Spend: price.Spend / 100, PaySuccess: false, OrderId: NonceStr, Type: price.TypeDesc, Month: price.Month}
 	store.MysqlClient.GetDB().Save(&pay_record)
 	return payment, nil
 }
