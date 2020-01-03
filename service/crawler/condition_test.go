@@ -16,7 +16,7 @@ func TestGetData(t *testing.T) {
 	var code []dal.Code
 	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
 	for _, i := range code {
-		x := &model.Params{i.Code, date, 0, 6, 15, 30, 10, 40}
+		x := &model.Params{i.Code, date, 0, 5, 10, 15, 30, 60, 10, 40}
 		y := CrawlerGlobal.CalcResultWithDefined(x)
 		if y == nil {
 			continue

@@ -3,6 +3,7 @@
 package crawler
 
 import (
+	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
 	"magic/stock/model"
@@ -60,34 +61,32 @@ func (craw *Crawler) getRecentWeeklyData(thw []dal.TicketHistoryWeekly) *model.R
 }
 
 func (craw *Crawler) CalcResultWithDefined(params *model.Params) *model.CalcResult {
-	if params.AveragePrice1 > 6 || params.AveragePrice2 > 15 || params.AveragePrice3 > 30 || params.AverageCount1 > 40 || params.AverageCount2 > 40 {
-		panic("argument error")
-	}
 	var ths []dal.TicketHistory
-	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", params.Code, params.Date).Limit(50).Offset(params.Offset).Order("date desc").Find(&ths)
+	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", params.Code, params.Date).Limit(70).Offset(params.Offset).Order("date desc").Find(&ths)
 
-	var thw []dal.TicketHistoryWeekly
-	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", params.Code, params.Date).Limit(20).Offset(params.Offset).Order("date desc").Find(&thw)
+	//var thw []dal.TicketHistoryWeekly
+	//store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", params.Code, params.Date).Limit(20).Offset(params.Offset).Order("date desc").Find(&thw)
 
 	recent_daily := craw.getRecentDailyData(ths)
 	if recent_daily.CurrDate != params.Date {
 		return nil
 	}
-	recent_week := craw.getRecentWeeklyData(thw)
-
-	if len(recent_daily.RecentCount) != 50 || len(recent_week.RecentWeeklyClose) != 20 {
+	//recent_week := craw.getRecentWeeklyData(thw)
+	if len(recent_daily.RecentCount) != 70 { //|| len(recent_week.RecentWeeklyClose) != 20 {
+		log.Println("参数个数不足", params.Code)
 		return nil
 	}
+	recent_ave_price_1 := craw.getRecentAvePriceByNum(recent_daily.RecentClose, params.AveragePrice1, 6)
+	recent_ave_price_2 := craw.getRecentAvePriceByNum(recent_daily.RecentClose, params.AveragePrice2, 6)
+	recent_ave_price_3 := craw.getRecentAvePriceByNum(recent_daily.RecentClose, params.AveragePrice3, 6)
+	recent_ave_price_4 := craw.getRecentAvePriceByNum(recent_daily.RecentClose, params.AveragePrice4, 6)
+	recent_ave_price_5 := craw.getRecentAvePriceByNum(recent_daily.RecentClose, params.AveragePrice5, 6)
 
-	recent_ave_price_1 := craw.getRecentAvePriceByNum(recent_daily.RecentClose, params.AveragePrice1, 20)
-	recent_ave_price_2 := craw.getRecentAvePriceByNum(recent_daily.RecentClose, params.AveragePrice2, 20)
-	recent_ave_price_3 := craw.getRecentAvePriceByNum(recent_daily.RecentClose, params.AveragePrice3, 20)
+	//recent_ave_price_1_weekly := craw.getRecentAvePriceByNum(recent_week.RecentWeeklyClose, params.AveragePrice1, 6)
+	//recent_ave_price_2_weekly := craw.getRecentAvePriceByNum(recent_week.RecentWeeklyClose, params.AveragePrice2, 6)
 
-	recent_ave_price_1_weekly := craw.getRecentAvePriceByNum(recent_week.RecentWeeklyClose, params.AveragePrice1, 5)
-	recent_ave_price_2_weekly := craw.getRecentAvePriceByNum(recent_week.RecentWeeklyClose, params.AveragePrice2, 5)
+	recent_ave_count_1 := craw.getRecentAvePriceByNum(recent_daily.RecentCount, params.AverageCount1, 6)
+	recent_ave_count_2 := craw.getRecentAvePriceByNum(recent_daily.RecentCount, params.AverageCount2, 6)
 
-	recent_ave_count_1 := craw.getRecentAvePriceByNum(recent_daily.RecentCount, params.AverageCount1, 10)
-	recent_ave_count_2 := craw.getRecentAvePriceByNum(recent_daily.RecentCount, params.AverageCount2, 10)
-
-	return &model.CalcResult{RecentDailyData: recent_daily, RecentWeeklyData: recent_week, RecentAverage: &model.RecentAverage{recent_ave_price_1, recent_ave_price_2, recent_ave_price_3, recent_ave_price_1_weekly, recent_ave_price_2_weekly, recent_ave_count_1, recent_ave_count_2}}
+	return &model.CalcResult{RecentDailyData: recent_daily, RecentAverage: &model.RecentAverage{recent_ave_price_1, recent_ave_price_2, recent_ave_price_3, recent_ave_price_4, recent_ave_price_5, recent_ave_count_1, recent_ave_count_2}}
 }

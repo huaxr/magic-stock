@@ -53,29 +53,34 @@ type RecentWeeklyData struct {
 }
 
 type RecentAverage struct {
-	AveDailyPrice1  []float64
-	AveDailyPrice2  []float64
-	AveDailyPrice3  []float64
-	AveWeeklyPrice1 []float64
-	AveWeeklyPrice2 []float64
-	AveCount1       []float64
-	AveCount2       []float64
+	AveDailyPrice1 []float64
+	AveDailyPrice2 []float64
+	AveDailyPrice3 []float64
+	AveDailyPrice4 []float64
+	AveDailyPrice5 []float64
+	//AveWeeklyPrice1 []float64
+	//AveWeeklyPrice2 []float64
+	AveCount1 []float64
+	AveCount2 []float64
 }
 
 type Params struct {
 	Code          string
 	Date          string
 	Offset        int
-	AveragePrice1 int // 均线1 6
-	AveragePrice2 int // 均线2 15
-	AveragePrice3 int // 均线3 30
+	AveragePrice1 int // 均线1 5
+	AveragePrice2 int // 均线2 10
+	AveragePrice3 int // 均线2 15
+	AveragePrice4 int // 均线3 30
+	AveragePrice5 int // 均线4 60
+
 	AverageCount1 int // 量均线1 10
 	AverageCount2 int // 量均线2 40
 }
 
 type CalcResult struct {
 	*RecentDailyData
-	*RecentWeeklyData
+	//*RecentWeeklyData
 	*RecentAverage
 }
 

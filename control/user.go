@@ -9,6 +9,7 @@ import (
 	"magic/stock/dal"
 	"magic/stock/model"
 	"magic/stock/service/adapter"
+	"magic/stock/service/conf"
 	sessions "magic/stock/service/middleware/session"
 	"magic/stock/service/wechat"
 	"time"
@@ -97,7 +98,9 @@ func (d *UserControl) LoginByWeChat(c *gin.Context) {
 		session.Set("open_id", user.OpenId)
 		session.Set("uid", int(user.ID))
 		session.Save()
-		d.Response(c, "登录成功", nil)
+		log.Println("登录成功")
+		c.Redirect(302, conf.Config.Host)
+		return
 	} else {
 		d.Response(c, nil, errors.New("未知错误"))
 	}

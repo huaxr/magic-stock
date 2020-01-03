@@ -295,69 +295,81 @@ func RecentInRangeAveWithCond(recent_money_or_count, recent_ave []float64, recen
 	return len(tmp) >= total
 }
 
-// recent_num type 涨幅滞涨 limit_percent
-func (craw *Crawler) WeeklyPercentLimited(result *model.CalcResult, recent_num int, limit_percent float64, typ string) bool {
-	switch typ {
-	case "week":
-		return ArraySumLessThan(result.RecentWeeklyPercent[0:recent_num], limit_percent)
-	case "day":
-		return ArraySumLessThan(result.RecentPercent[0:recent_num], limit_percent)
-	}
-	return false
-}
-
 func (craw *Crawler) HasLimitUpInTheseDays(result *model.CalcResult, recent_days int) bool {
 	return ArrayHasLimitUp(result.RecentPercent, recent_days)
 }
 
+// 5 10 15 30 60
 func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
-	// 今日线金叉 6 和 15线
+	// 5 10 金叉
 	jincha1 := result.AveDailyPrice1[0] > result.AveDailyPrice2[0] && result.AveDailyPrice1[1] < result.AveDailyPrice2[1]
+	// 5 15 金叉
+	jincha2 := result.AveDailyPrice1[0] > result.AveDailyPrice3[0] && result.AveDailyPrice1[1] < result.AveDailyPrice3[1]
+	// 5 30 金叉
+	jincha3 := result.AveDailyPrice1[0] > result.AveDailyPrice4[0] && result.AveDailyPrice1[1] < result.AveDailyPrice4[1]
+	// 5 60 金叉
+	jincha4 := result.AveDailyPrice1[0] > result.AveDailyPrice5[0] && result.AveDailyPrice1[1] < result.AveDailyPrice5[1]
+	// 10 15 金叉
+	jincha5 := result.AveDailyPrice2[0] > result.AveDailyPrice3[0] && result.AveDailyPrice2[1] < result.AveDailyPrice3[1]
+	// 10 30 金叉
+	jincha6 := result.AveDailyPrice2[0] > result.AveDailyPrice4[0] && result.AveDailyPrice2[1] < result.AveDailyPrice4[1]
+	// 10 60 金叉
+	jincha7 := result.AveDailyPrice2[0] > result.AveDailyPrice5[0] && result.AveDailyPrice2[1] < result.AveDailyPrice5[1]
+	// 15 30 金叉
+	jincha8 := result.AveDailyPrice3[0] > result.AveDailyPrice4[0] && result.AveDailyPrice3[1] < result.AveDailyPrice4[1]
+	// 15 60 金叉
+	jincha9 := result.AveDailyPrice3[0] > result.AveDailyPrice5[0] && result.AveDailyPrice3[1] < result.AveDailyPrice5[1]
+	// 30 60 金叉
+	jincha10 := result.AveDailyPrice4[0] > result.AveDailyPrice5[0] && result.AveDailyPrice4[1] < result.AveDailyPrice5[1]
+	// 10 40 量能金叉
+	jincha11 := result.AveCount1[0] > result.AveCount2[0] && result.AveCount1[1] < result.AveCount2[1]
+
+	// 死叉股
 	sicha1 := result.AveDailyPrice1[0] < result.AveDailyPrice2[0] && result.AveDailyPrice1[1] > result.AveDailyPrice2[1]
-	// 昨日线金叉 6 和 15线
-	// jincha2 := result.AveDailyPrice1[1] > result.AveDailyPrice2[1] && result.AveDailyPrice1[2] < result.AveDailyPrice2[2]
-	// 今日线金叉 15 和 30线
-	jincha3 := result.AveDailyPrice2[0] > result.AveDailyPrice3[0] && result.AveDailyPrice2[1] < result.AveDailyPrice3[1]
-	sicha3 := result.AveDailyPrice2[0] < result.AveDailyPrice3[0] && result.AveDailyPrice2[1] > result.AveDailyPrice3[1]
-	// 昨日线金叉 15 和 30线
-	//jincha4 := result.AveDailyPrice2[1] > result.AveDailyPrice3[1] && result.AveDailyPrice2[2] < result.AveDailyPrice3[2]
-	// 本周线金叉
-	jincha5 := result.AveWeeklyPrice1[0] > result.AveWeeklyPrice2[0] && result.AveWeeklyPrice1[1] < result.AveWeeklyPrice2[1]
-	sicha5 := result.AveWeeklyPrice1[0] < result.AveWeeklyPrice2[0] && result.AveWeeklyPrice1[1] > result.AveWeeklyPrice2[1]
-	// 上周金叉
-	//jincha6 := result.AveWeeklyPrice1[1] > result.AveWeeklyPrice2[1] && result.AveWeeklyPrice1[2] < result.AveWeeklyPrice2[2]
-	// 量能今日金叉
-	jincha7 := result.AveCount1[0] > result.AveCount2[0] && result.AveCount1[1] < result.AveCount2[1]
-	// 量能昨日金叉
-	jincha8 := result.AveCount1[1] > result.AveCount2[1] && result.AveCount1[2] < result.AveCount2[2]
+	sicha2 := result.AveDailyPrice1[0] < result.AveDailyPrice3[0] && result.AveDailyPrice1[1] > result.AveDailyPrice3[1]
+	sicha3 := result.AveDailyPrice1[0] < result.AveDailyPrice4[0] && result.AveDailyPrice1[1] > result.AveDailyPrice4[1]
+	sicha4 := result.AveDailyPrice1[0] < result.AveDailyPrice5[0] && result.AveDailyPrice1[1] > result.AveDailyPrice5[1]
+	sicha5 := result.AveDailyPrice2[0] < result.AveDailyPrice3[0] && result.AveDailyPrice2[1] > result.AveDailyPrice3[1]
+	sicha6 := result.AveDailyPrice2[0] < result.AveDailyPrice4[0] && result.AveDailyPrice2[1] > result.AveDailyPrice4[1]
+	sicha7 := result.AveDailyPrice2[0] < result.AveDailyPrice5[0] && result.AveDailyPrice2[1] > result.AveDailyPrice5[1]
+	sicha8 := result.AveDailyPrice3[0] < result.AveDailyPrice4[0] && result.AveDailyPrice3[1] > result.AveDailyPrice4[1]
+	sicha9 := result.AveDailyPrice3[0] < result.AveDailyPrice5[0] && result.AveDailyPrice3[1] > result.AveDailyPrice5[1]
+	sicha10 := result.AveDailyPrice4[0] < result.AveDailyPrice5[0] && result.AveDailyPrice4[1] > result.AveDailyPrice5[1]
+	sicha11 := result.AveCount1[0] < result.AveCount2[0] && result.AveCount1[1] < result.AveCount2[1]
 
-	// 6日均线 价格均线上扬
-	priceshangyang1 := result.AveDailyPrice1[0] > result.AveDailyPrice1[1] && result.AveDailyPrice1[1] > result.AveDailyPrice1[2] && result.AveDailyPrice1[2] > result.AveDailyPrice1[3]
-	//15日均线 价格均线上扬
-	priceshangyang2 := result.AveDailyPrice2[0] > result.AveDailyPrice2[1] && result.AveDailyPrice2[1] > result.AveDailyPrice2[2] && result.AveDailyPrice2[2] > result.AveDailyPrice2[3]
-	// 30日均线 价格均线上扬
-	priceshangyang3 := result.AveDailyPrice3[0] > result.AveDailyPrice3[1] && result.AveDailyPrice3[1] > result.AveDailyPrice3[2] && result.AveDailyPrice3[2] > result.AveDailyPrice3[3]
+	// 涨停股
+	zhangting := result.RecentPercent[0] > 9.94
+	// 一字板
+	yiziban := result.RecentPercent[0] > 9.94 && result.RecentOpen[0] == result.RecentLow[0]
+	// T 字板
+	tziban := result.RecentPercent[0] > 9.94 && result.RecentOpen[0] == result.RecentClose[0] && result.RecentClose[0] > result.RecentLow[0]
 
-	// 6周均线线 价格上扬
-	priceshangyang4 := result.AveWeeklyPrice1[0] > result.AveWeeklyPrice1[1] && result.AveWeeklyPrice1[1] > result.AveWeeklyPrice1[2] && result.AveWeeklyPrice1[2] > result.AveWeeklyPrice1[3]
-	// 15周均线线 价格上扬
-	priceshangyang5 := result.AveWeeklyPrice2[0] > result.AveWeeklyPrice2[1] && result.AveWeeklyPrice2[1] > result.AveWeeklyPrice2[2] && result.AveWeeklyPrice2[2] > result.AveWeeklyPrice2[3]
+	// 5条均线 价格均线上扬
+	priceshangyang1 := result.AveDailyPrice1[0] > result.AveDailyPrice1[1] && result.AveDailyPrice1[1] > result.AveDailyPrice1[2] && result.AveDailyPrice1[2] > result.AveDailyPrice1[3] && result.AveDailyPrice1[3] > result.AveDailyPrice1[4] && result.AveDailyPrice1[4] > result.AveDailyPrice1[5]
+	priceshangyang2 := result.AveDailyPrice2[0] > result.AveDailyPrice2[1] && result.AveDailyPrice2[1] > result.AveDailyPrice2[2] && result.AveDailyPrice2[2] > result.AveDailyPrice2[3] && result.AveDailyPrice2[3] > result.AveDailyPrice2[4] && result.AveDailyPrice2[4] > result.AveDailyPrice2[5]
+	priceshangyang3 := result.AveDailyPrice3[0] > result.AveDailyPrice3[1] && result.AveDailyPrice3[1] > result.AveDailyPrice3[2] && result.AveDailyPrice3[2] > result.AveDailyPrice3[3] && result.AveDailyPrice3[3] > result.AveDailyPrice3[4] && result.AveDailyPrice3[4] > result.AveDailyPrice3[5]
+	priceshangyang4 := result.AveDailyPrice4[0] > result.AveDailyPrice4[1] && result.AveDailyPrice4[1] > result.AveDailyPrice4[2] && result.AveDailyPrice4[2] > result.AveDailyPrice4[3] && result.AveDailyPrice4[3] > result.AveDailyPrice4[4] && result.AveDailyPrice4[4] > result.AveDailyPrice4[5]
+	priceshangyang5 := result.AveDailyPrice5[0] > result.AveDailyPrice5[1] && result.AveDailyPrice5[1] > result.AveDailyPrice5[2] && result.AveDailyPrice5[2] > result.AveDailyPrice5[3] && result.AveDailyPrice5[3] > result.AveDailyPrice5[4] && result.AveDailyPrice5[4] > result.AveDailyPrice5[5]
+	// 5条均线 价格均线下降
+	pricexiajiang1 := result.AveDailyPrice1[0] < result.AveDailyPrice1[1] && result.AveDailyPrice1[1] < result.AveDailyPrice1[2] && result.AveDailyPrice1[2] < result.AveDailyPrice1[3] && result.AveDailyPrice1[3] < result.AveDailyPrice1[4] && result.AveDailyPrice1[4] < result.AveDailyPrice1[5]
+	pricexiajiang2 := result.AveDailyPrice2[0] < result.AveDailyPrice2[1] && result.AveDailyPrice2[1] < result.AveDailyPrice2[2] && result.AveDailyPrice2[2] < result.AveDailyPrice2[3] && result.AveDailyPrice2[3] < result.AveDailyPrice2[4] && result.AveDailyPrice2[4] < result.AveDailyPrice2[5]
+	pricexiajiang3 := result.AveDailyPrice3[0] < result.AveDailyPrice3[1] && result.AveDailyPrice3[1] < result.AveDailyPrice3[2] && result.AveDailyPrice3[2] < result.AveDailyPrice3[3] && result.AveDailyPrice3[3] < result.AveDailyPrice3[4] && result.AveDailyPrice3[4] < result.AveDailyPrice3[5]
+	pricexiajiang4 := result.AveDailyPrice4[0] < result.AveDailyPrice4[1] && result.AveDailyPrice4[1] < result.AveDailyPrice4[2] && result.AveDailyPrice4[2] < result.AveDailyPrice4[3] && result.AveDailyPrice4[3] < result.AveDailyPrice4[4] && result.AveDailyPrice4[4] < result.AveDailyPrice4[5]
+	pricexiajiang5 := result.AveDailyPrice5[0] < result.AveDailyPrice5[1] && result.AveDailyPrice5[1] < result.AveDailyPrice5[2] && result.AveDailyPrice5[2] < result.AveDailyPrice5[3] && result.AveDailyPrice5[3] < result.AveDailyPrice5[4] && result.AveDailyPrice5[4] < result.AveDailyPrice5[5]
 
-	pricexiajiang1 := result.AveDailyPrice1[0] < result.AveDailyPrice1[1] && result.AveDailyPrice1[1] < result.AveDailyPrice1[2] && result.AveDailyPrice1[2] < result.AveDailyPrice1[3]
-	//15日均线 价格均线下挫
-	pricexiajiang2 := result.AveDailyPrice2[0] < result.AveDailyPrice2[1] && result.AveDailyPrice2[1] < result.AveDailyPrice2[2] && result.AveDailyPrice2[2] < result.AveDailyPrice2[3]
-	// 30日均线 价格均线下挫
-	pricexiajiang3 := result.AveDailyPrice3[0] < result.AveDailyPrice3[1] && result.AveDailyPrice3[1] < result.AveDailyPrice3[2] && result.AveDailyPrice3[2] < result.AveDailyPrice3[3]
+	// 当前价格在短期均线上方 （取非为小于）
+	priceaboveave1 := result.RecentClose[0] >= result.AveDailyPrice1[0]
+	priceaboveave2 := result.RecentClose[0] >= result.AveDailyPrice2[0]
+	priceaboveave3 := result.RecentClose[0] >= result.AveDailyPrice3[0]
+	priceaboveave4 := result.RecentClose[0] >= result.AveDailyPrice4[0]
+	priceaboveave5 := result.RecentClose[0] >= result.AveDailyPrice5[0]
 
-	// 6周均线线 价格下挫
-	pricexiajiang4 := result.AveWeeklyPrice1[0] < result.AveWeeklyPrice1[1] && result.AveWeeklyPrice1[1] < result.AveWeeklyPrice1[2] && result.AveWeeklyPrice1[2] < result.AveWeeklyPrice1[3]
-	// 15周均线线 价格下挫
-	pricexiajiang5 := result.AveWeeklyPrice2[0] < result.AveWeeklyPrice2[1] && result.AveWeeklyPrice2[1] < result.AveWeeklyPrice2[2] && result.AveWeeklyPrice2[2] < result.AveWeeklyPrice2[3]
-
-	// 高位回调
-	gaoweihuitiao1 := result.RecentPercent[0] < 3 && result.RecentPercent[1] < 9 && result.RecentPercent[2] > 9 && (result.RecentPercent[0]+result.RecentPercent[1]+result.RecentPercent[2] < 3)
-	gaoweihuitiao2 := result.RecentPercent[0] < 3 && result.RecentPercent[1] < 3 && result.RecentPercent[2] < 9 && result.RecentPercent[3] > 9 && (result.RecentPercent[0]+result.RecentPercent[1]+result.RecentPercent[2]+result.RecentPercent[3] < 3)
-	gaoweihuitiao3 := result.RecentPercent[0] < 3 && result.RecentPercent[1] < 3 && result.RecentPercent[2] < 3 && result.RecentPercent[3] < 9 && result.RecentPercent[4] > 9 && (result.RecentPercent[0]+result.RecentPercent[1]+result.RecentPercent[2]+result.RecentPercent[3]+result.RecentPercent[4] < 3)
+	// 均价粘合
+	junjialianhe1 := RecentInRangeAveWithCond(result.RecentClose, result.AveDailyPrice1, 5, 4)
+	junjialianhe2 := RecentInRangeAveWithCond(result.RecentClose, result.AveDailyPrice2, 5, 4)
+	junjialianhe3 := RecentInRangeAveWithCond(result.RecentClose, result.AveDailyPrice3, 5, 4)
+	junjialianhe4 := RecentInRangeAveWithCond(result.RecentClose, result.AveDailyPrice4, 5, 4)
+	junjialianhe5 := RecentInRangeAveWithCond(result.RecentClose, result.AveDailyPrice5, 5, 4)
 
 	// 低开高走
 	dikaigaozou := (result.RecentClose[1]-result.RecentOpen[0])/result.RecentClose[1] > 0.02 && result.RecentPercent[0] > 3
@@ -367,24 +379,6 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	dikaidizou := (result.RecentClose[1]-result.RecentOpen[0])/result.RecentClose[1] > 0.02 && result.RecentPercent[0] < -5
 	// 高开高走
 	gaokaigaozou := (result.RecentOpen[0]-result.RecentClose[1])/result.RecentOpen[0] > 0.02 && result.RecentPercent[0] > 5
-	// 连续5日量能10均线上扬
-	liangshangyang1 := result.AveCount1[0] > result.AveCount1[1] && result.AveCount1[1] > result.AveCount1[2] && result.AveCount1[2] > result.AveCount1[3] && result.AveCount1[3] > result.AveCount1[4] && result.AveCount1[4] > result.AveCount1[5]
-	// 连续5日量能40均线上扬
-	liangshangyang2 := result.AveCount2[0] > result.AveCount2[1] && result.AveCount2[1] > result.AveCount2[2] && result.AveCount2[2] > result.AveCount2[3] && result.AveCount2[3] > result.AveCount2[4] && result.AveCount2[4] > result.AveCount2[5]
-
-	// 连续5日量能站上10均线
-	liangnengbigger1 := result.AveCount1[0] < result.RecentCount[0] && result.AveCount1[1] < result.RecentCount[1] && result.AveCount1[2] < result.RecentCount[2] && result.AveCount1[3] < result.RecentCount[3] && result.AveCount1[4] < result.RecentCount[4]
-	// 连续5日量能站上40均线
-	liangnengbigger2 := result.AveCount2[0] < result.RecentCount[0] && result.AveCount2[1] < result.RecentCount[1] && result.AveCount2[2] < result.RecentCount[2] && result.AveCount2[3] < result.RecentCount[3] && result.AveCount2[4] < result.RecentCount[4]
-	// 连续5日量能低于10均线
-	liangnengsmaller1 := result.AveCount1[0] > result.RecentCount[0] && result.AveCount1[1] > result.RecentCount[1] && result.AveCount1[2] > result.RecentCount[2] && result.AveCount1[3] > result.RecentCount[3] && result.AveCount1[4] > result.RecentCount[4]
-	// 连续5日量能低于40均线
-	liangnengsmaller2 := result.AveCount2[0] > result.RecentCount[0] && result.AveCount2[1] > result.RecentCount[1] && result.AveCount2[2] > result.RecentCount[2] && result.AveCount2[3] > result.RecentCount[3] && result.AveCount2[4] > result.RecentCount[4]
-
-	// 量能不断放大
-	liangnengbuduanbigger := result.RecentCount[0] > result.RecentCount[1] && result.RecentCount[1] > result.RecentCount[2] && result.RecentCount[2] > result.RecentCount[3]
-	// 突放巨量
-	tufangjuliang := (result.RecentCount[0]-result.RecentCount[1])/result.RecentCount[1] > 5 || (result.RecentCount[1]-result.RecentCount[2])/result.RecentCount[1] > 5
 
 	// 3 连阳
 	sanlianyang := result.RecentPercent[0] > 0 && result.RecentPercent[1] > 0 && result.RecentPercent[2] > 0 && result.RecentPercent[3] > 0
@@ -393,37 +387,32 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	// 5连阳
 	wulianyang := silianyang && result.RecentPercent[5] > 0
 
-	// 近期长上影
+	// 长上影
 	changshangying := craw.HasTopLine(result, 1)
-	// 近期长下影
+	// 长下影
 	changxiaying := craw.HasLowLine(result, 1)
 
-	// 优良概念
-	//goodconcept := GetConceptByCode(code, "预盈预增|业绩预升|高派息|独角兽|高送转|基金重仓|QFII|RQFII")
+	// 连续5日量能10均线上扬
+	liangshangyang1 := result.AveCount1[0] > result.AveCount1[1] && result.AveCount1[1] > result.AveCount1[2] && result.AveCount1[2] > result.AveCount1[3] && result.AveCount1[3] > result.AveCount1[4] && result.AveCount1[4] > result.AveCount1[5]
+	// 连续5日量能40均线上扬
+	liangshangyang2 := result.AveCount2[0] > result.AveCount2[1] && result.AveCount2[1] > result.AveCount2[2] && result.AveCount2[2] > result.AveCount2[3] && result.AveCount2[3] > result.AveCount2[4] && result.AveCount2[4] > result.AveCount2[5]
+	// 连续5日量能站上10均线
+	liangnengbigger1 := result.AveCount1[0] < result.RecentCount[0] && result.AveCount1[1] < result.RecentCount[1] && result.AveCount1[2] < result.RecentCount[2] && result.AveCount1[3] < result.RecentCount[3] && result.AveCount1[4] < result.RecentCount[4]
+	// 连续5日量能站上40均线
+	liangnengbigger2 := result.AveCount2[0] < result.RecentCount[0] && result.AveCount2[1] < result.RecentCount[1] && result.AveCount2[2] < result.RecentCount[2] && result.AveCount2[3] < result.RecentCount[3] && result.AveCount2[4] < result.RecentCount[4]
+	// 连续5日量能低于10均线
+	liangnengsmaller1 := result.AveCount1[0] > result.RecentCount[0] && result.AveCount1[1] > result.RecentCount[1] && result.AveCount1[2] > result.RecentCount[2] && result.AveCount1[3] > result.RecentCount[3] && result.AveCount1[4] > result.RecentCount[4]
+	// 连续5日量能低于40均线
+	liangnengsmaller2 := result.AveCount2[0] > result.RecentCount[0] && result.AveCount2[1] > result.RecentCount[1] && result.AveCount2[2] > result.RecentCount[2] && result.AveCount2[3] > result.RecentCount[3] && result.AveCount2[4] > result.RecentCount[4]
+	// 量能不断放大
+	liangnengbuduanbigger := result.RecentCount[0] > result.RecentCount[1] && result.RecentCount[1] > result.RecentCount[2] && result.RecentCount[2] > result.RecentCount[3]
+	// 突放巨量
+	tufangjuliang := (result.RecentCount[0]-result.RecentCount[1])/result.RecentCount[1] > 5 || (result.RecentCount[1]-result.RecentCount[2])/result.RecentCount[1] > 5
+
 	// 私募持仓
 	simuchicangcount := GetHolderByCode(code, "私募")
 	// 基金持仓
 	jigouchicangcount := GetFundByCode(code)
-
-	// 均价粘合
-	junjialianhe1 := RecentInRangeAveWithCond(result.RecentClose, result.AveDailyPrice1, 5, 4)
-	junjialianhe2 := RecentInRangeAveWithCond(result.RecentClose, result.AveDailyPrice2, 5, 4)
-	junjialianhe3 := RecentInRangeAveWithCond(result.RecentClose, result.AveDailyPrice3, 5, 4)
-
-	// 涨停股
-	zhangting := result.RecentPercent[0] > 9.94
-	// 一字板
-	yiziban := result.RecentPercent[0] > 9.94 && result.RecentOpen[0] == result.RecentLow[0]
-	// T 字板
-	tziban := result.RecentPercent[0] > 9.94 && result.RecentOpen[0] == result.RecentClose[0] && result.RecentClose[0] > result.RecentLow[0]
-
-	// 当前价格在短期均线上方
-	priceaboveave6 := result.RecentClose[0] >= result.AveDailyPrice1[0]
-	priceaboveave15 := result.RecentClose[0] >= result.AveDailyPrice2[0]
-	priceaboveave30 := result.RecentClose[0] >= result.AveDailyPrice3[0]
-	pricelowave6 := result.RecentClose[0] < result.AveDailyPrice1[0]
-	pricelowave15 := result.RecentClose[0] < result.AveDailyPrice2[0]
-	pricelowave30 := result.RecentClose[0] < result.AveDailyPrice3[0]
 
 	// 成交过亿
 	guoyi := result.CurrTotalMoney > 10000
@@ -434,35 +423,105 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	pup1, pup2 := GetProfitNotMiner(code)
 	// 资产负债表
 	lup1, done1 := GetUpLiabilities(code)
-
-	// st
-	st := STStock(code)
 	// 分红配股的次数
 	fenhong, songgu, zhuangzeng := GetFenghongByCode(code)
 	pergu, zengfa := GetPeiGuByCode(code)
-
 	// 历史更名次数
 	changename, has_st := GetHistoryNameByCode(code)
 
 	score := 0 // max 37  // low 17
 	cond_str, bad_cond_str, finance := "", "", ""
 
+	if jincha11 {
+		score += 2
+		cond_str += "(量能金叉)10x40; "
+	}
 	if jincha1 {
-		score += 4
-		cond_str += "6与15日均线(金叉); "
+		score += 2
+		cond_str += "(金叉)5x10; "
+	}
+	if jincha2 {
+		score += 2
+		cond_str += "(金叉)5x15; "
 	}
 	if jincha3 {
-		score += 4
-		cond_str += "15与30日均线(金叉); "
+		score += 2
+		cond_str += "(金叉)5x30; "
+	}
+	if jincha4 {
+		score += 2
+		cond_str += "(金叉)5x60; "
 	}
 	if jincha5 {
-		score += 4
-		cond_str += "6与15周均线(金叉); "
+		score += 2
+		cond_str += "(金叉)10x15; "
 	}
-	if liangnengbigger1 && liangnengbigger2 {
-		// 这里只是给量能连续五日站上的打个标签而已
-		cond_str += "量能活跃; "
+	if jincha6 {
+		score += 2
+		cond_str += "(金叉)10x30; "
 	}
+	if jincha7 {
+		score += 2
+		cond_str += "(金叉)10x60; "
+	}
+	if jincha8 {
+		score += 2
+		cond_str += "(金叉)15x30; "
+	}
+	if jincha9 {
+		score += 2
+		cond_str += "(金叉)15x60; "
+	}
+	if jincha10 {
+		score += 2
+		cond_str += "(金叉)30x60; "
+	}
+
+	if sicha11 {
+		score -= 2
+		bad_cond_str += "(量能死叉)10x40; "
+	}
+	if sicha1 {
+		score -= 2
+		bad_cond_str += "(死叉)5x10; "
+	}
+	if sicha2 {
+		score -= 2
+		bad_cond_str += "(死叉)5x15; "
+	}
+	if sicha3 {
+		score -= 2
+		bad_cond_str += "(死叉)5x30; "
+	}
+	if sicha4 {
+		score -= 2
+		bad_cond_str += "(死叉)5x60; "
+	}
+	if sicha5 {
+		score -= 2
+		bad_cond_str += "(死叉)10x15; "
+	}
+	if sicha6 {
+		score -= 2
+		bad_cond_str += "(死叉)10x30; "
+	}
+	if sicha7 {
+		score -= 2
+		bad_cond_str += "(死叉)10x60; "
+	}
+	if sicha8 {
+		score -= 2
+		bad_cond_str += "(死叉)15x30; "
+	}
+	if sicha9 {
+		score -= 2
+		bad_cond_str += "(死叉)15x60; "
+	}
+	if sicha10 {
+		score -= 2
+		bad_cond_str += "(死叉)30x60; "
+	}
+
 	if yiziban {
 		cond_str += "一字板; "
 	}
@@ -470,13 +529,123 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str += "T字板; "
 	}
 	if zhangting {
-		score += 3
+		score += 2
 		cond_str += "涨停股; "
 	}
-	if tufangjuliang {
+
+	if priceshangyang1 {
 		score += 2
-		cond_str += "突放巨量; "
+		cond_str += "5均上升通道; "
 	}
+	if priceshangyang2 {
+		score += 2
+		cond_str += "10均上升通道; "
+	}
+	if priceshangyang3 {
+		score += 2
+		cond_str += "15均上升通道; "
+	}
+	if priceshangyang4 {
+		score += 2
+		cond_str += "30均上升通道; "
+	}
+	if priceshangyang5 {
+		score += 2
+		cond_str += "60均上升通道; "
+	}
+
+	if pricexiajiang1 {
+		score -= 2
+		bad_cond_str += "5均下降通道; "
+	}
+	if pricexiajiang2 {
+		score -= 2
+		bad_cond_str += "10均下降通道; "
+	}
+	if pricexiajiang3 {
+		score -= 2
+		bad_cond_str += "15均下降通道; "
+	}
+	if pricexiajiang4 {
+		score -= 2
+		bad_cond_str += "30均下降通道; "
+	}
+	if pricexiajiang5 {
+		score -= 2
+		bad_cond_str += "60均下降通道; "
+	}
+
+	if priceaboveave1 {
+		score += 1
+		cond_str += "价位在5均上方; "
+	}
+	if priceaboveave2 {
+		score += 1
+		cond_str += "价位在10均上方; "
+	}
+	if priceaboveave3 {
+		score += 1
+		cond_str += "价位在15均上方; "
+	}
+	if priceaboveave4 {
+		score += 1
+		cond_str += "价位在30均上方; "
+	}
+	if priceaboveave5 {
+		score += 1
+		cond_str += "价位在60均上方; "
+	}
+
+	if !priceaboveave1 {
+		score -= 1
+		bad_cond_str += "价位在5均下方; "
+	}
+	if !priceaboveave2 {
+		score -= 1
+		bad_cond_str += "价位在10均下方; "
+	}
+	if !priceaboveave3 {
+		score -= 1
+		bad_cond_str += "价位在15均下方; "
+	}
+	if !priceaboveave4 {
+		score -= 1
+		bad_cond_str += "价位在30均下方; "
+	}
+	if !priceaboveave5 {
+		score -= 1
+		bad_cond_str += "价位在60均下方; "
+	}
+
+	if junjialianhe1 {
+		cond_str += "5均价黏合; "
+	}
+	if junjialianhe2 {
+		cond_str += "10均价黏合; "
+	}
+	if junjialianhe3 {
+		cond_str += "15均价黏合; "
+	}
+	if junjialianhe4 {
+		cond_str += "30均价黏合; "
+	}
+	if junjialianhe5 {
+		cond_str += "60均价黏合; "
+	}
+
+	if dikaigaozou {
+		cond_str += "低开高走; "
+	}
+	if gaokaigaozou {
+		cond_str += "高开高走; "
+	}
+	if gaokaidizou {
+		cond_str += "高开低走; "
+	}
+	if dikaidizou {
+		cond_str += "低开低走; "
+	}
+
 	if wulianyang {
 		score += 3
 		cond_str += "五连阳; "
@@ -495,62 +664,36 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	if changxiaying {
 		cond_str += "长下影; "
 	}
-	if dikaigaozou {
-		cond_str += "低开高走; "
+
+	// 量价
+	if liangshangyang1 {
+		score += 3
+		cond_str += "量能10均上升通道; "
 	}
-	if gaokaigaozou {
-		cond_str += "高开高走; "
+	if liangshangyang2 {
+		score += 3
+		cond_str += "量能40均上升通道; "
 	}
-	if priceshangyang1 {
-		score += 2
-		cond_str += "6日均线上扬; "
+	if liangnengbigger1 || liangnengbigger2 {
+		score += 3
+		cond_str += "量能活跃; "
 	}
-	if priceshangyang2 {
-		score += 2
-		cond_str += "15日均线上扬; "
+	if liangnengsmaller1 || liangnengsmaller2 {
+		score -= 2
+		bad_cond_str += "量能萎靡; "
 	}
-	if priceshangyang3 {
-		score += 2
-		cond_str += "30日均线上扬; "
-	}
-	if priceshangyang4 {
-		score += 2
-		cond_str += "6周均线上扬; "
-	}
-	if priceshangyang5 {
-		score += 2
-		cond_str += "15周均线上扬; "
-	}
-	if gaokaidizou {
-		cond_str += "高开低走; "
-	}
-	if dikaidizou {
-		cond_str += "低开低走; "
-	}
-	if gaoweihuitiao1 || gaoweihuitiao2 || gaoweihuitiao3 {
-		cond_str += "高位回调; "
-	}
-	if priceaboveave6 {
+	if liangnengbuduanbigger {
 		score += 1
-		cond_str += fmt.Sprintf("收盘价在6日均线上方; ")
+		cond_str += "量能不断放大; "
 	}
-	if priceaboveave15 {
-		score += 1
-		cond_str += fmt.Sprintf("收盘价在15日均线上方; ")
+	if tufangjuliang {
+		score += 2
+		cond_str += "突放巨量; "
 	}
-	if priceaboveave30 {
-		score += 1
-		cond_str += fmt.Sprintf("收盘价在30日均线上方; ")
+	if guoyi {
+		cond_str += "成交额过亿; "
 	}
-	if junjialianhe1 {
-		cond_str += "近期收盘价与6日均线粘合; "
-	}
-	if junjialianhe2 {
-		cond_str += "近期收盘价与15日均线粘合; "
-	}
-	if junjialianhe3 {
-		cond_str += "近期收盘价与30日均线粘合; "
-	}
+
 	if simuchicangcount > 0 {
 		score += 3
 		cond_str += fmt.Sprintf("%d个私募持仓; ", simuchicangcount)
@@ -559,7 +702,6 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		score += 3
 		cond_str += fmt.Sprintf("%d个基金持仓; ", jigouchicangcount)
 	}
-
 	if fenhong > 0 {
 		score += 1
 		cond_str += fmt.Sprintf("%d次分红; ", fenhong)
@@ -578,34 +720,13 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	if zengfa > 0 {
 		cond_str += fmt.Sprintf("%d次增发; ", zengfa)
 	}
-	// 量价
-	if liangnengbuduanbigger {
-		score += 2
-		cond_str += "量能不断放大; "
+	if changename > 0 {
+		bad_cond_str += fmt.Sprintf("历史更名%d次; ", changename)
+		if has_st {
+			bad_cond_str += "曾ST带帽; "
+		}
 	}
-	if jincha7 || jincha8 {
-		score += 3
-		cond_str += "10日与40日量能均线交金叉; "
-	}
-	if liangshangyang1 {
-		score += 3
-		cond_str += "连续5日量能10日均线上扬; "
-	}
-	if liangshangyang2 {
-		score += 3
-		cond_str += "连续5日量能40日均线上扬; "
-	}
-	if liangnengbigger1 {
-		score += 3
-		cond_str += "连续5日量能站上10日均线; "
-	}
-	if liangnengbigger2 {
-		score += 3
-		cond_str += "连续5日量能站上40日均线; "
-	}
-	if guoyi {
-		cond_str += "成交额过亿; "
-	}
+
 	// 基本面 现金流量表
 	if up1 {
 		score += 1
@@ -641,66 +762,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		score += 1
 		cond_str += "总负债不断减小; "
 	}
-	if changename > 0 {
-		bad_cond_str += fmt.Sprintf("历史更名%d次; ", changename)
-		if has_st {
-			bad_cond_str += "曾ST带帽; "
-		}
-	}
-	if liangnengsmaller1 || liangnengsmaller2 {
-		score -= 4
-		bad_cond_str += "量能萎靡; "
-	}
-	if sicha1 {
-		score -= 4
-		bad_cond_str += "(死叉)6与15日均线; "
-	}
-	if sicha3 {
-		score -= 4
-		bad_cond_str += "(死叉)15与30日均线; "
-	}
-	if sicha5 {
-		score -= 4
-		bad_cond_str += "(死叉)6与15周均线; "
-	}
-	if st {
-		score -= 3
-		bad_cond_str += "ST板块; "
-	}
-	if pricexiajiang1 {
-		score -= 2
-		bad_cond_str += "6日均线下挫; "
-	}
-	if pricexiajiang2 {
-		score -= 2
-		bad_cond_str += "15日均线下挫; "
-	}
-	if pricexiajiang3 {
-		score -= 2
-		bad_cond_str += "30日均线下挫; "
-	}
 
-	if pricexiajiang4 {
-		score -= 2
-		bad_cond_str += "6周均线下挫; "
-	}
-
-	if pricexiajiang5 {
-		score -= 2
-		bad_cond_str += "15周均线下挫; "
-	}
-	if pricelowave6 {
-		score -= 1
-		bad_cond_str += fmt.Sprintf("收盘价在6日均线下方; ")
-	}
-	if pricelowave15 {
-		score -= 1
-		bad_cond_str += fmt.Sprintf("收盘价在15日均线下方; ")
-	}
-	if pricelowave30 {
-		score -= 1
-		bad_cond_str += fmt.Sprintf("收盘价在30日均线下方; ")
-	}
 	if !up1 {
 		score -= 1
 		bad_cond_str += "(亏损可能)经营现金流量净额出现负值; "
