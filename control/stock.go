@@ -106,7 +106,7 @@ func (d *PredictControl) ParseStockPerTicket(param map[string]float64, field str
 	return tmp
 }
 
-func (d *PredictControl) ParseCount(param map[string]int, date string, field string) set.Interface {
+func (d *PredictControl) ParseCount(param map[string]float64, date string, field string) set.Interface {
 	tmp := set.New(set.ThreadSafe)
 	if len(param) > 0 {
 		min, max := d.getMinMax(param)

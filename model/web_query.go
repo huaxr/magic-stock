@@ -76,13 +76,13 @@ type YyAbility struct {
 }
 
 type Other struct {
-	SmCount   map[string]int `json:"sm_count"`
-	FundCount map[string]int `json:"fund_count"`
-	FhCount   map[string]int `json:"fh_count"`
-	SgCount   map[string]int `json:"sg_count"`
-	ZzCount   map[string]int `json:"zz_count"`
-	PgCount   map[string]int `json:"pg_count"`
-	ZfCount   map[string]int `json:"zf_count"`
+	SmCount   map[string]float64 `json:"sm_count"`
+	FundCount map[string]float64 `json:"fund_count"`
+	FhCount   map[string]float64 `json:"fh_count"`
+	SgCount   map[string]float64 `json:"sg_count"`
+	ZzCount   map[string]float64 `json:"zz_count"`
+	PgCount   map[string]float64 `json:"pg_count"`
+	ZfCount   map[string]float64 `json:"zf_count"`
 	//Score     map[string]int `json:"score"`
 }
 
