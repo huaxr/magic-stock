@@ -175,10 +175,11 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 			log.Println("保存用户查询数据失败", err)
 		}
 	}
-	var where_belongs, where_locations, where_concepts []string
-	var args_belongs, args_locationgs, args_concepts []interface{}
+	var where_belongs, where_locations, where_concepts, where_forms []string
+	var args_belongs, args_locationgs, args_concepts, args_forms []interface{}
 
 	belong_set := set.New(set.ThreadSafe)
+	form_set := set.New(set.ThreadSafe)
 	location_set := set.New(set.ThreadSafe)
 	concept_set := set.New(set.ThreadSafe)
 	per_ticket_set1 := set.New(set.ThreadSafe)
@@ -230,6 +231,19 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_belongs...).Scan(&codes)
 		for _, i := range codes {
 			belong_set.Add(i.Code)
+		}
+	}
+
+	if len(post.Query.Forms) > 0 {
+		var codes []Codes
+		for _, i := range post.Query.Forms {
+			where_forms = append(where_forms, "organizational_form = ?")
+			args_forms = append(args_forms, i)
+		}
+		where_str := strings.Join(where_forms, " OR ")
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_forms...).Scan(&codes)
+		for _, i := range codes {
+			form_set.Add(i.Code)
 		}
 	}
 
@@ -303,7 +317,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	other_set6 = d.ParseCount(post.Query.Other.PgCount, post.Date, "pg_count")
 	other_set7 = d.ParseCount(post.Query.Other.ZfCount, post.Date, "zf_count")
 
-	all_sets := []set.Interface{belong_set, location_set, concept_set,
+	all_sets := []set.Interface{belong_set, location_set, concept_set, form_set,
 		per_ticket_set1, per_ticket_set2, per_ticket_set3, per_ticket_set4, per_ticket_set5, per_ticket_set6,
 		last_day_set1, last_day_set2, last_day_set3, last_day_set4, last_day_set5,
 		other_set1, other_set2, other_set3, other_set4, other_set5, other_set6, other_set7,

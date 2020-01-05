@@ -92,6 +92,7 @@ type Query struct {
 	Locations []string `json:"locations"` // 所属地区
 	Concepts  []string `json:"concepts"`  // 所属概念 ex 腾讯概念
 	Labels    []string `json:"labels"`    // 标签
+	Forms     []string `json:"forms"`     // 组织形式
 
 	PerTickets   QueryPerTicket `json:"per_tickets"`    // 高级条件区间
 	LastDayRange LastDayRange   `json:"last_day_range"` // 昨日收盘情况区间
@@ -139,4 +140,8 @@ type StockFund struct {
 
 type SpendType struct {
 	Id int `json:"id"`
+}
+
+type SubmitDemand struct {
+	Content string `json:"content"`
 }

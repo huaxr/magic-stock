@@ -37,9 +37,13 @@ func (r *Router) addRouters() {
 		router.GET("/user", control.UserControlGlobal.GetUserInfo)
 		router.GET("/is_member", control.UserControlGlobal.JudgeIsMember)
 		router.POST("/jsapi_pay", control.UserControlGlobal.PayByWeChatJsApi)
+		router.POST("/make_comment", control.UserControlGlobal.SubmitDemand)
 		router.GET("/my_conditions", control.UserControlGlobal.GetConditions)
+		router.GET("/my_invites", control.UserControlGlobal.GetInvite)
+		router.GET("/my_demands", control.UserControlGlobal.GetDemands)
 		router.POST("/edit_condition", control.UserControlGlobal.EditUserConditions)
 		router.POST("/delete_condition", control.UserControlGlobal.DeleteUserConditions)
+
 		router.POST("/predicts_list", control.PredictControlGlobal.PredictList)
 		router.GET("/stock/detail", control.PredictControlGlobal.GetDetail)
 		router.GET("/stock/fund", control.PredictControlGlobal.GetFunds)

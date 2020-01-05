@@ -9,6 +9,7 @@ import (
 	"magic/stock/dal"
 	"magic/stock/model"
 	"magic/stock/service/adapter"
+	"magic/stock/service/check"
 	"magic/stock/service/conf"
 	sessions "magic/stock/service/middleware/session"
 	"magic/stock/service/wechat"
@@ -31,6 +32,8 @@ type UserIF interface {
 	TradeCallBack(c *gin.Context)
 
 	GetConditions(c *gin.Context)
+	GetInvite(c *gin.Context)
+	GetDemands(c *gin.Context)
 	EditUserConditions(c *gin.Context)
 	DeleteUserConditions(c *gin.Context)
 	// 提需求
@@ -187,8 +190,48 @@ func (d *UserControl) GetConditions(c *gin.Context) {
 	d.Response(c, ucs, nil)
 }
 
-func (d *UserControl) SubmitDemand(c *gin.Context) {
+type Res struct {
+	Id int
+}
 
+type Users struct {
+	UserName string
+	Avatar   string
+	CreateAt time.Time
+}
+
+func (d *UserControl) GetInvite(c *gin.Context) {
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
+	offset, limit := check.ParamParse.GetPagination(c)
+	var ids []Res
+	store.MysqlClient.GetDB().Model(&dal.UserShare{}).Select("be_share_id").Where("share_user_id = ?", authentication.Uid).Offset(offset).Limit(limit).Scan(&ids)
+	var users []Users
+	store.MysqlClient.GetDB().Model(&dal.User{}).Select("user_name, avatar, created_at").Where("id in (?)", ids).Scan(&users)
+	d.Response(c, users, nil)
+}
+
+func (d *UserControl) SubmitDemand(c *gin.Context) {
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
+	var post model.SubmitDemand
+	err := c.BindJSON(&post)
+	if err != nil {
+		d.Response(c, nil, err)
+		return
+	}
+	de := dal.UserDemands{UserId: authentication.Uid, Response: post.Content}
+	store.MysqlClient.GetDB().Save(&de)
+	d.Response(c, "提交成功", nil)
+}
+
+func (d *UserControl) GetDemands(c *gin.Context) {
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
+	offset, limit := check.ParamParse.GetPagination(c)
+	var demands []dal.UserDemands
+	store.MysqlClient.GetDB().Model(&dal.UserDemands{}).Where("user_id = ?", authentication.Uid).Offset(offset).Limit(limit).Find(&demands)
+	d.Response(c, demands, nil)
 }
 
 func (d *UserControl) LogOut(c *gin.Context) {

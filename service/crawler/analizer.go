@@ -288,7 +288,7 @@ func GetUpLiabilities(code string) (up1, done1 bool) {
 func RecentInRangeAveWithCond(recent_money_or_count, recent_ave []float64, recent int, total int) bool {
 	var tmp []int
 	for i := 0; i < recent-1; i++ {
-		if math.Abs((recent_money_or_count[i]-recent_ave[i])/recent_ave[i]) < 0.01 {
+		if math.Abs((recent_money_or_count[i]-recent_ave[i])/recent_ave[i]) < 0.003 {
 			tmp = append(tmp, 1)
 		}
 	}
@@ -301,40 +301,40 @@ func (craw *Crawler) HasLimitUpInTheseDays(result *model.CalcResult, recent_days
 
 // 5 10 15 30 60
 func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
-	// 5 10 金叉
-	jincha1 := result.AveDailyPrice1[0] > result.AveDailyPrice2[0] && result.AveDailyPrice1[1] < result.AveDailyPrice2[1]
+	// 5 10 金叉  并且 今日10 均大于昨日 10均
+	jincha1 := result.AveDailyPrice1[0] > result.AveDailyPrice2[0] && result.AveDailyPrice1[1] < result.AveDailyPrice2[1] && result.AveDailyPrice2[0] > result.AveDailyPrice2[1]
 	// 5 15 金叉
-	jincha2 := result.AveDailyPrice1[0] > result.AveDailyPrice3[0] && result.AveDailyPrice1[1] < result.AveDailyPrice3[1]
+	jincha2 := result.AveDailyPrice1[0] > result.AveDailyPrice3[0] && result.AveDailyPrice1[1] < result.AveDailyPrice3[1] && result.AveDailyPrice3[0] > result.AveDailyPrice3[1]
 	// 5 30 金叉
-	jincha3 := result.AveDailyPrice1[0] > result.AveDailyPrice4[0] && result.AveDailyPrice1[1] < result.AveDailyPrice4[1]
+	jincha3 := result.AveDailyPrice1[0] > result.AveDailyPrice4[0] && result.AveDailyPrice1[1] < result.AveDailyPrice4[1] && result.AveDailyPrice4[0] > result.AveDailyPrice4[1]
 	// 5 60 金叉
-	jincha4 := result.AveDailyPrice1[0] > result.AveDailyPrice5[0] && result.AveDailyPrice1[1] < result.AveDailyPrice5[1]
+	jincha4 := result.AveDailyPrice1[0] > result.AveDailyPrice5[0] && result.AveDailyPrice1[1] < result.AveDailyPrice5[1] && result.AveDailyPrice5[0] > result.AveDailyPrice5[1]
 	// 10 15 金叉
-	jincha5 := result.AveDailyPrice2[0] > result.AveDailyPrice3[0] && result.AveDailyPrice2[1] < result.AveDailyPrice3[1]
+	jincha5 := result.AveDailyPrice2[0] > result.AveDailyPrice3[0] && result.AveDailyPrice2[1] < result.AveDailyPrice3[1] && result.AveDailyPrice3[0] > result.AveDailyPrice3[1]
 	// 10 30 金叉
-	jincha6 := result.AveDailyPrice2[0] > result.AveDailyPrice4[0] && result.AveDailyPrice2[1] < result.AveDailyPrice4[1]
+	jincha6 := result.AveDailyPrice2[0] > result.AveDailyPrice4[0] && result.AveDailyPrice2[1] < result.AveDailyPrice4[1] && result.AveDailyPrice4[0] > result.AveDailyPrice4[1]
 	// 10 60 金叉
-	jincha7 := result.AveDailyPrice2[0] > result.AveDailyPrice5[0] && result.AveDailyPrice2[1] < result.AveDailyPrice5[1]
+	jincha7 := result.AveDailyPrice2[0] > result.AveDailyPrice5[0] && result.AveDailyPrice2[1] < result.AveDailyPrice5[1] && result.AveDailyPrice5[0] > result.AveDailyPrice5[1]
 	// 15 30 金叉
-	jincha8 := result.AveDailyPrice3[0] > result.AveDailyPrice4[0] && result.AveDailyPrice3[1] < result.AveDailyPrice4[1]
+	jincha8 := result.AveDailyPrice3[0] > result.AveDailyPrice4[0] && result.AveDailyPrice3[1] < result.AveDailyPrice4[1] && result.AveDailyPrice4[0] > result.AveDailyPrice4[1]
 	// 15 60 金叉
-	jincha9 := result.AveDailyPrice3[0] > result.AveDailyPrice5[0] && result.AveDailyPrice3[1] < result.AveDailyPrice5[1]
+	jincha9 := result.AveDailyPrice3[0] > result.AveDailyPrice5[0] && result.AveDailyPrice3[1] < result.AveDailyPrice5[1] && result.AveDailyPrice5[0] > result.AveDailyPrice5[1]
 	// 30 60 金叉
-	jincha10 := result.AveDailyPrice4[0] > result.AveDailyPrice5[0] && result.AveDailyPrice4[1] < result.AveDailyPrice5[1]
+	jincha10 := result.AveDailyPrice4[0] > result.AveDailyPrice5[0] && result.AveDailyPrice4[1] < result.AveDailyPrice5[1] && result.AveDailyPrice5[0] > result.AveDailyPrice5[1]
 	// 10 40 量能金叉
 	jincha11 := result.AveCount1[0] > result.AveCount2[0] && result.AveCount1[1] < result.AveCount2[1]
 
 	// 死叉股
-	sicha1 := result.AveDailyPrice1[0] < result.AveDailyPrice2[0] && result.AveDailyPrice1[1] > result.AveDailyPrice2[1]
-	sicha2 := result.AveDailyPrice1[0] < result.AveDailyPrice3[0] && result.AveDailyPrice1[1] > result.AveDailyPrice3[1]
-	sicha3 := result.AveDailyPrice1[0] < result.AveDailyPrice4[0] && result.AveDailyPrice1[1] > result.AveDailyPrice4[1]
-	sicha4 := result.AveDailyPrice1[0] < result.AveDailyPrice5[0] && result.AveDailyPrice1[1] > result.AveDailyPrice5[1]
-	sicha5 := result.AveDailyPrice2[0] < result.AveDailyPrice3[0] && result.AveDailyPrice2[1] > result.AveDailyPrice3[1]
-	sicha6 := result.AveDailyPrice2[0] < result.AveDailyPrice4[0] && result.AveDailyPrice2[1] > result.AveDailyPrice4[1]
-	sicha7 := result.AveDailyPrice2[0] < result.AveDailyPrice5[0] && result.AveDailyPrice2[1] > result.AveDailyPrice5[1]
-	sicha8 := result.AveDailyPrice3[0] < result.AveDailyPrice4[0] && result.AveDailyPrice3[1] > result.AveDailyPrice4[1]
-	sicha9 := result.AveDailyPrice3[0] < result.AveDailyPrice5[0] && result.AveDailyPrice3[1] > result.AveDailyPrice5[1]
-	sicha10 := result.AveDailyPrice4[0] < result.AveDailyPrice5[0] && result.AveDailyPrice4[1] > result.AveDailyPrice5[1]
+	sicha1 := result.AveDailyPrice1[0] < result.AveDailyPrice2[0] && result.AveDailyPrice1[1] > result.AveDailyPrice2[1] && result.AveDailyPrice2[0] < result.AveDailyPrice2[1]
+	sicha2 := result.AveDailyPrice1[0] < result.AveDailyPrice3[0] && result.AveDailyPrice1[1] > result.AveDailyPrice3[1] && result.AveDailyPrice3[0] < result.AveDailyPrice3[1]
+	sicha3 := result.AveDailyPrice1[0] < result.AveDailyPrice4[0] && result.AveDailyPrice1[1] > result.AveDailyPrice4[1] && result.AveDailyPrice4[0] < result.AveDailyPrice4[1]
+	sicha4 := result.AveDailyPrice1[0] < result.AveDailyPrice5[0] && result.AveDailyPrice1[1] > result.AveDailyPrice5[1] && result.AveDailyPrice5[0] < result.AveDailyPrice5[1]
+	sicha5 := result.AveDailyPrice2[0] < result.AveDailyPrice3[0] && result.AveDailyPrice2[1] > result.AveDailyPrice3[1] && result.AveDailyPrice3[0] < result.AveDailyPrice3[1]
+	sicha6 := result.AveDailyPrice2[0] < result.AveDailyPrice4[0] && result.AveDailyPrice2[1] > result.AveDailyPrice4[1] && result.AveDailyPrice4[0] < result.AveDailyPrice4[1]
+	sicha7 := result.AveDailyPrice2[0] < result.AveDailyPrice5[0] && result.AveDailyPrice2[1] > result.AveDailyPrice5[1] && result.AveDailyPrice5[0] < result.AveDailyPrice5[1]
+	sicha8 := result.AveDailyPrice3[0] < result.AveDailyPrice4[0] && result.AveDailyPrice3[1] > result.AveDailyPrice4[1] && result.AveDailyPrice4[0] < result.AveDailyPrice4[1]
+	sicha9 := result.AveDailyPrice3[0] < result.AveDailyPrice5[0] && result.AveDailyPrice3[1] > result.AveDailyPrice5[1] && result.AveDailyPrice5[0] < result.AveDailyPrice5[1]
+	sicha10 := result.AveDailyPrice4[0] < result.AveDailyPrice5[0] && result.AveDailyPrice4[1] > result.AveDailyPrice5[1] && result.AveDailyPrice5[0] < result.AveDailyPrice5[1]
 	sicha11 := result.AveCount1[0] < result.AveCount2[0] && result.AveCount1[1] < result.AveCount2[1]
 
 	// 涨停股
@@ -412,6 +412,9 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	liangnengbuduanbigger := result.RecentCount[0] > result.RecentCount[1] && result.RecentCount[1] > result.RecentCount[2] && result.RecentCount[2] > result.RecentCount[3]
 	// 突放巨量
 	tufangjuliang := (result.RecentCount[0]-result.RecentCount[1])/result.RecentCount[1] > 4 || (result.RecentCount[1]-result.RecentCount[2])/result.RecentCount[1] > 4
+	// 量能突破均线
+	liangnengtupo1 := result.AveCount1[0] < result.RecentCount[0] && result.AveCount1[1] > result.RecentCount[1] && result.AveCount1[2] > result.RecentCount[2] && result.AveCount1[3] > result.RecentCount[3] && result.AveCount1[4] > result.RecentCount[4] && result.AveCount1[5] > result.RecentCount[5]
+	liangnengtupo2 := result.AveCount2[0] < result.RecentCount[0] && result.AveCount2[1] > result.RecentCount[1] && result.AveCount2[2] > result.RecentCount[2] && result.AveCount2[3] > result.RecentCount[3] && result.AveCount2[4] > result.RecentCount[4] && result.AveCount2[5] > result.RecentCount[5]
 
 	// 私募持仓
 	simuchicangcount := GetHolderByCode(code, "私募")
@@ -482,47 +485,47 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if sicha11 {
 		score -= 2
-		bad_cond_str += "(量能死叉)40日下穿10日均线; "
+		bad_cond_str += "(量能死叉)10日下穿40日均线; "
 	}
 	if sicha1 {
 		score -= 2
-		bad_cond_str += "(死叉)10日下穿5日均线; "
+		bad_cond_str += "(死叉)5日下穿10日均线; "
 	}
 	if sicha2 {
 		score -= 2
-		bad_cond_str += "(死叉)15日下穿5日均线; "
+		bad_cond_str += "(死叉)5日下穿15日均线; "
 	}
 	if sicha3 {
 		score -= 2
-		bad_cond_str += "(死叉)30日下穿5日均线; "
+		bad_cond_str += "(死叉)5日下穿30日均线; "
 	}
 	if sicha4 {
 		score -= 2
-		bad_cond_str += "(死叉)60日下穿5日均线; "
+		bad_cond_str += "(死叉)5日下穿60日均线; "
 	}
 	if sicha5 {
 		score -= 2
-		bad_cond_str += "(死叉)15日下穿10日均线; "
+		bad_cond_str += "(死叉)10日下穿15日均线; "
 	}
 	if sicha6 {
 		score -= 2
-		bad_cond_str += "(死叉)30日下穿10日均线; "
+		bad_cond_str += "(死叉)10日下穿30日均线; "
 	}
 	if sicha7 {
 		score -= 2
-		bad_cond_str += "(死叉)60日下穿10日均线; "
+		bad_cond_str += "(死叉)10日下穿60日均线; "
 	}
 	if sicha8 {
 		score -= 2
-		bad_cond_str += "(死叉)30日下穿15日均线; "
+		bad_cond_str += "(死叉)15日下穿30日均线; "
 	}
 	if sicha9 {
 		score -= 2
-		bad_cond_str += "(死叉)60日下穿15日均线; "
+		bad_cond_str += "(死叉)15日下穿60日均线; "
 	}
 	if sicha10 {
 		score -= 2
-		bad_cond_str += "(死叉)60日下穿30日均线; "
+		bad_cond_str += "(死叉)30日下穿60日均线; "
 	}
 	if yiziban {
 		cond_str += "一字板; "
@@ -693,6 +696,14 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	if tufangjuliang {
 		score += 2
 		cond_str += "突放巨量; "
+	}
+	if liangnengtupo1 {
+		score += 1
+		cond_str += "量能突破10日均线; "
+	}
+	if liangnengtupo2 {
+		score += 1
+		cond_str += "量能突破40日均线; "
 	}
 
 	if guoyi {
