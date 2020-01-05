@@ -19,6 +19,7 @@ func (Conditions) TableName() string {
 type HighConditions struct {
 	ID    uint   `gorm:"primary_key" json:"id"`
 	Type  string `json:"type"`  // 类型
+	Tag   string `json:"tag"`   // 标签
 	Name  string `json:"name"`  // 条件名称
 	Field string `json:"field"` // 条件的字段名
 	Desc  string `json:"desc"`  // 描述
