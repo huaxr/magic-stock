@@ -106,6 +106,19 @@ func (d *PredictControl) ParseStockPerTicket(param map[string]float64, field str
 	return tmp
 }
 
+func (d *PredictControl) ParseCount(param map[string]int, date string, field string) set.Interface {
+	tmp := set.New(set.ThreadSafe)
+	if len(param) > 0 {
+		min, max := d.getMinMax(param)
+		var codes []Codes
+		store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("code").Where(fmt.Sprintf("date = ? and %s >= ? and %s <= ?", field, field), date, min, max).Scan(&codes)
+		for _, i := range codes {
+			tmp.Add(i.Code)
+		}
+	}
+	return tmp
+}
+
 func (d *PredictControl) ParseLastDayRange(param map[string]float64, date string, field string) set.Interface {
 	tmp := set.New(set.ThreadSafe)
 	if len(param) > 0 {
@@ -179,6 +192,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	last_day_set2 := set.New(set.ThreadSafe)
 	last_day_set3 := set.New(set.ThreadSafe)
 	last_day_set4 := set.New(set.ThreadSafe)
+	last_day_set5 := set.New(set.ThreadSafe)
 
 	ability_set1 := set.New(set.ThreadSafe)
 	ability_set2 := set.New(set.ThreadSafe)
@@ -197,6 +211,14 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	ability_set15 := set.New(set.ThreadSafe)
 	ability_set16 := set.New(set.ThreadSafe)
 	ability_set17 := set.New(set.ThreadSafe)
+
+	other_set1 := set.New(set.ThreadSafe)
+	other_set2 := set.New(set.ThreadSafe)
+	other_set3 := set.New(set.ThreadSafe)
+	other_set4 := set.New(set.ThreadSafe)
+	other_set5 := set.New(set.ThreadSafe)
+	other_set6 := set.New(set.ThreadSafe)
+	other_set7 := set.New(set.ThreadSafe)
 
 	if len(post.Query.Belongs) > 0 {
 		var codes []Codes
@@ -249,6 +271,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	last_day_set2 = d.ParseLastDayRange(post.Query.LastDayRange.LastAmplitude, post.Date, "amplitude")
 	last_day_set3 = d.ParseLastDayRange(post.Query.LastDayRange.LastTurnoverrate, post.Date, "turnover_rate")
 	last_day_set4 = d.ParseLastDayRange(post.Query.LastDayRange.LastPrice, post.Date, "shou")
+	last_day_set5 = d.ParseLastDayRange(post.Query.LastDayRange.LastNumberRate, post.Date, "number_rate")
 
 	// 盈利能力
 	ability_set1 = d.ParseStockPerTicket(post.Query.YlAbility.YlZongzichanlirunlv, "yl_zongzichanlirunlv")
@@ -271,9 +294,19 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	ability_set16 = d.ParseStockPerTicket(post.Query.YyAbility.YyZongzichanzhouzhuanglv, "yy_zongzichanzhouzhuanglv")
 	ability_set17 = d.ParseStockPerTicket(post.Query.YyAbility.YyGudongquanyizhouzhuanglv, "yy_gudongquanyizhouzhuanglv")
 
+	// 其他条件
+	other_set1 = d.ParseCount(post.Query.Other.SmCount, post.Date, "sm_count")
+	other_set2 = d.ParseCount(post.Query.Other.FundCount, post.Date, "fund_count")
+	other_set3 = d.ParseCount(post.Query.Other.FhCount, post.Date, "fh_count")
+	other_set4 = d.ParseCount(post.Query.Other.SgCount, post.Date, "sg_count")
+	other_set5 = d.ParseCount(post.Query.Other.ZzCount, post.Date, "zz_count")
+	other_set6 = d.ParseCount(post.Query.Other.PgCount, post.Date, "pg_count")
+	other_set7 = d.ParseCount(post.Query.Other.ZfCount, post.Date, "zf_count")
+
 	all_sets := []set.Interface{belong_set, location_set, concept_set,
 		per_ticket_set1, per_ticket_set2, per_ticket_set3, per_ticket_set4, per_ticket_set5, per_ticket_set6,
-		last_day_set1, last_day_set2, last_day_set3, last_day_set4,
+		last_day_set1, last_day_set2, last_day_set3, last_day_set4, last_day_set5,
+		other_set1, other_set2, other_set3, other_set4, other_set5, other_set6, other_set7,
 		ability_set1, ability_set2, ability_set3, ability_set4, ability_set5, ability_set6, ability_set7, ability_set8,
 		ability_set9, ability_set10, ability_set11, ability_set12, ability_set13, ability_set14, ability_set15, ability_set16, ability_set17}
 
@@ -297,12 +330,12 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	var total int
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
 	for _, i := range post.Query.Predicts {
-		tmp = tmp.Where("`condition` regexp ?", i)
+		tmp = tmp.Where("`condition` regexp ? OR `bad_condition` regexp ? OR `finance` regexp ?", i, i, i)
 	}
 	tmp = tmp.Where("code IN (?)", coders)
 	tmp.Count(&total)
 
-	log.Println(fmt.Sprintf("一共筛选(%d个), 总数(%d个)", len(coders), total))
+	log.Println(fmt.Sprintf("一共筛选(%d个), 带条件后剩余(%d个)", len(coders), total))
 
 	if !utils.ContainsString(OrderLimit, post.Order) {
 		post.Order = "id"

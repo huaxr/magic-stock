@@ -17,6 +17,7 @@ type TicketHistory struct {
 	Change       float64 `json:"change"`        // 涨跌额
 	Amplitude    float64 `json:"amplitude"`     // 振幅
 	TurnoverRate float64 `json:"turnover_rate"` // 换手率
+	NumberRate   float64 `json:"number_rate"`   // 量比
 
 	//Inflow      float64 `json:"inflow"`        // 资金流入
 	//Outflow     float64 `json:"outflow"`       // 资金流出

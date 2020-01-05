@@ -411,7 +411,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	// 量能不断放大
 	liangnengbuduanbigger := result.RecentCount[0] > result.RecentCount[1] && result.RecentCount[1] > result.RecentCount[2] && result.RecentCount[2] > result.RecentCount[3]
 	// 突放巨量
-	tufangjuliang := (result.RecentCount[0]-result.RecentCount[1])/result.RecentCount[1] > 5 || (result.RecentCount[1]-result.RecentCount[2])/result.RecentCount[1] > 5
+	tufangjuliang := (result.RecentCount[0]-result.RecentCount[1])/result.RecentCount[1] > 4 || (result.RecentCount[1]-result.RecentCount[2])/result.RecentCount[1] > 4
 
 	// 私募持仓
 	simuchicangcount := GetHolderByCode(code, "私募")
@@ -694,6 +694,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		score += 2
 		cond_str += "突放巨量; "
 	}
+
 	if guoyi {
 		cond_str += "当日成交总额上亿; "
 	}

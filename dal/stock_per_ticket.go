@@ -8,14 +8,14 @@ type StockPerTicket struct {
 	Code string `gorm:"index" json:"code"`
 
 	// 每股指标
-	Tanboshouyi        float64 `json:"tanboshouyi"`        // 摊薄每股收益(元)
-	Jiaquanshouyi      float64 `json:"jiaquanshouyi"`      // 加权每股收益(元) 使用加权平均法来计算每股收益，这样才可以更准确、更合理地反映公司客观的盈利能力。
+	Tanboshouyi        float64 `json:"tanboshouyi"`        // 1摊薄每股收益(元)
+	Jiaquanshouyi      float64 `json:"jiaquanshouyi"`      // 1加权每股收益(元) 使用加权平均法来计算每股收益，这样才可以更准确、更合理地反映公司客观的盈利能力。
 	Jinzichanfront     float64 `json:"jinzichanfront"`     // 每股净资产_调整前(元)
-	Shouyiafter        float64 `json:"shouyiafter"`        // 每股收益_调整后(元)  指扣除与主营业务无关的一次性损益后的净利润除以总股本得出的每股收益。
-	Jinzichanafter     float64 `json:"jinzichanafter"`     // 每股净资产_调整后(元) 这一指标反映每股股票所拥有的资产现值。每股净资产越高，股东拥有的每股资产价值越多；
-	Jingyingxianjinliu float64 `json:"jingyingxianjinliu"` // 每股经营性现金流(元) 即每股经营活动产生的现金流量净额
-	Gubengongjijin     float64 `json:"gubengongjijin"`     // 每股资本公积金(元) 资本公积金是指从公司的利润以外的收入中提取的一种公积金。其主要来源有股票溢价收入，财产重估增值，以及接受捐赠资产等。每股资本公积金=资本公积金/总股本
-	Weifenpeilirun     float64 `json:"weifenpeilirun"`     // 每股未分配利润(元) 每股未分配利润越多，不仅表明该公司盈利能力强，也意味着该公司未来分红、送股的能力强
+	Shouyiafter        float64 `json:"shouyiafter"`        // 1每股收益_调整后(元)  指扣除与主营业务无关的一次性损益后的净利润除以总股本得出的每股收益。
+	Jinzichanafter     float64 `json:"jinzichanafter"`     // 1每股净资产_调整后(元) 这一指标反映每股股票所拥有的资产现值。每股净资产越高，股东拥有的每股资产价值越多；
+	Jingyingxianjinliu float64 `json:"jingyingxianjinliu"` // 1每股经营性现金流(元) 即每股经营活动产生的现金流量净额
+	Gubengongjijin     float64 `json:"gubengongjijin"`     // 1每股资本公积金(元) 资本公积金是指从公司的利润以外的收入中提取的一种公积金。其主要来源有股票溢价收入，财产重估增值，以及接受捐赠资产等。每股资本公积金=资本公积金/总股本
+	Weifenpeilirun     float64 `json:"weifenpeilirun"`     // 1每股未分配利润(元) 每股未分配利润越多，不仅表明该公司盈利能力强，也意味着该公司未来分红、送股的能力强
 
 	// 盈利能力
 	YlZongzichanlirunlv     float64 `json:"yl_zongzichanlirunlv"`     // 总资产利润率(%)  总资产利润率=利润总额/资产平均总额×100% 可用来说明企业运用其全部资产获取利润的能力。

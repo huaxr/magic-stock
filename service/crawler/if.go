@@ -53,7 +53,7 @@ type CrawlerIF interface {
 	// 计算周线表百分比
 	CalcPercentTicketWeekly(code string)
 	// 获取今日股价
-	GetAllTicketTodayDetail(code, name, today string, proxy bool) error
+	GetAllTicketTodayDetail(code, name, today, last_today_str string, proxy bool) error
 
 	// 计算返回
 	CalcResultWithDefined(params *model.Params) *model.CalcResult

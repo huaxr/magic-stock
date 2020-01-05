@@ -33,7 +33,7 @@ func dealPanic(doc *goquery.Document, i int, selector string) (str string, err e
 }
 
 // 每天收盘执行一次, 收集所有股票的当天股价和成交量
-func (craw *Crawler) GetAllTicketTodayDetail(code, name, today string, proxy bool) error {
+func (craw *Crawler) GetAllTicketTodayDetail(code, name, today, last_today_str string, proxy bool) error {
 	var doc *goquery.Document
 	for year := 2020; year <= 2020; year++ { // 马上 2020 了
 		for ji := 1; ji <= 1; ji++ { // 这里需要动态改
@@ -82,8 +82,11 @@ func (craw *Crawler) GetAllTicketTodayDetail(code, name, today string, proxy boo
 					tm, _ := strconv.ParseFloat(strings.Replace(tmp[8], ",", "", -1), 64)
 					zhenfu, _ := strconv.ParseFloat(tmp[9], 64)
 					huanshou, _ := strconv.ParseFloat(tmp[10], 64)
+					var last_day dal.TicketHistory
+					store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("date = ? and code = ?", last_today_str, code).Find(&last_day)
+					liangbi := tc / last_day.TotalCount
 					dh := dal.TicketHistory{Code: code, Name: name, Kai: kai, High: high, Low: low, Shou: shou, TotalCount: tc, TotalMoney: tm, Date: date,
-						Percent: percent, Change: zhangdiee, Amplitude: zhenfu, TurnoverRate: huanshou} //, Percent:p}
+						Percent: percent, Change: zhangdiee, Amplitude: zhenfu, TurnoverRate: huanshou, NumberRate: liangbi} //, Percent:p}
 					if utils.TellEnv() == "loc" {
 						err := store.MysqlClient.GetOnlineDB().Save(&dh).Error
 						if err != nil {

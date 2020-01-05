@@ -26,6 +26,7 @@ type LastDayRange struct {
 	LastPercent      map[string]float64 `json:"last_percent"`      // 昨日涨幅区间 %
 	LastAmplitude    map[string]float64 `json:"last_amplitude"`    // 昨日振幅区间
 	LastTurnoverrate map[string]float64 `json:"last_turnoverrate"` // 昨日换手率区间
+	LastNumberRate   map[string]float64 `json:"last_numberrate"`   // 昨日量比
 }
 
 // 盈利能力区间
@@ -74,6 +75,17 @@ type YyAbility struct {
 	YyGudongquanyizhouzhuanglv map[string]float64 `json:"yy_gudongquanyizhouzhuanglv"`
 }
 
+type Other struct {
+	SmCount   map[string]int `json:"sm_count"`
+	FundCount map[string]int `json:"fund_count"`
+	FhCount   map[string]int `json:"fh_count"`
+	SgCount   map[string]int `json:"sg_count"`
+	ZzCount   map[string]int `json:"zz_count"`
+	PgCount   map[string]int `json:"pg_count"`
+	ZfCount   map[string]int `json:"zf_count"`
+	//Score     map[string]int `json:"score"`
+}
+
 type Query struct {
 	Predicts  []string `json:"predicts"`  // 预测的打标
 	Belongs   []string `json:"belongs"`   // 所属行业
@@ -86,6 +98,7 @@ type Query struct {
 	YlAbility    YlAbility      `json:"yl_ability"`     // 盈利能力区间
 	CzAbility    CzAbility      `json:"cz_ability"`     // 成长能力区间
 	YyAbility    YyAbility      `json:"yy_ability"`     // 运营能力区间
+	Other        Other          `json:"other"`          // 其它数据
 }
 
 type GetPredicts struct {
