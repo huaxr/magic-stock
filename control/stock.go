@@ -509,7 +509,7 @@ func (d *PredictControl) GetHighConditions(c *gin.Context) {
 	response := map[string][]dal.HighConditions{}
 	store.MysqlClient.GetDB().Model(&dal.HighConditions{}).Find(&x)
 	for _, i := range x {
-		response[i.Type] = append(response[i.Tag], i)
+		response[i.Tag] = append(response[i.Tag], i)
 	}
 	d.Response(c, response, nil)
 }
