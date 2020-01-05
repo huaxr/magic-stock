@@ -128,7 +128,6 @@ func (d *UserControl) PayByWeChatH5(c *gin.Context) {
 		d.Response(c, nil, err)
 	}
 	c.JSON(200, gin.H{"error_code": 0, "err_msg": "", "url": web_url})
-
 }
 
 func (d *UserControl) TradeCallBack(c *gin.Context) {

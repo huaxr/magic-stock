@@ -25,13 +25,9 @@ func (r *Router) addCommon() {
 	router.GET("/wx_login", control.UserControlGlobal.LoginByWeChat)
 	router.GET("/logout", control.UserControlGlobal.LogOut)
 	router.GET("/payments", control.CommonControlGlobal.PaymentList)
-	router.GET("/predicts_dates", control.PredictControlGlobal.GetPredictDates)
 	router.GET("/conditions", control.PredictControlGlobal.GetConditions)
 	router.GET("/high_conditions", control.PredictControlGlobal.GetHighConditions)
-	router.GET("/concepts", control.PredictControlGlobal.GetConcepts)
-	router.GET("/labels", control.PredictControlGlobal.GetLabels)
-	router.GET("/belongs", control.PredictControlGlobal.GetBelongs)
-	router.GET("/locations", control.PredictControlGlobal.GetLocations)
+	router.GET("/query_list", control.PredictControlGlobal.GetQueryList)
 }
 
 func (r *Router) addRouters() {
