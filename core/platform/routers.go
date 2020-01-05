@@ -40,7 +40,7 @@ func (r *Router) addRouters() {
 		router.POST("/make_comment", control.UserControlGlobal.SubmitDemand)
 		router.GET("/my_conditions", control.UserControlGlobal.GetConditions)
 		router.GET("/my_invites", control.UserControlGlobal.GetInvite)
-		router.GET("/my_demands", control.UserControlGlobal.GetDemands)
+		router.GET("/my_comments", control.UserControlGlobal.GetDemands)
 		router.POST("/edit_condition", control.UserControlGlobal.EditUserConditions)
 		router.POST("/delete_condition", control.UserControlGlobal.DeleteUserConditions)
 
