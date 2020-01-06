@@ -10,15 +10,20 @@ import (
 )
 
 type CrawlerIF interface {
+	//// Deprecate
+	//GetFundRanks()
+	//// Deprecate 通过上面获取重仓股
+	//GetFundHighHold(date string)
+	//// 把今日的收盘价 加入到周线均价的表中
+	//AddTodayShouToWeek(code, last_week, last_day_to_delete, today string)
+	//// 生成周线表
+	//GenerateWeekHistory(code string)
+	//// 计算周线表百分比
+	//CalcPercentTicketWeekly(code string)
 	NewDocumentWithProxy(uri string) (*goquery.Document, error)
 	NewDocument(url string) (*goquery.Document, error)
-	// 把今日的收盘价 加入到周线均价的表中
-	AddTodayShouToWeek(code, last_week, last_day_to_delete, today string)
+
 	// 获取短期回报基金排行前300名
-	// Deprecate
-	GetFundRanks()
-	// Deprecate 通过上面获取重仓股
-	GetFundHighHold(date string)
 	GetStockAllFund(code string, proxy bool)
 
 	// 获取上证所有数据代码和名称
@@ -46,14 +51,10 @@ type CrawlerIF interface {
 	GetProfitSharingAndStockOwnership(code string, proxy bool)
 	// 获取增发数据
 	GetZengFa(code string, proxy bool)
-	// 通过前几名来判断股票的价值 能力
-	CalcCaiWuForPreTicket(code string)
-	// 生成周线表
-	GenerateWeekHistory(code string)
-	// 计算周线表百分比
-	CalcPercentTicketWeekly(code string)
 	// 获取今日股价
 	GetAllTicketTodayDetail(code, name, today, last_today_str string, proxy bool) error
+	// 获取所有子公司以及控股公司记录
+	GetSubCompany(code string, proxy bool)
 
 	// 计算返回
 	CalcResultWithDefined(params *model.Params) *model.CalcResult

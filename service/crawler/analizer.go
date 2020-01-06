@@ -159,6 +159,12 @@ func GetPeiGuByCode(code string) (int, int) {
 	return pergu, zengfa
 }
 
+func GetSubCompByCode(code string) int {
+	var count int
+	store.MysqlClient.GetDB().Model(&dal.StockSubCompany{}).Where("code = ?", code).Count(&count)
+	return count
+}
+
 func STStock(code string) bool {
 	var c int
 	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", code).Where("`concept` regexp ?", "ST").Count(&c)
@@ -433,6 +439,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	// 分红配股的次数
 	fenhong, songgu, zhuangzeng := GetFenghongByCode(code)
 	pergu, zengfa := GetPeiGuByCode(code)
+	subcomp := GetSubCompByCode(code)
 	// 历史更名次数
 	changename, has_st := GetHistoryNameByCode(code)
 
@@ -736,6 +743,9 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	if zengfa > 0 {
 		cond_str += fmt.Sprintf("%d次增发; ", zengfa)
 	}
+	if subcomp > 0 {
+		cond_str += fmt.Sprintf("%d个参股公司; ", subcomp)
+	}
 	if changename > 0 {
 		bad_cond_str += fmt.Sprintf("历史更名%d次; ", changename)
 		if has_st {
@@ -831,7 +841,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	p := dal.Predict{Code: code, Name: name, Condition: cond_str, BadCondition: bad_cond_str, Finance: finance,
 		Date: result.CurrDate, Score: score + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0],
 		FundCount: jigouchicangcount, SMCount: simuchicangcount, FenghongCount: fenhong, PeiguCount: pergu, ZhuangzengCount: zhuangzeng,
-		SongguCount: songgu, ZengfaCount: zengfa}
+		SongguCount: songgu, ZengfaCount: zengfa, SubcompCount: subcomp}
 	if utils.TellEnv() == "loc" {
 		err := store.MysqlClient.GetOnlineDB().Save(&p).Error
 		if err != nil {

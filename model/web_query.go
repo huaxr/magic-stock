@@ -145,3 +145,9 @@ type SpendType struct {
 type SubmitDemand struct {
 	Content string `json:"content"`
 }
+
+type AddStock struct {
+	Code  string  `json:"code"`
+	Name  string  `json:"name"`
+	Price float64 `json:"price"` // 关注时的股价
+}

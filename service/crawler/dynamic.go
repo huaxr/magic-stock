@@ -85,8 +85,9 @@ func (craw *Crawler) GetAllTicketTodayDetail(code, name, today, last_today_str s
 					var last_day dal.TicketHistory
 					store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("date = ? and code = ?", last_today_str, code).Find(&last_day)
 					liangbi := tc / last_day.TotalCount
+					value, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", liangbi), 64)
 					dh := dal.TicketHistory{Code: code, Name: name, Kai: kai, High: high, Low: low, Shou: shou, TotalCount: tc, TotalMoney: tm, Date: date,
-						Percent: percent, Change: zhangdiee, Amplitude: zhenfu, TurnoverRate: huanshou, NumberRate: liangbi} //, Percent:p}
+						Percent: percent, Change: zhangdiee, Amplitude: zhenfu, TurnoverRate: huanshou, NumberRate: value} //, Percent:p}
 					if utils.TellEnv() == "loc" {
 						err := store.MysqlClient.GetOnlineDB().Save(&dh).Error
 						if err != nil {

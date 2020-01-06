@@ -38,12 +38,14 @@ func (r *Router) addRouters() {
 		router.GET("/is_member", control.UserControlGlobal.JudgeIsMember)
 		router.POST("/jsapi_pay", control.UserControlGlobal.PayByWeChatJsApi)
 		router.POST("/make_comment", control.UserControlGlobal.SubmitDemand)
+		router.POST("/add_stock", control.UserControlGlobal.AddStock)
+
 		router.GET("/my_conditions", control.UserControlGlobal.GetConditions)
 		router.GET("/my_invites", control.UserControlGlobal.GetInvite)
 		router.GET("/my_comments", control.UserControlGlobal.GetDemands)
+		router.GET("/my_select", control.UserControlGlobal.MySelect)
 		router.POST("/edit_condition", control.UserControlGlobal.EditUserConditions)
 		router.POST("/delete_condition", control.UserControlGlobal.DeleteUserConditions)
-
 		router.POST("/predicts_list", control.PredictControlGlobal.PredictList)
 		router.GET("/stock/detail", control.PredictControlGlobal.GetDetail)
 		router.GET("/stock/fund", control.PredictControlGlobal.GetFunds)
@@ -53,5 +55,7 @@ func (r *Router) addRouters() {
 		router.GET("/top_holder_hold", control.PredictControlGlobal.TopHolderHold)
 		router.GET("/stock/fhsgzz", control.PredictControlGlobal.GetFenHong)
 		router.GET("/stock/pgzf", control.PredictControlGlobal.GetPeiGuZhuangZeng)
+		router.GET("/stock/subcomp", control.PredictControlGlobal.GetSubComp)
+
 	}
 }

@@ -39,6 +39,8 @@ type PredictIF interface {
 
 	GetFenHong(c *gin.Context)
 	GetPeiGuZhuangZeng(c *gin.Context)
+	// 获取所有子公司
+	GetSubComp(c *gin.Context)
 	Response(c *gin.Context, data interface{}, err error, param ...int)
 }
 
@@ -581,4 +583,8 @@ func (d *PredictControl) GetPeiGuZhuangZeng(c *gin.Context) {
 	}
 	d.Response(c, nil, errors.New("type 类型错误"))
 	return
+}
+
+func (d *PredictControl) GetSubComp(c *gin.Context) {
+
 }

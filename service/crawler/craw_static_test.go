@@ -6,7 +6,6 @@ import (
 	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
-	"strings"
 	"testing"
 	"time"
 )
@@ -40,32 +39,6 @@ func TestGetAllTicketCodeConcept(T *testing.T) {
 	}()
 
 	select {}
-}
-
-// 从股票概念中抽出详细的概念保存在表中
-func TestGetConcept(t *testing.T) {
-	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
-	xx := map[string]bool{}
-	for _, i := range code {
-		x := strings.Split(strings.TrimRight(i.Concept, ","), ",")
-		for _, j := range x {
-			xx[j] = true
-		}
-	}
-
-	for i, _ := range xx {
-		if len(i) == 0 {
-			continue
-		}
-		if strings.Contains(i, "概念") {
-			c := dal.StockConcept{Name: i}
-			store.MysqlClient.GetDB().Save(&c)
-		} else {
-			c := dal.StockLabels{Name: i}
-			store.MysqlClient.GetDB().Save(&c)
-		}
-	}
 }
 
 // 获取所有股票简介信息
@@ -129,18 +102,6 @@ func TestGetSignalTicket(T *testing.T) {
 	select {}
 }
 
-// 从股票历史记录计算出周线数据
-func TestCalcWeekPrice(t *testing.T) {
-	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
-	for _, i := range code {
-		CrawlerGlobal.GenerateWeekHistory(i.Code)
-	}
-	for _, i := range code {
-		CrawlerGlobal.CalcPercentTicketWeekly(i.Code)
-	}
-}
-
 // 获取基本面信息
 func TestGetStockProfit(t *testing.T) {
 	go func() {
@@ -172,7 +133,7 @@ func TestGetStockProfit(t *testing.T) {
 	select {}
 }
 
-// 获取股票每股财务指标
+// 获取股票每股财务指标  // 运用能力 成长能力
 func TestCrawler_GetStockPerTicket(t *testing.T) {
 	go func() {
 		var code []dal.Code
@@ -194,15 +155,6 @@ func TestCrawler_GetStockPerTicket(t *testing.T) {
 	select {}
 }
 
-// 上面获取到了个股的财务指标 以及 各项能力后 对按照大小的区间 对所有股打标
-func TestCalcCaiWuForPreTicket(t *testing.T) {
-	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
-	for _, i := range code {
-		CrawlerGlobal.CalcCaiWuForPreTicket(i.Code)
-	}
-}
-
 // 获取分红配股
 func TestGetProfitSharingAndStockOwnership(t *testing.T) {
 	var code []dal.Code
@@ -221,4 +173,26 @@ func TestGetZengFa(t *testing.T) {
 		CrawlerGlobal.GetZengFa(i.Code, false)
 		time.Sleep(1 * time.Second)
 	}
+}
+
+// 获取控股公司记录
+func TestCrawler_GetSubCompany(t *testing.T) {
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2000").Find(&code)
+		for _, i := range code {
+			CrawlerGlobal.GetSubCompany(i.Code, true)
+			time.Sleep(2 * time.Second)
+		}
+	}()
+
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000").Find(&code)
+		for _, i := range code {
+			CrawlerGlobal.GetSubCompany(i.Code, false)
+			time.Sleep(2 * time.Second)
+		}
+	}()
+	select {}
 }

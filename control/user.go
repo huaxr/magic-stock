@@ -38,6 +38,8 @@ type UserIF interface {
 	DeleteUserConditions(c *gin.Context)
 	// 提需求
 	SubmitDemand(c *gin.Context)
+	AddStock(c *gin.Context)
+	MySelect(c *gin.Context)
 	Response(c *gin.Context, data interface{}, err error)
 }
 
@@ -191,13 +193,13 @@ func (d *UserControl) GetConditions(c *gin.Context) {
 }
 
 type Res struct {
-	Id int
+	BeShareId int
 }
 
 type Users struct {
-	UserName string
-	Avatar   string
-	CreateAt time.Time
+	UserName  string
+	Avatar    string
+	CreatedAt time.Time
 }
 
 func (d *UserControl) GetInvite(c *gin.Context) {
@@ -239,4 +241,32 @@ func (d *UserControl) LogOut(c *gin.Context) {
 	session.Clear()
 	session.Save()
 	c.Redirect(302, "/")
+}
+
+func (d *UserControl) AddStock(c *gin.Context) {
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
+	var post model.AddStock
+	err := c.BindJSON(&post)
+	if err != nil {
+		d.Response(c, nil, err)
+		return
+	}
+	s := dal.UserSelect{UserId: authentication.Uid, Code: post.Code, Name: post.Name, Price: post.Price}
+	store.MysqlClient.GetDB().Save(&s)
+	d.Response(c, "添加成功", nil)
+}
+
+func (d *UserControl) MySelect(c *gin.Context) {
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
+	var post model.AddStock
+	err := c.BindJSON(&post)
+	if err != nil {
+		d.Response(c, nil, err)
+		return
+	}
+	s := dal.UserSelect{UserId: authentication.Uid, Code: post.Code, Name: post.Name, Price: post.Price}
+	store.MysqlClient.GetDB().Save(&s)
+	d.Response(c, "添加成功", nil)
 }

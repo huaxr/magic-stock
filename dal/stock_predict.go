@@ -17,6 +17,7 @@ type Predict struct {
 	ZhuangzengCount int     `json:"zhuangzeng_count"`        // 转增次数
 	PeiguCount      int     `json:"peigu_count"`             // 配股次数
 	ZengfaCount     int     `json:"zengfa_count"`            // 增发次数
+	SubcompCount    int     `json:"subcomp_count"`           // 参股公司的数量
 	Score           int     `json:"score"`                   // 得分
 	Price           float64 `json:"price"`                   // 昨日收盘价格
 	Percent         float64 `json:"percent"`                 // 昨日涨跌

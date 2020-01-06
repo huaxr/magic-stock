@@ -12,14 +12,8 @@ import (
 )
 
 var wg sync.WaitGroup             //定义一个同步等待的组
-var last_today_str = "2020-01-02" // 可以计算量比用
-var today_str = "2020-01-03"
-
-// 得出基金排行并根据这些基金获取持仓股
-func TestCrawler_GetFundHighHold(t *testing.T) {
-	CrawlerGlobal.GetFundRanks()
-	CrawlerGlobal.GetFundHighHold(today_str)
-}
+var last_today_str = "2020-01-03" // 可以计算量比用
+var today_str = "2020-01-06"
 
 // 获取每只股票的基金持仓情况
 func TestGetStockAllFund(t *testing.T) {
@@ -39,15 +33,6 @@ func TestGetStockAllFund(t *testing.T) {
 		}
 	}()
 	select {}
-}
-
-// 把今日收盘信息加入周线 （自动加入到线上）
-func TestAddTodayShouToWeek(t *testing.T) {
-	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 0").Find(&code)
-	for _, i := range code {
-		CrawlerGlobal.AddTodayShouToWeek(i.Code, "2019-12-20", "", "2019-12-27") // 再次用的时候把 2019-06-28 全部删掉 用来计算均价用
-	}
 }
 
 // 获取今日的所有股票 （自动加入到线上）
