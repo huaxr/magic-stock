@@ -208,8 +208,13 @@ func (d *UserControl) GetInvite(c *gin.Context) {
 	offset, limit := check.ParamParse.GetPagination(c)
 	var ids []Res
 	store.MysqlClient.GetDB().Model(&dal.UserShare{}).Select("be_share_id").Where("share_user_id = ?", authentication.Uid).Offset(offset).Limit(limit).Scan(&ids)
+
+	var tmp []int
+	for _, i := range ids {
+		tmp = append(tmp, i.BeShareId)
+	}
 	var users []Users
-	store.MysqlClient.GetDB().Model(&dal.User{}).Select("user_name, avatar, created_at").Where("id in (?)", ids).Scan(&users)
+	store.MysqlClient.GetDB().Model(&dal.User{}).Select("user_name, avatar, created_at").Where("id in (?)", tmp).Scan(&users)
 	d.Response(c, users, nil)
 }
 
