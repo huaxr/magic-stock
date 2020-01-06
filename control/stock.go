@@ -586,5 +586,13 @@ func (d *PredictControl) GetPeiGuZhuangZeng(c *gin.Context) {
 }
 
 func (d *PredictControl) GetSubComp(c *gin.Context) {
-
+	code := c.DefaultQuery("code", "")
+	offset, limit := check.ParamParse.GetPagination(c)
+	if code == "" {
+		d.Response(c, nil, errors.New("code 为空"))
+		return
+	}
+	var subs []dal.StockSubCompany
+	store.MysqlClient.GetDB().Model(&dal.StockSubCompany{}).Where("code = ?", code).Offset(offset).Limit(limit).Find(&subs)
+	d.Response(c, subs, nil)
 }

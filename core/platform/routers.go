@@ -56,6 +56,5 @@ func (r *Router) addRouters() {
 		router.GET("/stock/fhsgzz", control.PredictControlGlobal.GetFenHong)
 		router.GET("/stock/pgzf", control.PredictControlGlobal.GetPeiGuZhuangZeng)
 		router.GET("/stock/subcomp", control.PredictControlGlobal.GetSubComp)
-
 	}
 }
