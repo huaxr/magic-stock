@@ -27,8 +27,8 @@ type BYTES []byte
 
 const (
 	JWToken = "BS-TOKEN"
-	PRIVATE = "conf/byte_security_private_key.pem"
-	PUBLIC  = "conf/byte_security_public_key.pem"
+	PRIVATE = "conf/x.pem"
+	PUBLIC  = "conf/t.pem"
 )
 
 var Jwt JwtIF
