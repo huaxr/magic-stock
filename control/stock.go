@@ -612,6 +612,7 @@ func (d *PredictControl) GetPeiGuZhuangZeng(c *gin.Context) {
 		var peigu []dal.StockZengFa
 		store.MysqlClient.GetDB().Model(&dal.StockZengFa{}).Where("code = ?", code).Find(&peigu)
 		d.Response(c, peigu, nil)
+
 		return
 	}
 	d.Response(c, nil, errors.New("type 类型错误"))
