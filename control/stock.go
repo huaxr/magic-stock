@@ -365,6 +365,13 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	}
 	var predicts []dal.Predict
 	var total int
+	if post.Date == "" {
+		var x []PredictDate
+		store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("distinct(date) as date").Order("date desc").Scan(&x)
+		if len(x) > 0 {
+			post.Date = x[0].Date
+		}
+	}
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
 	for _, i := range post.Query.Predicts {
 		tmp = tmp.Where("`condition` regexp ? OR `bad_condition` regexp ? OR `finance` regexp ?", i, i, i)
