@@ -404,11 +404,12 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 		return
 	}
 
-	var TicketHistory []dal.TicketHistory
-	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", code, date).Limit(70).Order("date desc").Find(&TicketHistory)
-
+	var TicketHistoryTmp, TicketHistory []dal.TicketHistory
+	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", code, date).Limit(70).Order("date desc").Find(&TicketHistoryTmp)
+	for i := len(TicketHistoryTmp) - 1; i >= 0; i-- {
+		TicketHistory = append(TicketHistory, TicketHistoryTmp[i])
+	}
 	//去掉周线数据
-
 	//var TicketHistoryWeekly []dal.TicketHistoryWeekly
 	//store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", code, date).Limit(40).Order("date asc").Find(&TicketHistoryWeekly)
 
