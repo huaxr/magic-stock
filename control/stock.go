@@ -176,7 +176,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		d.Response(c, nil, err)
 		return
 	}
-
+	log.Println(post)
 	err = d.doQueryLeft(authentication)
 	if err != nil {
 		d.Response(c, nil, err)
