@@ -172,10 +172,10 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	offset, limit := check.ParamParse.GetPagination(c)
 	// 如果用户提交查询并保存查询结果
 	if post.Save {
-		err := adapter.UserServiceGlobal.SaveUserConditions(&post, authentication)
-		if err != nil {
-			log.Println("保存用户查询数据失败", err)
-		}
+		//err := adapter.UserServiceGlobal.SaveUserConditions(&post, authentication)
+		//if err != nil {
+		//	log.Println("保存用户查询数据失败", err)
+		//}
 	}
 	var where_belongs, where_locations, where_concepts, where_forms []string
 	var args_belongs, args_locationgs, args_concepts, args_forms []interface{}
