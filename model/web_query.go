@@ -129,8 +129,7 @@ type StockDetail struct {
 	StockCashFlow    []dal.StockCashFlow    `json:"stock_cash_flow"`
 	StockLiabilities []dal.StockLiabilities `json:"stock_liabilities"`
 	StockProfit      []dal.StockProfit      `json:"stock_profit"`
-
-	PerTicket dal.StockPerTicket `json:"per_ticket"` // 每股指标
+	PerTicket        map[string][]Signal    `json:"per_ticket"` // 每股指标
 }
 
 type StockFund struct {
@@ -150,4 +149,9 @@ type AddStock struct {
 	Code  string  `json:"code"`
 	Name  string  `json:"name"`
 	Price float64 `json:"price"` // 关注时的股价
+}
+
+type Signal struct {
+	Key   string  `json:"key"`
+	Value float64 `json:"value"`
 }

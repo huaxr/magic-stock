@@ -407,7 +407,6 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	var TicketHistoryTmp, TicketHistory []dal.TicketHistory
 	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", code, date).Limit(90).Order("date desc").Find(&TicketHistoryTmp)
 	for i := len(TicketHistoryTmp) - 1; i >= 0; i-- {
-
 		TicketHistory = append(TicketHistory, TicketHistoryTmp[i])
 	}
 	//去掉周线数据
@@ -435,17 +434,45 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	var PerTickets dal.StockPerTicket
 	store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Where("code = ?", code).Find(&PerTickets)
 
-	var response model.StockDetail
-	response.TicketHistory = TicketHistory
-	response.Stockholder = Stockholder
-	response.Stock = Stock
-	response.Predict = Predict
-	response.StockCashFlow = StockCashFlow
-	response.StockLiabilities = StockLiabilities
-	response.StockProfit = StockProfit
+	var response = map[string][]model.Signal{}
+	response["mg"] = append(response["mg"], model.Signal{"每股未分配利润(元)", PerTickets.Weifenpeilirun})
+	response["mg"] = append(response["mg"], model.Signal{"每股资本公积金(元)", PerTickets.Gubengongjijin})
+	response["mg"] = append(response["mg"], model.Signal{"每股经营性现金流(元)", PerTickets.Jingyingxianjinliu})
+	response["mg"] = append(response["mg"], model.Signal{"调整后每股净资产(元)", PerTickets.Jinzichanafter})
+	response["mg"] = append(response["mg"], model.Signal{"每股加权收益(元)", PerTickets.Jiaquanshouyi})
+	response["mg"] = append(response["mg"], model.Signal{"调整后每股收益(元)", PerTickets.Shouyiafter})
+
+	response["yy"] = append(response["yy"], model.Signal{"股东权益周转率(次)", PerTickets.YyGudongquanyizhouzhuanglv})
+	response["yy"] = append(response["yy"], model.Signal{"总资产周转率(次)", PerTickets.YyZongzichanzhouzhuanglv})
+	response["yy"] = append(response["yy"], model.Signal{"流动资产周转率(次)", PerTickets.YyLiudongzichanzhouzhuanglv})
+	response["yy"] = append(response["yy"], model.Signal{"存货周转率(次)", PerTickets.YyCunhuozhouzhuanglv})
+	response["yy"] = append(response["yy"], model.Signal{"应收账款周转率(次)", PerTickets.YyYingshouzhangkuanzhouzhuanlv})
+
+	response["cz"] = append(response["cz"], model.Signal{"总资产增长率(%)", PerTickets.CzZongzichanzengzhanglv})
+	response["cz"] = append(response["cz"], model.Signal{"净资产增长率(%)", PerTickets.CzJingzichanzengzhanglv})
+	response["cz"] = append(response["cz"], model.Signal{"净利润增长率(%)", PerTickets.CzJinglirunzengzhanglv})
+	response["cz"] = append(response["cz"], model.Signal{"主营业务收入增长率(%)", PerTickets.CzZhuyingyewushouruzengzhanglv})
+
+	response["yl"] = append(response["yl"], model.Signal{"资产报酬率(%))", PerTickets.YlZichanbaochoulv})
+	response["yl"] = append(response["yl"], model.Signal{"净资产报酬率(%)", PerTickets.YlJingzichanbaochoulv})
+	response["yl"] = append(response["yl"], model.Signal{"股本报酬率(%)", PerTickets.YlGubenbaochoulv})
+	response["yl"] = append(response["yl"], model.Signal{"销售净利率(%)", PerTickets.YlXiaoshoujinglilv})
+	response["yl"] = append(response["yl"], model.Signal{"营业利润率(%)", PerTickets.YlYingyelirunlv})
+	response["yl"] = append(response["yl"], model.Signal{"总资产净利润率(%)", PerTickets.YlZongzichanjinglirunlv})
+	response["yl"] = append(response["yl"], model.Signal{" 主营业务利润率(%)", PerTickets.YlZhuyingyewulirunlv})
+	response["yl"] = append(response["yl"], model.Signal{"总资产利润率(%)", PerTickets.YlZongzichanlirunlv})
+
+	var _response model.StockDetail
+	_response.TicketHistory = TicketHistory
+	_response.Stockholder = Stockholder
+	_response.Stock = Stock
+	_response.Predict = Predict
+	_response.StockCashFlow = StockCashFlow
+	_response.StockLiabilities = StockLiabilities
+	_response.StockProfit = StockProfit
 	//response.TicketHistoryWeekly = TicketHistoryWeekly
-	response.PerTicket = PerTickets
-	d.Response(c, response, nil)
+	_response.PerTicket = response
+	d.Response(c, _response, nil)
 }
 
 func (d *PredictControl) GetFunds(c *gin.Context) {
