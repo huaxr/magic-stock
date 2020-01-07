@@ -355,8 +355,11 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 
 	if !utils.ContainsString(OrderLimit, post.Order) {
 		post.Order = "id"
+		tmp.Order(fmt.Sprintf("%s asc", post.Order))
+	} else {
+		tmp.Order(fmt.Sprintf("%s desc", post.Order))
 	}
-	tmp.Order(fmt.Sprintf("%s desc", post.Order)).Limit(limit).Offset(offset).Find(&predicts)
+	tmp.Limit(limit).Offset(offset).Find(&predicts)
 
 	var response []model.PredictListResponse
 	for _, i := range predicts {
