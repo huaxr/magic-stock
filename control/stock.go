@@ -112,6 +112,7 @@ func (d *PredictControl) ParseCount(param map[string]float64, date string, field
 	tmp := set.New(set.ThreadSafe)
 	if len(param) > 0 {
 		min, max := d.getMinMax(param)
+		log.Println(min, max)
 		var codes []Codes
 		store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("code").Where(fmt.Sprintf("date = ? and %s >= ? and %s <= ?", field, field), date, min, max).Scan(&codes)
 		for _, i := range codes {
@@ -164,6 +165,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		d.Response(c, nil, err)
 		return
 	}
+
 	err = d.doQueryLeft(authentication)
 	if err != nil {
 		d.Response(c, nil, err)
