@@ -84,6 +84,9 @@ func (d *PredictControl) Response(c *gin.Context, data interface{}, err error, p
 }
 
 func (d *PredictControl) getMinMax(da map[string]float64) (min, max float64, is_nil bool) {
+	if len(da) == 0 {
+		return 0, 0, true
+	}
 	min, ok_min := da["min"]
 	max, ok_max := da["max"]
 	if !ok_min || !ok_max {
