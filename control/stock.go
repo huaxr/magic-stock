@@ -405,7 +405,7 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	}
 
 	var TicketHistory []dal.TicketHistory
-	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", code, date).Limit(70).Order("date asc").Find(&TicketHistory)
+	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", code, date).Limit(70).Order("date desc").Find(&TicketHistory)
 
 	//去掉周线数据
 
