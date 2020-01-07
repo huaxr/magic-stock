@@ -83,56 +83,67 @@ func (d *PredictControl) Response(c *gin.Context, data interface{}, err error, p
 	c.AbortWithStatusJSON(200, d.response.Response(data, err, param...))
 }
 
-func (d *PredictControl) getMinMax(da map[string]float64) (float64, float64) {
+func (d *PredictControl) getMinMax(da map[string]float64) (min, max float64, is_nil bool) {
 	min, ok_min := da["min"]
-	if !ok_min {
-		min = -9999
-	}
 	max, ok_max := da["max"]
-	if !ok_max {
-		max = 9999
+	if !ok_min || !ok_max {
+		return 0, 0, true
 	}
-	return min, max
+	if min == -10000 && max == 10000 {
+		return 0, 0, true
+	}
+	return min, max, false
 }
 
 func (d *PredictControl) ParseStockPerTicket(param map[string]float64, field string) set.Interface {
 	tmp := set.New(set.ThreadSafe)
-	if len(param) > 0 {
-		min, max := d.getMinMax(param)
-		var codes []Codes
-		store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where(fmt.Sprintf("%s >= ? and %s <= ?", field, field), min, max).Scan(&codes)
-		for _, i := range codes {
-			tmp.Add(i.Code)
-		}
+	min, max, is_nil := d.getMinMax(param)
+	if is_nil {
+		return tmp
 	}
-	return tmp
+	var codes []Codes
+	store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Select("code").Where(fmt.Sprintf("%s >= ? and %s <= ?", field, field), min, max).Debug().Scan(&codes)
+	for _, i := range codes {
+		tmp.Add(i.Code)
+	}
+	if tmp.Size() > 0 {
+		return tmp
+	}
+	return nil
 }
 
 func (d *PredictControl) ParseCount(param map[string]float64, date string, field string) set.Interface {
 	tmp := set.New(set.ThreadSafe)
-	if len(param) > 0 {
-		min, max := d.getMinMax(param)
-		log.Println(min, max)
-		var codes []Codes
-		store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("code").Where(fmt.Sprintf("date = ? and %s >= ? and %s <= ?", field, field), date, min, max).Scan(&codes)
-		for _, i := range codes {
-			tmp.Add(i.Code)
-		}
+	min, max, is_nil := d.getMinMax(param)
+	if is_nil {
+		return tmp
 	}
-	return tmp
+	var codes []Codes
+	store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("code").Where(fmt.Sprintf("date = ? and %s >= ? and %s <= ?", field, field), date, min, max).Debug().Scan(&codes)
+	for _, i := range codes {
+		tmp.Add(i.Code)
+	}
+	if tmp.Size() > 0 {
+		return tmp
+	}
+	return nil
 }
 
 func (d *PredictControl) ParseLastDayRange(param map[string]float64, date string, field string) set.Interface {
 	tmp := set.New(set.ThreadSafe)
-	if len(param) > 0 {
-		min, max := d.getMinMax(param)
-		var codes []Codes
-		store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Select("code").Where(fmt.Sprintf("date = ? and %s >= ? and %s <= ?", field, field), date, min, max).Scan(&codes)
-		for _, i := range codes {
-			tmp.Add(i.Code)
-		}
+	min, max, is_nil := d.getMinMax(param)
+	if is_nil {
+		return tmp
 	}
-	return tmp
+	var codes []Codes
+	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Select("code").Where(fmt.Sprintf("date = ? and %s >= ? and %s <= ?", field, field), date, min, max).Scan(&codes)
+	for _, i := range codes {
+		tmp.Add(i.Code)
+	}
+	if tmp.Size() > 0 {
+		return tmp
+	}
+	return nil
 }
 
 type Codes struct {
@@ -277,7 +288,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 			concept_set.Add(i.Code)
 		}
 	}
-
 	per_ticket_set1 = d.ParseStockPerTicket(post.Query.PerTickets.Shouyiafter, "shouyiafter")
 	per_ticket_set2 = d.ParseStockPerTicket(post.Query.PerTickets.Jiaquanshouyi, "jiaquanshouyi")
 	per_ticket_set3 = d.ParseStockPerTicket(post.Query.PerTickets.Jinzichanafter, "jinzichanafter")
@@ -330,7 +340,11 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 
 	used_sets := []set.Interface{}
 	for _, i := range all_sets {
-		if len(i.List()) > 0 {
+		if i == nil {
+			d.Response(c, map[string]interface{}{"result": nil, "total": 0}, nil)
+			return
+		}
+		if i.Size() > 0 {
 			used_sets = append(used_sets, i)
 		}
 	}
