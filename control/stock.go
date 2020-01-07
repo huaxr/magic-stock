@@ -3,6 +3,7 @@
 package control
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -179,7 +180,8 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		d.Response(c, nil, err)
 		return
 	}
-	log.Println(post)
+	res, _ := json.Marshal(&post)
+	log.Println(string(res))
 	err = d.doQueryLeft(authentication)
 	if err != nil {
 		d.Response(c, nil, err)
