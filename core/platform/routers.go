@@ -39,7 +39,6 @@ func (r *Router) addRouters() {
 		router.POST("/jsapi_pay", control.UserControlGlobal.PayByWeChatJsApi)
 		router.POST("/make_comment", control.UserControlGlobal.SubmitDemand)
 		router.POST("/add_stock", control.UserControlGlobal.AddStock)
-
 		router.GET("/my_conditions", control.UserControlGlobal.GetConditions)
 		router.GET("/my_invites", control.UserControlGlobal.GetInvite)
 		router.GET("/my_comments", control.UserControlGlobal.GetDemands)

@@ -99,6 +99,7 @@ type PredictListResponse struct {
 	ZhuangzengCount int     `json:"zhuangzeng_count"` // 转增次数
 	PeiguCount      int     `json:"peigu_count"`      // 配股次数
 	ZengfaCount     int     `json:"zengfa_count"`     // 增发次数
+	SubcompCount    int     `json:"subcomp_count"`    // 控股数量
 	Conditions      string  `json:"conditions"`       // 优点
 	BadConditions   string  `json:"bad_conditions"`   // 缺点
 	Finance         string  `json:"finance"`          // 财务指标

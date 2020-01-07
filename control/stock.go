@@ -365,7 +365,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		x := model.PredictListResponse{Name: i.Name, Code: i.Code, Price: i.Price, Percent: i.Percent, Location: coder.Location,
 			Form: coder.OrganizationalForm, Belong: coder.Belong, FundCount: i.FundCount, SimuCount: i.SMCount, Conditions: i.Condition,
 			BadConditions: i.BadCondition, Finance: i.Finance, Date: i.Date, Score: i.Score,
-			FenghongCount: i.FenghongCount, SongguCount: i.SongguCount, ZhuangzengCount: i.ZhuangzengCount, PeiguCount: i.PeiguCount, ZengfaCount: i.ZengfaCount}
+			FenghongCount: i.FenghongCount, SongguCount: i.SongguCount, ZhuangzengCount: i.ZhuangzengCount, PeiguCount: i.PeiguCount, ZengfaCount: i.ZengfaCount, SubcompCount: i.SubcompCount}
 		response = append(response, x)
 	}
 	d.Response(c, map[string]interface{}{"result": response, "total": total}, nil)
