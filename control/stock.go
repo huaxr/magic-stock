@@ -242,6 +242,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	if len(post.Query.Belongs) > 0 {
 		var codes []Codes
 		for _, i := range post.Query.Belongs {
+			if len(i) == 0 {
+				continue
+			}
 			where_belongs = append(where_belongs, "belong = ?")
 			args_belongs = append(args_belongs, i)
 		}
@@ -255,6 +258,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	if len(post.Query.Forms) > 0 {
 		var codes []Codes
 		for _, i := range post.Query.Forms {
+			if len(i) == 0 {
+				continue
+			}
 			where_forms = append(where_forms, "organizational_form = ?")
 			args_forms = append(args_forms, i)
 		}
@@ -268,6 +274,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	if len(post.Query.Locations) > 0 {
 		var codes []Codes
 		for _, i := range post.Query.Locations {
+			if len(i) == 0 {
+				continue
+			}
 			where_locations = append(where_locations, "location = ?")
 			args_locationgs = append(args_locationgs, i)
 		}
@@ -282,6 +291,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		var codes []Codes
 		arrays := append(post.Query.Concepts, post.Query.Labels...)
 		for _, i := range arrays {
+			if len(i) == 0 {
+				continue
+			}
 			where_concepts = append(where_concepts, "concept like ?")
 			args_concepts = append(args_concepts, "%"+i+"%")
 		}
@@ -373,14 +385,18 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 
 	res, _ := json.Marshal(&post)
 	log.Println(string(res))
+
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
 	for _, i := range post.Query.Predicts {
+		if len(i) == 0 {
+			continue
+		}
 		tmp = tmp.Where("`condition` regexp ? OR `bad_condition` regexp ? OR `finance` regexp ?", i, i, i)
 	}
 	tmp = tmp.Where("code IN (?)", coders)
 	tmp.Count(&total)
-
-	log.Println(fmt.Sprintf("一共筛选(%d个), 带条件后剩余(%d个)", len(coders), total))
+	err = tmp.Error
+	log.Println(fmt.Sprintf("一共筛选(%d个), 带条件后剩余(%d个)", len(coders), total, err))
 
 	if !utils.ContainsString(OrderLimit, post.Order) {
 		post.Order = "id"
