@@ -4,9 +4,10 @@ package crawler
 
 import (
 	"fmt"
+	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
-	"strconv"
+	"magic/stock/utils"
 	"strings"
 	"testing"
 )
@@ -198,41 +199,29 @@ func CalcCaiWuForPreTicket(code string) {
 	store.MysqlClient.GetDB().Save(&per)
 }
 
-// 根据历史生成周表(每个周五的收盘价) 执行一次就行
-func GenerateWeekHistory(code string) {
-	dates := []string{"2019-11-29", "2019-11-22", "2019-11-15", "2019-11-08", "2019-11-01", "2019-10-25", "2019-10-18", "2019-10-11", "2019-09-30",
-		"2019-09-27", "2019-09-20", "2019-09-12", "2019-09-06", "2019-08-30", "2019-08-23", "2019-08-16", "2019-08-09", "2019-08-02",
-		"2019-07-26", "2019-07-19", "2019-07-12", "2019-07-05", "2019-06-28", "2019-06-21", "2019-06-14", "2019-06-06", "2019-05-31",
-		"2019-05-24", "2019-05-17", "2019-05-10", "2019-04-30", "2019-04-26", "2019-04-19", "2019-04-12", "2019-04-04"}
-
-	for _, i := range dates {
-		var th dal.TicketHistory
-		err := store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date = ?", code, i).Find(&th).Error
-		if err != nil {
-			fmt.Println(err, i, code)
-			continue
-		}
-		weekly := dal.TicketHistoryWeekly{Code: th.Code, Date: th.Date, Name: th.Name, Shou: th.Shou}
-		store.MysqlClient.GetDB().Save(&weekly)
+// 测试用的 看谁的交易时间最多
+func TestGetWhoBig(t *testing.T) {
+	//select count(distinct(date)) from magic_stock_history1 where code = "000009"
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 2000 and id < 2304").Find(&code)
+	for _, i := range code {
+		var c int
+		store.MysqlClient.GetDB().Model(&dal.History2{}).Select("distinct(date)").Where("code = ?", i.Code).Count(&c)
+		log.Println(i.Code, i.Name, c)
 	}
 }
 
-// 周线表计算涨跌幅
-func CalcPercentTicketWeekly(code string) {
-	var th []dal.TicketHistoryWeekly
-	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ?", code).Order("date asc").Find(&th)
-	var tmp dal.TicketHistoryWeekly
+type Date struct {
+	Date string
+}
 
-	for j, i := range th {
-		if j == 0 {
-			i.Percent = 0
-			store.MysqlClient.GetDB().Save(&i)
-			tmp = i
-			continue
-		}
-		fmt.Println(i.Shou, tmp.Shou, i.Name, fmt.Sprintf("%.2f", (i.Shou-tmp.Shou)*100/tmp.Shou))
-		i.Percent, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", (i.Shou-tmp.Shou)*100/tmp.Shou), 64)
-		store.MysqlClient.GetDB().Save(&i)
-		tmp = i
+// 经过测试 000001 的股票最高
+func TestGetDates(t *testing.T) {
+	var dates []Date
+	var res []string
+	store.MysqlClient.GetDB().Model(&dal.History1{}).Select("date").Where("code = ?", "000001").Scan(&dates)
+	for _, i := range dates {
+		res = append(res, i.Date)
 	}
+	utils.GetWeekPair(res)
 }

@@ -180,8 +180,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		d.Response(c, nil, err)
 		return
 	}
-	res, _ := json.Marshal(&post)
-	log.Println(string(res))
 	err = d.doQueryLeft(authentication)
 	if err != nil {
 		d.Response(c, nil, err)
@@ -372,6 +370,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 			post.Date = x[0].Date
 		}
 	}
+
+	res, _ := json.Marshal(&post)
+	log.Println(string(res))
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
 	for _, i := range post.Query.Predicts {
 		tmp = tmp.Where("`condition` regexp ? OR `bad_condition` regexp ? OR `finance` regexp ?", i, i, i)

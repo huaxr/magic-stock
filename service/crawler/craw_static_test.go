@@ -3,7 +3,6 @@
 package crawler
 
 import (
-	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
 	"testing"
@@ -87,16 +86,17 @@ func TestCrawler_GetTopStockholder(t *testing.T) {
 func TestGetSignalTicket(T *testing.T) {
 	go func() {
 		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 0").Find(&code)
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 174 and id <= 2000").Find(&code)
 		for _, i := range code {
-		RE:
-			err := CrawlerGlobal.GetSignalTicket(i.Code, i.Name, true)
-			if err != nil {
-				log.Println("爬虫错误， 休眠10秒继续...", i.Name)
-				time.Sleep(10 * time.Second)
-				goto RE
-			}
-			time.Sleep(2 * time.Second)
+			CrawlerGlobal.GetSignalTicket(i, true)
+		}
+	}()
+
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 2415").Find(&code)
+		for _, i := range code {
+			CrawlerGlobal.GetSignalTicket(i, false)
 		}
 	}()
 	select {}

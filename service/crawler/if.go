@@ -38,7 +38,7 @@ type CrawlerIF interface {
 	// 网易api获得十大流通股东（带新进变化趋势
 	GetTopStockholder(code, namer string, proxy bool)
 	// 获取股票历史记录
-	GetSignalTicket(code, name string, proxy bool) error
+	GetSignalTicket(code dal.Code, proxy bool) error
 	// 获取股票的 收益表 数据
 	GetStockProfit(code string, proxy bool)
 	// 获取股票的 资产负债表 数据

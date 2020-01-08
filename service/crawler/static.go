@@ -95,25 +95,22 @@ func (craw *Crawler) GetAllTicketCode() {
 }
 
 // 获取单个股票的历史记录
-func (craw *Crawler) GetSignalTicket(code, name string, proxy bool) error {
+// 我要得出 60 季度线的所有数据 则需要从 2004 年开始拿所有数据
+func (craw *Crawler) GetSignalTicket(code dal.Code, proxy bool) error {
 	var doc *goquery.Document
-	for year := 2019; year <= 2019; year++ { // 1992 2019
-		for ji := 2; ji <= 4; ji++ { // 1 4
+	for year := 1991; year <= 2020; year++ { // 1992 2019
+		for ji := 1; ji <= 4; ji++ { // 1 4
 			if !proxy {
-				doc, _ = craw.NewDocument(fmt.Sprintf("http://quotes.money.163.com/trade/lsjysj_%s.html?year=%d&season=%d", code, year, ji))
+				doc, _ = craw.NewDocument(fmt.Sprintf("http://quotes.money.163.com/trade/lsjysj_%s.html?year=%d&season=%d", code.Code, year, ji))
 			} else {
-				doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://quotes.money.163.com/trade/lsjysj_%s.html?year=%d&season=%d", code, year, ji))
+				doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://quotes.money.163.com/trade/lsjysj_%s.html?year=%d&season=%d", code.Code, year, ji))
 			}
-			for i := 73; i >= 1; i-- { //for i := 73; i >= 1 ; i --
+			for i := 80; i >= 1; i-- { //for i := 73; i >= 1 ; i --
 				// 一季度按照72个交易日来算  // 因为第一栏是中文标题
 				text := ""
 				// 获取日期不要用
 				//x := doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(1)", i)).Text()
-				x, err := dealPanic(doc, i, "body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(1)")
-				if err != nil {
-					// 空指针错误
-					return err
-				}
+				x := doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(1)", i)).Text()
 				if len(x) == 0 {
 					continue
 				}
@@ -141,15 +138,20 @@ func (craw *Crawler) GetSignalTicket(code, name string, proxy bool) error {
 					zhenfu, _ := strconv.ParseFloat(tmp[9], 64)
 					huanshou, _ := strconv.ParseFloat(tmp[10], 64)
 
-					dh := dal.TicketHistory{Code: code, Name: name, Kai: kai, High: high, Low: low, Shou: shou, TotalCount: tc, TotalMoney: tm, Date: date,
-						Percent: percent, Change: zhangdiee, Amplitude: zhenfu, TurnoverRate: huanshou} //, Percent:p}
-					store.MysqlClient.GetDB().Save(&dh)
-					fmt.Println(code, name, date, kai, high, low, shou, zhangdiee, percent, tc, tm, zhenfu, huanshou)
-
+					if code.ID <= 2000 {
+						dh := dal.History1{Code: code.Code, Name: code.Name, Kai: kai, High: high, Low: low, Shou: shou, TotalCount: tc, TotalMoney: tm, Date: date,
+							Percent: percent, Change: zhangdiee, Amplitude: zhenfu, TurnoverRate: huanshou} //, Percent:p}
+						store.MysqlClient.GetDB().Save(&dh)
+					} else {
+						dh := dal.History2{Code: code.Code, Name: code.Name, Kai: kai, High: high, Low: low, Shou: shou, TotalCount: tc, TotalMoney: tm, Date: date,
+							Percent: percent, Change: zhangdiee, Amplitude: zhenfu, TurnoverRate: huanshou} //, Percent:p}
+						store.MysqlClient.GetDB().Save(&dh)
+					}
 				}
 			}
 		}
 	}
+	log.Println(code.ID, code.Code, code.Name)
 	return nil
 }
 

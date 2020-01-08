@@ -74,7 +74,7 @@ func init() {
 		&dal.Predict{}, &dal.TicketHistoryWeekly{}, &dal.FundRank{}, dal.TicketHistory{}, &dal.User{}, &dal.Pay{},
 		&dal.StockCashFlow{}, &dal.StockProfit{}, &dal.StockLiabilities{}, &dal.Conditions{}, &dal.UserConditions{},
 		&dal.StockConcept{}, &dal.StockLabels{}, &dal.StockPerTicket{}, &dal.StockFund{}, &dal.StockFengHong{}, &dal.StockPeiGu{},
-		&dal.StockZengFa{}, &dal.Price{}, &dal.UserShare{}, &dal.HighConditions{}, &dal.UserDemands{}, &dal.StockSubCompany{})
+		&dal.StockZengFa{}, &dal.Price{}, &dal.UserShare{}, &dal.HighConditions{}, &dal.UserDemands{}, &dal.StockSubCompany{}, &dal.History1{}, &dal.History2{})
 	MysqlClient = e
 }
 
