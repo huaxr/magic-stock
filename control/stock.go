@@ -393,10 +393,13 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		}
 		tmp = tmp.Where("`condition` regexp ? OR `bad_condition` regexp ? OR `finance` regexp ?", i, i, i)
 	}
-	tmp = tmp.Where("code IN (?)", coders)
+	// 如果除了筛选条件不为空才用IN操作
+	if len(coders) > 0 {
+		tmp = tmp.Where("code IN (?)", coders)
+	}
 	tmp.Count(&total)
-	err = tmp.Error
-	log.Println(fmt.Sprintf("一共筛选(%d个), 带条件后剩余(%d个)", len(coders), total), err)
+
+	log.Println(fmt.Sprintf("满足条件(%d个), 命中条件(%d个)", len(coders), total))
 
 	if !utils.ContainsString(OrderLimit, post.Order) {
 		post.Order = "id"

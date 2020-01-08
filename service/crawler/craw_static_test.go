@@ -86,7 +86,7 @@ func TestCrawler_GetTopStockholder(t *testing.T) {
 func TestGetSignalTicket(T *testing.T) {
 	go func() {
 		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 174 and id <= 2000").Find(&code)
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 289 and id <= 2000").Find(&code)
 		for _, i := range code {
 			CrawlerGlobal.GetSignalTicket(i, true)
 		}
@@ -94,7 +94,7 @@ func TestGetSignalTicket(T *testing.T) {
 
 	go func() {
 		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 2415").Find(&code)
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 2937").Find(&code)
 		for _, i := range code {
 			CrawlerGlobal.GetSignalTicket(i, false)
 		}
