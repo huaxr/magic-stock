@@ -391,7 +391,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		if len(i) == 0 {
 			continue
 		}
-		tmp = tmp.Where("`condition` regexp ?", i)
+		tmp = tmp.Where("`condition` regexp ? OR `bad_condition` regexp ? OR `finance` regexp ?", i, i, i)
 	}
 	tmp = tmp.Where("code IN (?)", coders)
 	tmp.Count(&total)
