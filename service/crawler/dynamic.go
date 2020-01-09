@@ -27,7 +27,6 @@ func dealPanic(doc *goquery.Document, i int, selector string) (str string, err e
 		}
 	}()
 	finder := doc.Find(fmt.Sprintf(selector, i))
-	time.Sleep(1 * time.Second)
 	str = finder.Text()
 	return
 }

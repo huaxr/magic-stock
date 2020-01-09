@@ -3,6 +3,7 @@
 package crawler
 
 import (
+	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
 	"testing"
@@ -84,21 +85,22 @@ func TestCrawler_GetTopStockholder(t *testing.T) {
 
 // 获取股票历史记录
 func TestGetSignalTicket(T *testing.T) {
-	go func() {
-		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 289 and id <= 2000").Find(&code)
-		for _, i := range code {
-			CrawlerGlobal.GetSignalTicket(i, true)
-		}
-	}()
 
-	go func() {
-		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 2937").Find(&code)
-		for _, i := range code {
-			CrawlerGlobal.GetSignalTicket(i, false)
-		}
-	}()
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 562 and id <= 2000").Find(&code)
+	for _, i := range code {
+		log.Println("正在爬取", i.ID, i.Code, i.Name)
+		CrawlerGlobal.GetSignalTicket(i, false)
+	}
+
+	//go func() {
+	//	var code []dal.Code
+	//	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 1000 and id <= 2000").Find(&code)
+	//	for _, i := range code {
+	//		log.Println("正在爬取", i.ID, i.Code, i.Name)
+	//		CrawlerGlobal.GetSignalTicket(i, false)
+	//	}
+	//}()
 	select {}
 }
 

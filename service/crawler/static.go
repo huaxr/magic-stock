@@ -10,6 +10,7 @@ import (
 	"magic/stock/utils"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 
@@ -108,9 +109,16 @@ func (craw *Crawler) GetSignalTicket(code dal.Code, proxy bool) error {
 			for i := 80; i >= 1; i-- { //for i := 73; i >= 1 ; i --
 				// 一季度按照72个交易日来算  // 因为第一栏是中文标题
 				text := ""
+
+				x, err := dealPanic(doc, i, "body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(1)")
+				if err != nil {
+					log.Println("出现错误了, 正在重试")
+					time.Sleep(5 * time.Second)
+					i += 1
+					continue
+				}
 				// 获取日期不要用
 				//x := doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(1)", i)).Text()
-				x := doc.Find(fmt.Sprintf("body > div.area > div.inner_box > table > tbody > tr:nth-child(%d) > td:nth-child(1)", i)).Text()
 				if len(x) == 0 {
 					continue
 				}
@@ -151,7 +159,7 @@ func (craw *Crawler) GetSignalTicket(code dal.Code, proxy bool) error {
 			}
 		}
 	}
-	log.Println(code.ID, code.Code, code.Name)
+	log.Println("爬取完毕", code.Name)
 	return nil
 }
 

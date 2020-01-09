@@ -3,7 +3,6 @@
 package control
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -383,15 +382,12 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		}
 	}
 
-	res, _ := json.Marshal(&post)
-	log.Println(string(res))
-
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
 	for _, i := range post.Query.Predicts {
 		if len(i) == 0 {
 			continue
 		}
-		tmp = tmp.Where("`condition` regexp ? OR `bad_condition` regexp ? OR `finance` regexp ?", i, i, i)
+		tmp = tmp.Where("`condition` LIKE ? OR `bad_condition` LIKE ? OR `finance` LIKE ?", "%"+i+"%", "%"+i+"%", "%"+i+"%")
 	}
 	// 如果除了筛选条件不为空才用IN操作
 	if len(coders) > 0 {

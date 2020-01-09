@@ -4,8 +4,10 @@ package utils
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var weekday = [7]string{"周日", "周一", "周二", "周三", "周四", "周五", "周六"}
@@ -44,7 +46,54 @@ func getRes(dates []string) []map[string]string {
 			max = append(max, ma)
 		}
 	}
-	return max
+	// 去掉最后一个周一的值, 保证关系的一对一
+	a := max[len(max)-1]
+	if _, ok := a["monday"]; ok {
+		max = max[0 : len(max)-1]
+	}
+
+	must_1 := true
+	must_5 := false
+	var tmp = []map[string]string{}
+	for _, i := range max {
+		if must_1 {
+			_, ok := i["monday"]
+			if ok {
+				tmp = append(tmp, i)
+				must_1 = false
+				must_5 = true
+			} else {
+				continue
+			}
+		}
+
+		if must_5 {
+			_, ok := i["friday"]
+			if ok {
+				tmp = append(tmp, i)
+				must_1 = true
+				must_5 = false
+			} else {
+				continue
+			}
+		}
+	}
+
+	// 上述保证了是 1515151515 成对
+	for i := 0; i <= len(tmp)-1; i += 2 {
+		a, b := tmp[i], tmp[i+1]
+		a1 := str2Time(a["monday"])
+		b1 := str2Time(b["friday"])
+		log.Println(b1.Sub(a1).Hours(), a["monday"], b["friday"])
+	}
+	return tmp
+}
+
+func str2Time(str string) time.Time {
+	timeLayout := "2006-01-02"                               //转化所需模板
+	loc, _ := time.LoadLocation("Local")                     //重要：获取时区
+	theTime, _ := time.ParseInLocation(timeLayout, str, loc) //使用模板在对应时区转化为time.time类型
+	return theTime
 }
 
 func parseUint(str string) uint16 {
