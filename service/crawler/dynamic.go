@@ -41,7 +41,7 @@ func (craw *Crawler) GetAllTicketTodayDetail(code, name, today, last_today_str s
 			} else {
 				doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://quotes.money.163.com/trade/lsjysj_%s.html?year=%d&season=%d", code, year, ji))
 			}
-			for i := 1; i >= 1; i-- { //for i := 73; i >= 1 ; i --
+			for i := 4; i >= 1; i-- { //for i := 73; i >= 1 ; i --
 				// 一季度按照72个交易日来算  // 因为第一栏是中文标题
 				text := ""
 				// 获取日期不要用
@@ -82,8 +82,13 @@ func (craw *Crawler) GetAllTicketTodayDetail(code, name, today, last_today_str s
 					zhenfu, _ := strconv.ParseFloat(tmp[9], 64)
 					huanshou, _ := strconv.ParseFloat(tmp[10], 64)
 					var last_day dal.TicketHistory
-					store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("date = ? and code = ?", last_today_str, code).Find(&last_day)
-					liangbi := tc / last_day.TotalCount
+					err := store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("date = ? and code = ?", last_today_str, code).Find(&last_day).Error
+					var liangbi float64
+					if err != nil {
+						liangbi = 0
+					} else {
+						liangbi = tc / last_day.TotalCount
+					}
 					value, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", liangbi), 64)
 					dh := dal.TicketHistory{Code: code, Name: name, Kai: kai, High: high, Low: low, Shou: shou, TotalCount: tc, TotalMoney: tm, Date: date,
 						Percent: percent, Change: zhangdiee, Amplitude: zhenfu, TurnoverRate: huanshou, NumberRate: value} //, Percent:p}

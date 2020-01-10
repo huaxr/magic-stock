@@ -61,6 +61,7 @@ type CrawlerIF interface {
 	// 分析
 	Analyze(result *model.CalcResult, code, name string)
 
+	// 通过算法获取周线数据
 	GetWeekDays(code dal.Code, d1, d2 string)
 }
 

@@ -213,13 +213,36 @@ func TestCrawler_GetSubCompany(t *testing.T) {
 }
 
 func TestGetWeekDays(t *testing.T) {
-	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id <= 1500").Find(&code)
-	xxx := [][]string{{"1994-05-02", "2020-01-01"}}
-	for _, m := range xxx {
-		for _, i := range code {
-			CrawlerGlobal.GetWeekDays(i, m[0], m[1])
-		}
-	}
+	xxx := [][]string{{"2018-01-01", "2020-01-07"}}
 
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 583 and id <= 1000").Find(&code)
+		for _, m := range xxx {
+			for _, i := range code {
+				CrawlerGlobal.GetWeekDays(i, m[0], m[1])
+			}
+		}
+	}()
+
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 1897 and id <= 2000").Find(&code)
+		for _, m := range xxx {
+			for _, i := range code {
+				CrawlerGlobal.GetWeekDays(i, m[0], m[1])
+			}
+		}
+	}()
+
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 3347").Find(&code)
+		for _, m := range xxx {
+			for _, i := range code {
+				CrawlerGlobal.GetWeekDays(i, m[0], m[1])
+			}
+		}
+	}()
+	select {}
 }

@@ -41,15 +41,21 @@ type RecentDailyData struct {
 	RecentPercent      []float64 // 最近涨跌幅
 	RecentAmplitude    []float64 // 最近振幅
 	RecentTurnoverRate []float64 // 最近换手率
-	RecentNetFlow      []float64 // 最近资金净流入
-	RecentMainNetFlow  []float64 // 最近主力资金净流入
-	CurrDate           string    // 今天日期
-	CurrTotalMoney     float64
+	//RecentNetFlow      []float64 // 最近资金净流入
+	//RecentMainNetFlow  []float64 // 最近主力资金净流入
+	CurrDate       string // 今天日期
+	CurrTotalMoney float64
 }
 
 type RecentWeeklyData struct {
-	RecentWeeklyClose   []float64
-	RecentWeeklyPercent []float64
+	RecentCountWeek        []float64 // 最近成交量
+	RecentCloseWeek        []float64 // 最近收盘价
+	RecentOpenWeek         []float64 // 最近的开盘价
+	RecentHighWeek         []float64 // 最近的最高价
+	RecentLowWeek          []float64 // 最近的最低价
+	RecentPercentWeek      []float64 // 最近涨跌幅
+	RecentAmplitudeWeek    []float64 // 最近振幅
+	RecentTurnoverRateWeek []float64 // 最近换手率
 }
 
 type RecentAverage struct {
@@ -57,11 +63,18 @@ type RecentAverage struct {
 	AveDailyPrice2 []float64
 	AveDailyPrice3 []float64
 	AveDailyPrice4 []float64
-	AveDailyPrice5 []float64
-	//AveWeeklyPrice1 []float64
-	//AveWeeklyPrice2 []float64
-	AveCount1 []float64
-	AveCount2 []float64
+	AveCount1      []float64
+	AveCount2      []float64
+}
+
+type RecentAverageWeekly struct {
+	AveWeeklyPrice1 []float64
+	AveWeeklyPrice2 []float64
+	AveWeeklyPrice3 []float64
+	AveWeeklyPrice4 []float64
+
+	AveCountWeekly1 []float64
+	AveCountWeekly2 []float64
 }
 
 type Params struct {
@@ -70,9 +83,8 @@ type Params struct {
 	Offset        int
 	AveragePrice1 int // 均线1 5
 	AveragePrice2 int // 均线2 10
-	AveragePrice3 int // 均线2 15
-	AveragePrice4 int // 均线3 30
-	AveragePrice5 int // 均线4 60
+	AveragePrice3 int // 均线2 30
+	AveragePrice4 int // 均线3 60
 
 	AverageCount1 int // 量均线1 10
 	AverageCount2 int // 量均线2 40
@@ -80,8 +92,9 @@ type Params struct {
 
 type CalcResult struct {
 	*RecentDailyData
-	//*RecentWeeklyData
+	*RecentWeeklyData
 	*RecentAverage
+	*RecentAverageWeekly
 }
 
 type PredictListResponse struct {

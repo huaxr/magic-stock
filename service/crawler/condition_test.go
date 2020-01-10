@@ -12,11 +12,11 @@ import (
 
 // 获取具体日期的分析结果
 func TestGetData(t *testing.T) {
-	var date = "2020-01-06"
+	var date = "2020-01-10"
 	var code []dal.Code
 	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
 	for _, i := range code {
-		x := &model.Params{i.Code, date, 0, 5, 10, 15, 30, 60, 10, 40}
+		x := &model.Params{i.Code, date, 0, 5, 10, 30, 60, 10, 40}
 		y := CrawlerGlobal.CalcResultWithDefined(x)
 		if y == nil {
 			continue

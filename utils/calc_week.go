@@ -8,6 +8,7 @@ import (
 )
 
 func GetWeekPair(date []string) (string, [][]interface{}) {
+	// 去除首部直到遇到1
 	for i := 0; i <= 5; i++ {
 		if str2Week(date[0]) != 1 {
 			date = date[1:len(date)]
@@ -15,7 +16,7 @@ func GetWeekPair(date []string) (string, [][]interface{}) {
 			break
 		}
 	}
-
+	// 去除尾部直到遇到5
 	for i := 5; i >= 0; i-- {
 		if str2Week(date[len(date)-1]) != 5 {
 			date = date[0 : len(date)-1]

@@ -44,7 +44,7 @@ func TestGetAllTicketTodayDetail(t *testing.T) {
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2000").Find(&code)
 		for _, i := range code {
 		RE:
-			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, last_today_str, true)
+			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, "", false)
 			if err != nil {
 				log.Println("爬虫错误， 休眠10秒继续...", i.Name)
 				time.Sleep(10 * time.Second)
@@ -59,7 +59,7 @@ func TestGetAllTicketTodayDetail(t *testing.T) {
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000").Find(&code)
 		for _, i := range code {
 		RE:
-			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, last_today_str, true)
+			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, "", true)
 			if err != nil {
 				log.Println("爬虫错误， 休眠10秒继续...", i.Name)
 				time.Sleep(10 * time.Second)
