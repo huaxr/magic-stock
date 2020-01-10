@@ -85,22 +85,35 @@ func TestCrawler_GetTopStockholder(t *testing.T) {
 
 // 获取股票历史记录
 func TestGetSignalTicket(T *testing.T) {
-
-	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 562 and id <= 2000").Find(&code)
-	for _, i := range code {
-		log.Println("正在爬取", i.ID, i.Code, i.Name)
-		CrawlerGlobal.GetSignalTicket(i, false)
-	}
-
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 978 and id <= 1500").Find(&code)
+		for _, i := range code {
+			log.Println("正在爬取", i.ID, i.Code, i.Name)
+			CrawlerGlobal.GetSignalTicket(i, false)
+		}
+	}()
 	//go func() {
 	//	var code []dal.Code
-	//	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 1000 and id <= 2000").Find(&code)
+	//	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 1651 and id <= 2000").Find(&code)  // 1651 600280 中央商场
 	//	for _, i := range code {
 	//		log.Println("正在爬取", i.ID, i.Code, i.Name)
 	//		CrawlerGlobal.GetSignalTicket(i, false)
 	//	}
 	//}()
+	select {}
+}
+
+// 获取股票历史记录
+func TestGetSignalTicket2(T *testing.T) {
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 1651 and id <= 2000").Find(&code) // 1651 600280 中央商场
+		for _, i := range code {
+			log.Println("正在爬取", i.ID, i.Code, i.Name)
+			CrawlerGlobal.GetSignalTicket(i, false)
+		}
+	}()
 	select {}
 }
 
@@ -197,4 +210,16 @@ func TestCrawler_GetSubCompany(t *testing.T) {
 		}
 	}()
 	select {}
+}
+
+func TestGetWeekDays(t *testing.T) {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id <= 1500").Find(&code)
+	xxx := [][]string{{"1994-05-02", "2020-01-01"}}
+	for _, m := range xxx {
+		for _, i := range code {
+			CrawlerGlobal.GetWeekDays(i, m[0], m[1])
+		}
+	}
+
 }

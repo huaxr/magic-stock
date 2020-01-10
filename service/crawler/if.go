@@ -60,6 +60,8 @@ type CrawlerIF interface {
 	CalcResultWithDefined(params *model.Params) *model.CalcResult
 	// 分析
 	Analyze(result *model.CalcResult, code, name string)
+
+	GetWeekDays(code dal.Code, d1, d2 string)
 }
 
 var CrawlerGlobal CrawlerIF

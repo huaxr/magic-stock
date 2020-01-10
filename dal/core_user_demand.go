@@ -8,6 +8,7 @@ import "github.com/jinzhu/gorm"
 type UserDemands struct {
 	gorm.Model
 	UserId   int    `json:"user_id"`
+	Type     string `json:"type"`                     // 平台建议, 开发需求, 好评留言
 	Content  string `sql:"type:text" json:"content"`  // 用户需求内容
 	Response string `sql:"type:text" json:"response"` // 管理员回复
 }

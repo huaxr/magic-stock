@@ -146,7 +146,7 @@ func (craw *Crawler) GetSignalTicket(code dal.Code, proxy bool) error {
 					zhenfu, _ := strconv.ParseFloat(tmp[9], 64)
 					huanshou, _ := strconv.ParseFloat(tmp[10], 64)
 
-					if code.ID <= 2000 {
+					if code.ID <= 1500 {
 						dh := dal.History1{Code: code.Code, Name: code.Name, Kai: kai, High: high, Low: low, Shou: shou, TotalCount: tc, TotalMoney: tm, Date: date,
 							Percent: percent, Change: zhangdiee, Amplitude: zhenfu, TurnoverRate: huanshou} //, Percent:p}
 						store.MysqlClient.GetDB().Save(&dh)
@@ -664,5 +664,59 @@ func (craw *Crawler) GetSubCompany(code string, proxy bool) {
 		log.Println(code, a, b, c, d)
 		x := dal.StockSubCompany{Code: code, Name: a, Relation: b, Percent: c, Type: d}
 		store.MysqlClient.GetDB().Save(&x)
+	}
+}
+
+type Date struct {
+	Date string
+}
+
+type Res struct {
+	Number float64
+}
+
+func (craw *Crawler) GetWeekDays(code dal.Code, date1, date2 string) {
+	var dates []Date
+	var res []string
+	store.MysqlClient.GetDB().Model(&dal.History1{}).Select("date").Where("code = ?", code.Code).Where("date >= ? and date < ?", date1, date2).Scan(&dates)
+	for _, i := range dates {
+		res = append(res, i.Date)
+	}
+	x, xx := utils.GetWeekPair(res)
+	var last Res
+	for i := 0; i <= len(x)/5-1; i++ {
+		tmp := strings.Replace(x[5*i:5*(i+1)], "0", "", -1)
+		if len(tmp) == 0 {
+			continue
+		}
+		res := xx[0:len(tmp)]
+		xx = xx[len(tmp):len(xx)]
+
+		var high, low, kai, shou, liang, turnover_rate Res
+		var p, a float64 // percent 振幅
+
+		store.MysqlClient.GetDB().Model(&dal.History1{}).Select("max(high) as number").Where("code = ?", code.Code).Where("date >= ? and date <= ?", res[0][1], res[len(res)-1][1]).Scan(&high)
+		store.MysqlClient.GetDB().Model(&dal.History1{}).Select("min(low) as number").Where("code = ?", code.Code).Where("date >= ? and date <= ?", res[0][1], res[len(res)-1][1]).Scan(&low)
+		store.MysqlClient.GetDB().Model(&dal.History1{}).Select("kai as number").Where("code = ?", code.Code).Where("date = ?", res[0][1]).Scan(&kai)
+		store.MysqlClient.GetDB().Model(&dal.History1{}).Select("shou as number").Where("code = ?", code.Code).Where("date = ?", res[len(res)-1][1]).Scan(&shou)
+		store.MysqlClient.GetDB().Model(&dal.History1{}).Select("sum(total_count) as number").Where("code = ?", code.Code).Where("date >= ? and date <= ?", res[0][1], res[len(res)-1][1]).Scan(&liang)
+		store.MysqlClient.GetDB().Model(&dal.History1{}).Select("sum(turnover_rate) as number").Where("code = ?", code.Code).Where("date >= ? and date <= ?", res[0][1], res[len(res)-1][1]).Scan(&turnover_rate)
+		if i == 0 {
+			p = 0
+			a = 0
+			last = shou
+		} else {
+			percent := (shou.Number - last.Number) / last.Number
+			amplitude := (high.Number - low.Number) / last.Number
+			p, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", percent*100), 64)
+			a, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", amplitude*100), 64)
+		}
+		change, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", shou.Number-last.Number), 64)
+		turnover, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", turnover_rate.Number), 64)
+		log.Println(high.Number, low.Number, kai.Number, shou.Number, liang.Number, turnover, p, a, change, res[len(res)-1][1])
+		last = shou
+		h := dal.TicketHistoryWeekly{Code: code.Code, Name: code.Name, Date: res[len(res)-1][1].(string), Kai: kai.Number, Shou: shou.Number, High: high.Number, Low: low.Number,
+			TotalCount: liang.Number, Percent: p, Change: change, Amplitude: a, TurnoverRate: turnover}
+		store.MysqlClient.GetDB().Save(&h)
 	}
 }

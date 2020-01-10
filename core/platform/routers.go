@@ -46,7 +46,9 @@ func (r *Router) addRouters() {
 		router.POST("/edit_condition", control.UserControlGlobal.EditUserConditions)
 		router.POST("/delete_condition", control.UserControlGlobal.DeleteUserConditions)
 		router.POST("/predicts_list", control.PredictControlGlobal.PredictList)
+		router.GET("/stock/top3", control.PredictControlGlobal.GetTop3)
 		router.GET("/stock/detail", control.PredictControlGlobal.GetDetail)
+		router.GET("/stock/k/detail", control.PredictControlGlobal.GetWeekDetail)
 		router.GET("/stock/fund", control.PredictControlGlobal.GetFunds)
 		// 机构持仓
 		router.GET("/fund_hold", control.PredictControlGlobal.FundHold)

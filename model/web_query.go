@@ -142,6 +142,7 @@ type SpendType struct {
 }
 
 type SubmitDemand struct {
+	Type    string `json:"type"`
 	Content string `json:"content"`
 }
 

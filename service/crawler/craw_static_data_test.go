@@ -7,7 +7,6 @@ import (
 	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
-	"magic/stock/utils"
 	"strings"
 	"testing"
 )
@@ -209,19 +208,4 @@ func TestGetWhoBig(t *testing.T) {
 		store.MysqlClient.GetDB().Model(&dal.History2{}).Select("distinct(date)").Where("code = ?", i.Code).Count(&c)
 		log.Println(i.Code, i.Name, c)
 	}
-}
-
-type Date struct {
-	Date string
-}
-
-// 经过测试 000001 的股票最高
-func TestGetDates(t *testing.T) {
-	var dates []Date
-	var res []string
-	store.MysqlClient.GetDB().Model(&dal.History1{}).Select("date").Where("code = ?", "000001").Scan(&dates)
-	for _, i := range dates {
-		res = append(res, i.Date)
-	}
-	utils.GetWeekPair(res)
 }

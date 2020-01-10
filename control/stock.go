@@ -26,6 +26,8 @@ type PredictIF interface {
 	PredictList(c *gin.Context)
 	// 获取股票详情
 	GetDetail(c *gin.Context)
+	GetTop3(c *gin.Context)
+	GetWeekDetail(c *gin.Context)
 	GetFunds(c *gin.Context)
 	// 通过机构code查询机构持仓
 	FundHold(c *gin.Context)
@@ -418,6 +420,26 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	d.Response(c, map[string]interface{}{"result": response, "total": total}, nil)
 }
 
+func (d *PredictControl) GetWeekDetail(c *gin.Context) {
+	date := c.DefaultQuery("date", "")
+	code := c.DefaultQuery("code", "")
+	typ := c.DefaultQuery("type", "")
+	log.Println(typ)
+	if date == "" {
+		var x []PredictDate
+		store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("distinct(date) as date").Order("date desc").Scan(&x)
+		if len(x) > 0 {
+			date = x[0].Date
+		}
+	}
+	var TicketHistoryTmp, TicketHistory []dal.TicketHistoryWeekly
+	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", code, date).Limit(60).Order("date desc").Find(&TicketHistoryTmp)
+	for i := len(TicketHistoryTmp) - 1; i >= 0; i-- {
+		TicketHistory = append(TicketHistory, TicketHistoryTmp[i])
+	}
+	d.Response(c, TicketHistory, nil)
+}
+
 func (d *PredictControl) GetDetail(c *gin.Context) {
 	date := c.DefaultQuery("date", "")
 	code := c.DefaultQuery("code", "")
@@ -449,13 +471,10 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	}
 
 	var TicketHistoryTmp, TicketHistory []dal.TicketHistory
-	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", code, date).Limit(90).Order("date desc").Find(&TicketHistoryTmp)
+	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", code, date).Limit(60).Order("date desc").Find(&TicketHistoryTmp)
 	for i := len(TicketHistoryTmp) - 1; i >= 0; i-- {
 		TicketHistory = append(TicketHistory, TicketHistoryTmp[i])
 	}
-	//去掉周线数据
-	//var TicketHistoryWeekly []dal.TicketHistoryWeekly
-	//store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", code, date).Limit(40).Order("date asc").Find(&TicketHistoryWeekly)
 
 	var Stockholder []dal.Stockholder
 	store.MysqlClient.GetDB().Model(&dal.Stockholder{}).Where("code = ?", code).Find(&Stockholder)
@@ -673,4 +692,18 @@ func (d *PredictControl) GetSubComp(c *gin.Context) {
 	var subs []dal.StockSubCompany
 	store.MysqlClient.GetDB().Model(&dal.StockSubCompany{}).Where("code = ?", code).Offset(offset).Limit(limit).Find(&subs)
 	d.Response(c, subs, nil)
+}
+
+func (d *PredictControl) GetTop3(c *gin.Context) {
+	date := c.DefaultQuery("date", "")
+	if date == "" {
+		var x []PredictDate
+		store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("distinct(date) as date").Order("date desc").Scan(&x)
+		if len(x) > 0 {
+			date = x[0].Date
+		}
+	}
+	var res []dal.Predict
+	store.MysqlClient.GetDB().Model(&dal.Predict{}).Order("score desc").Limit(3).Scan(&res)
+	d.Response(c, res, nil)
 }
