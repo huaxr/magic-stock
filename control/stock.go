@@ -421,17 +421,9 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 }
 
 func (d *PredictControl) GetWeekDetail(c *gin.Context) {
-	date := c.DefaultQuery("date", "")
 	code := c.DefaultQuery("code", "")
-	typ := c.DefaultQuery("type", "")
-	log.Println(typ)
-	if date == "" {
-		var x []PredictDate
-		store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("distinct(date) as date").Order("date desc").Scan(&x)
-		if len(x) > 0 {
-			date = x[0].Date
-		}
-	}
+	//typ := c.DefaultQuery("type", "")
+	date := d.getDate()
 	var TicketHistoryTmp, TicketHistory []dal.TicketHistoryWeekly
 	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", code, date).Limit(60).Order("date desc").Find(&TicketHistoryTmp)
 	for i := len(TicketHistoryTmp) - 1; i >= 0; i-- {
@@ -441,7 +433,6 @@ func (d *PredictControl) GetWeekDetail(c *gin.Context) {
 }
 
 func (d *PredictControl) GetDetail(c *gin.Context) {
-	var date string
 	code := c.DefaultQuery("code", "")
 	if code == "" {
 		d.Response(c, nil, errors.New("证券代码空"))
@@ -456,12 +447,7 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 		code = coder_obj.Code
 	}
 
-	var x []PredictDate
-	store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("distinct(date) as date").Order("date desc").Scan(&x)
-	if len(x) > 0 {
-		date = x[0].Date
-	}
-
+	date := d.getDate()
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
 	err = d.doQueryLeft(authentication)
@@ -694,16 +680,18 @@ func (d *PredictControl) GetSubComp(c *gin.Context) {
 	d.Response(c, subs, nil)
 }
 
-func (d *PredictControl) GetTop3(c *gin.Context) {
-	date := c.DefaultQuery("date", "")
-	if date == "" {
-		var x []PredictDate
-		store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("distinct(date) as date").Order("date desc").Scan(&x)
-		if len(x) > 0 {
-			date = x[0].Date
-		}
+func (d *PredictControl) getDate() string {
+	var x []PredictDate
+	store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("distinct(date) as date").Order("date desc").Scan(&x)
+	if len(x) > 0 {
+		return x[0].Date
 	}
+	return ""
+}
+
+func (d *PredictControl) GetTop3(c *gin.Context) {
+	date := d.getDate()
 	var res []dal.Predict
-	store.MysqlClient.GetDB().Model(&dal.Predict{}).Order("score desc").Limit(3).Scan(&res)
+	store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", date).Order("score desc").Limit(3).Scan(&res)
 	d.Response(c, res, nil)
 }
