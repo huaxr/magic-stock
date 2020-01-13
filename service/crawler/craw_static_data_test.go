@@ -4,7 +4,6 @@ package crawler
 
 import (
 	"fmt"
-	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
 	"strings"
@@ -196,16 +195,4 @@ func CalcCaiWuForPreTicket(code string) {
 	}
 	per.RankCaiwu = message
 	store.MysqlClient.GetDB().Save(&per)
-}
-
-// 测试用的 看谁的交易时间最多
-func TestGetWhoBig(t *testing.T) {
-	//select count(distinct(date)) from magic_stock_history1 where code = "000009"
-	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 2000 and id < 2304").Find(&code)
-	for _, i := range code {
-		var c int
-		store.MysqlClient.GetDB().Model(&dal.History2{}).Select("distinct(date)").Where("code = ?", i.Code).Count(&c)
-		log.Println(i.Code, i.Name, c)
-	}
 }

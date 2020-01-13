@@ -100,6 +100,7 @@ func (a *authentication) checkSession(c *gin.Context) *model.AuthResult {
 		}
 	}
 	user_obj, _ := dao.UserDao.Query("id = ?", []interface{}{uid})
+	log.Println(time.Now().Before(user_obj.MemberExpireTime), time.Now(), user_obj.MemberExpireTime)
 	return &model.AuthResult{User: user.(string), Uid: uid.(int), Member: time.Now().Before(user_obj.MemberExpireTime), QueryLeft: user_obj.QueryLeft}
 }
 

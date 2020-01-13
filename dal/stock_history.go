@@ -30,7 +30,7 @@ func (TicketHistory) TableName() string {
 	return "magic_stock_history"
 }
 
-type History1 struct {
+type HistoryALL1 struct {
 	ID           uint    `gorm:"primary_key" json:"id"`
 	Code         string  `gorm:"index" json:"code"`
 	Name         string  `json:"name"`
@@ -48,11 +48,11 @@ type History1 struct {
 	NumberRate   float64 `json:"number_rate"`   // 量比
 }
 
-func (History1) TableName() string {
-	return "magic_stock_history1" // <= 1500 的id的股票
+func (HistoryALL1) TableName() string {
+	return "magic_stock_history_lte_1500" // <= 1500 的id的股票
 }
 
-type History2 struct {
+type HistoryALL2 struct {
 	ID           uint    `gorm:"primary_key" json:"id"`
 	Code         string  `gorm:"index" json:"code"`
 	Name         string  `json:"name"`
@@ -70,6 +70,6 @@ type History2 struct {
 	NumberRate   float64 `json:"number_rate"`   // 量比
 }
 
-func (History2) TableName() string {
-	return "magic_stock_history2"
+func (HistoryALL2) TableName() string {
+	return "magic_stock_history_gte_1500"
 }

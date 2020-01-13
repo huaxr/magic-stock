@@ -9,7 +9,6 @@ import (
 	"magic/stock/dal"
 	"magic/stock/model"
 	"magic/stock/service/conf"
-	"magic/stock/utils"
 	"reflect"
 	"strings"
 	"sync"
@@ -46,19 +45,19 @@ func init() {
 	db.DB().SetConnMaxLifetime(60 * time.Second)
 	db.DB().SetMaxOpenConns(30)
 
-	if utils.TellEnv() == "loc" {
-		e.dbonline, err = gorm.Open("mysql", "root:Icode_787518771@tcp(154.8.228.39:3306)/stock?charset=utf8mb4&parseTime=True&loc=Local")
-		if err != nil {
-			panic(err)
-		}
-		e.dbonline.DB().SetConnMaxLifetime(60 * time.Second)
-		e.dbonline.DB().SetMaxOpenConns(30)
-		go e.dbonline.AutoMigrate(&dal.Code{}, &dal.Stockholder{}, &dal.FundHoldRank{},
-			&dal.Predict{}, &dal.TicketHistoryWeekly{}, &dal.FundRank{}, dal.TicketHistory{}, &dal.User{}, &dal.Pay{},
-			&dal.StockCashFlow{}, &dal.StockProfit{}, &dal.StockLiabilities{}, &dal.Conditions{}, &dal.UserConditions{},
-			&dal.StockConcept{}, &dal.StockLabels{}, &dal.StockPerTicket{}, &dal.StockFund{}, &dal.StockFengHong{}, &dal.StockPeiGu{},
-			&dal.StockZengFa{}, &dal.Price{}, &dal.UserShare{}, &dal.HighConditions{}, &dal.UserDemands{}, &dal.StockSubCompany{})
-	}
+	//if utils.TellEnv() == "loc" {
+	//	e.dbonline, err = gorm.Open("mysql", "root:Icode_787518771@tcp(154.8.228.39:3306)/stock?charset=utf8mb4&parseTime=True&loc=Local")
+	//	if err != nil {
+	//		panic(err)
+	//	}
+	//	e.dbonline.DB().SetConnMaxLifetime(60 * time.Second)
+	//	e.dbonline.DB().SetMaxOpenConns(30)
+	//	go e.dbonline.AutoMigrate(&dal.Code{}, &dal.Stockholder{}, &dal.FundHoldRank{},
+	//		&dal.Predict{}, &dal.TicketHistoryWeekly{}, &dal.FundRank{}, dal.TicketHistory{}, &dal.User{}, &dal.Pay{},
+	//		&dal.StockCashFlow{}, &dal.StockProfit{}, &dal.StockLiabilities{}, &dal.Conditions{}, &dal.UserConditions{},
+	//		&dal.StockConcept{}, &dal.StockLabels{}, &dal.StockPerTicket{}, &dal.StockFund{}, &dal.StockFengHong{}, &dal.StockPeiGu{},
+	//		&dal.StockZengFa{}, &dal.Price{}, &dal.UserShare{}, &dal.HighConditions{}, &dal.UserDemands{}, &dal.StockSubCompany{})
+	//}
 
 	e.typ = "mysql"
 	e.mutex = new(sync.Mutex)
@@ -74,7 +73,8 @@ func init() {
 		&dal.Predict{}, &dal.TicketHistoryWeekly{}, &dal.FundRank{}, dal.TicketHistory{}, &dal.User{}, &dal.Pay{},
 		&dal.StockCashFlow{}, &dal.StockProfit{}, &dal.StockLiabilities{}, &dal.Conditions{}, &dal.UserConditions{},
 		&dal.StockConcept{}, &dal.StockLabels{}, &dal.StockPerTicket{}, &dal.StockFund{}, &dal.StockFengHong{}, &dal.StockPeiGu{},
-		&dal.StockZengFa{}, &dal.Price{}, &dal.UserShare{}, &dal.HighConditions{}, &dal.UserDemands{}, &dal.StockSubCompany{}, &dal.History1{}, &dal.History2{})
+		&dal.StockZengFa{}, &dal.Price{}, &dal.UserShare{}, &dal.HighConditions{}, &dal.UserDemands{}, &dal.StockSubCompany{}, &dal.HistoryALL1{}, &dal.HistoryALL2{},
+		&dal.TicketHistoryWeeklyALL{}, &dal.TicketHistoryMonth{})
 	MysqlClient = e
 }
 

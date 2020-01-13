@@ -63,6 +63,8 @@ type CrawlerIF interface {
 
 	// 通过算法获取周线数据
 	GetWeekDays(code dal.Code, d1, d2 string)
+	// 通过算法获取月线数据
+	GetMonthDays(code dal.Code)
 }
 
 var CrawlerGlobal CrawlerIF

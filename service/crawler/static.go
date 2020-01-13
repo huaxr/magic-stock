@@ -147,11 +147,11 @@ func (craw *Crawler) GetSignalTicket(code dal.Code, proxy bool) error {
 					huanshou, _ := strconv.ParseFloat(tmp[10], 64)
 
 					if code.ID <= 1500 {
-						dh := dal.History1{Code: code.Code, Name: code.Name, Kai: kai, High: high, Low: low, Shou: shou, TotalCount: tc, TotalMoney: tm, Date: date,
+						dh := dal.HistoryALL1{Code: code.Code, Name: code.Name, Kai: kai, High: high, Low: low, Shou: shou, TotalCount: tc, TotalMoney: tm, Date: date,
 							Percent: percent, Change: zhangdiee, Amplitude: zhenfu, TurnoverRate: huanshou} //, Percent:p}
 						store.MysqlClient.GetDB().Save(&dh)
 					} else {
-						dh := dal.History2{Code: code.Code, Name: code.Name, Kai: kai, High: high, Low: low, Shou: shou, TotalCount: tc, TotalMoney: tm, Date: date,
+						dh := dal.HistoryALL2{Code: code.Code, Name: code.Name, Kai: kai, High: high, Low: low, Shou: shou, TotalCount: tc, TotalMoney: tm, Date: date,
 							Percent: percent, Change: zhangdiee, Amplitude: zhenfu, TurnoverRate: huanshou} //, Percent:p}
 						store.MysqlClient.GetDB().Save(&dh)
 					}
@@ -678,9 +678,9 @@ type Res struct {
 func (craw *Crawler) GetWeekDays(code dal.Code, date1, date2 string) {
 	var model interface{}
 	if code.ID <= 1500 {
-		model = &dal.History1{}
+		model = &dal.HistoryALL1{}
 	} else {
-		model = &dal.History2{}
+		model = &dal.HistoryALL2{}
 	}
 	var dates []Date
 	var res []string
@@ -728,4 +728,20 @@ func (craw *Crawler) GetWeekDays(code dal.Code, date1, date2 string) {
 			TotalCount: liang.Number, Percent: p, Change: change, Amplitude: a, TurnoverRate: turnover}
 		store.MysqlClient.GetDB().Save(&h)
 	}
+}
+
+func (craw *Crawler) GetMonthDays(code dal.Code) {
+	var model interface{}
+	if code.ID <= 1500 {
+		model = &dal.HistoryALL1{}
+	} else {
+		model = &dal.HistoryALL2{}
+	}
+	//var year = []string{"2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"}
+	//var month = []string{"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"}
+	var da_min, da_max Date
+	store.MysqlClient.GetDB().Model(model).Select("max(date) as date").Where("code = ?", code.Code).Where("date >= ? and date < ?", "2012-01", "2012-02").Scan(&da_max)
+	store.MysqlClient.GetDB().Model(model).Select("min(date) as date").Where("code = ?", code.Code).Where("date >= ? and date < ?", "2012-01", "2012-02").Scan(&da_min)
+
+	log.Println(da_max.Date, da_min.Date)
 }

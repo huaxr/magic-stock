@@ -212,6 +212,7 @@ func TestCrawler_GetSubCompany(t *testing.T) {
 	select {}
 }
 
+// 从日线中获取到周线的数据
 func TestGetWeekDays(t *testing.T) {
 	xxx := [][]string{{"2018-01-01", "2020-01-07"}}
 
@@ -245,4 +246,14 @@ func TestGetWeekDays(t *testing.T) {
 		}
 	}()
 	select {}
+}
+
+// 从日线中获取到月线的数据
+// 获取70个月的数据 需要7年的数据
+func TestGetMouthDays(t *testing.T) {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2").Find(&code)
+	for _, i := range code {
+		CrawlerGlobal.GetMonthDays(i)
+	}
 }
