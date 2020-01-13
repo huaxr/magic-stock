@@ -441,7 +441,7 @@ func (d *PredictControl) GetWeekDetail(c *gin.Context) {
 }
 
 func (d *PredictControl) GetDetail(c *gin.Context) {
-	date := c.DefaultQuery("date", "")
+	date := c.DefaultQuery("date", "null")
 	code := c.DefaultQuery("code", "")
 	if code == "" {
 		d.Response(c, nil, errors.New("证券代码空"))
@@ -455,7 +455,7 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	} else {
 		code = coder_obj.Code
 	}
-	if date == "" {
+	if date == "" || date == "null" {
 		var x []PredictDate
 		store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("distinct(date) as date").Order("date desc").Scan(&x)
 		if len(x) > 0 {
