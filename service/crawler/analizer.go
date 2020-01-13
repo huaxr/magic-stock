@@ -454,34 +454,36 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 				wpriceaboveave4 = result.RecentCloseWeek[0] >= result.AveWeeklyPrice4[0]
 			}
 		}
-		// 周线5 10 金叉
-		wjincha1 = result.AveWeeklyPrice1[0] > result.AveWeeklyPrice2[0] && result.AveWeeklyPrice1[1] < result.AveWeeklyPrice2[1] && result.AveWeeklyPrice2[0] > result.AveWeeklyPrice2[1]
-		// 周线量能金叉 10x40
-		wjincha11 = result.AveCountWeekly1[0] > result.AveCountWeekly2[0] && result.AveCountWeekly1[1] < result.AveCountWeekly2[1]
-		// 周线死叉股 5*10
-		wsicha1 = result.AveWeeklyPrice1[0] < result.AveWeeklyPrice2[0] && result.AveWeeklyPrice1[1] > result.AveWeeklyPrice2[1] && result.AveWeeklyPrice2[0] < result.AveWeeklyPrice2[1]
-		// 周线量能死叉 10x40
-		wsicha11 = result.AveCountWeekly1[0] < result.AveCountWeekly2[0] && result.AveCountWeekly1[1] < result.AveCountWeekly2[1]
-		// 5，10周线上扬
-		wpriceshangyang1 = result.AveWeeklyPrice1[0] > result.AveWeeklyPrice1[1] && result.AveWeeklyPrice1[1] > result.AveWeeklyPrice1[2] && result.AveWeeklyPrice1[2] > result.AveWeeklyPrice1[3] && result.AveWeeklyPrice1[3] > result.AveWeeklyPrice1[4] && result.AveWeeklyPrice1[4] > result.AveWeeklyPrice1[5]
-		wpriceshangyang2 = result.AveWeeklyPrice2[0] > result.AveWeeklyPrice2[1] && result.AveWeeklyPrice2[1] > result.AveWeeklyPrice2[2] && result.AveWeeklyPrice2[2] > result.AveWeeklyPrice2[3] && result.AveWeeklyPrice2[3] > result.AveWeeklyPrice2[4] && result.AveWeeklyPrice2[4] > result.AveWeeklyPrice2[5]
-		// 5，10周线下降
-		wpricexiajiang1 = result.AveWeeklyPrice1[0] < result.AveWeeklyPrice1[1] && result.AveWeeklyPrice1[1] < result.AveWeeklyPrice1[2] && result.AveWeeklyPrice1[2] < result.AveWeeklyPrice1[3] && result.AveWeeklyPrice1[3] < result.AveWeeklyPrice1[4] && result.AveWeeklyPrice1[4] < result.AveWeeklyPrice1[5]
-		wpricexiajiang2 = result.AveWeeklyPrice2[0] < result.AveWeeklyPrice2[1] && result.AveWeeklyPrice2[1] < result.AveWeeklyPrice2[2] && result.AveWeeklyPrice2[2] < result.AveWeeklyPrice2[3] && result.AveWeeklyPrice2[3] < result.AveWeeklyPrice2[4] && result.AveWeeklyPrice2[4] < result.AveWeeklyPrice2[5]
-		// 周线当前价格在短期均线上方 （取非为小于）
-		wpriceaboveave1 = result.RecentCloseWeek[0] >= result.AveWeeklyPrice1[0]
-		wpriceaboveave2 = result.RecentCloseWeek[0] >= result.AveWeeklyPrice2[0]
-		// 连续5周量能10均线上扬
-		wliangshangyang1 = result.AveCountWeekly1[0] > result.AveCountWeekly1[1] && result.AveCountWeekly1[1] > result.AveCountWeekly1[2] && result.AveCountWeekly1[2] > result.AveCountWeekly1[3] && result.AveCountWeekly1[3] > result.AveCountWeekly1[4] && result.AveCountWeekly1[4] > result.AveCountWeekly1[5]
-		// 连续5周量能40均线上扬
-		wliangshangyang2 = result.AveCountWeekly2[0] > result.AveCountWeekly2[1] && result.AveCountWeekly2[1] > result.AveCountWeekly2[2] && result.AveCountWeekly2[2] > result.AveCountWeekly2[3] && result.AveCountWeekly2[3] > result.AveCountWeekly2[4] && result.AveCountWeekly2[4] > result.AveCountWeekly2[5]
-		// 量能不断放大
-		wliangnengbuduanbigger = result.RecentCountWeek[0] > result.RecentCountWeek[1] && result.RecentCountWeek[1] > result.RecentCountWeek[2] && result.RecentCountWeek[2] > result.RecentCountWeek[3]
-		// 突放巨量
-		wtufangjuliang = (result.RecentCountWeek[0]-result.RecentCountWeek[1])/result.RecentCountWeek[1] > 3 || (result.RecentCountWeek[1]-result.RecentCountWeek[2])/result.RecentCountWeek[1] > 3
-		// 量能突破均线
-		wliangnengtupo1 = result.AveCountWeekly1[0] < result.RecentCountWeek[0] && result.AveCountWeekly1[1] > result.RecentCountWeek[1] && result.AveCountWeekly1[2] > result.RecentCountWeek[2] && result.AveCountWeekly1[3] > result.RecentCountWeek[3] && result.AveCountWeekly1[4] > result.RecentCountWeek[4] && result.AveCountWeekly1[5] > result.RecentCountWeek[5]
-		wliangnengtupo2 = result.AveCountWeekly2[0] < result.RecentCountWeek[0] && result.AveCountWeekly2[1] > result.RecentCountWeek[1] && result.AveCountWeekly2[2] > result.RecentCountWeek[2] && result.AveCountWeekly2[3] > result.RecentCountWeek[3] && result.AveCountWeekly2[4] > result.RecentCountWeek[4] && result.AveCountWeekly2[5] > result.RecentCountWeek[5]
+		if result.AveCountWeekly1 != nil && result.AveCountWeekly2 != nil {
+			// 周线5 10 金叉
+			wjincha1 = result.AveWeeklyPrice1[0] > result.AveWeeklyPrice2[0] && result.AveWeeklyPrice1[1] < result.AveWeeklyPrice2[1] && result.AveWeeklyPrice2[0] > result.AveWeeklyPrice2[1]
+			// 周线量能金叉 10x40
+			wjincha11 = result.AveCountWeekly1[0] > result.AveCountWeekly2[0] && result.AveCountWeekly1[1] < result.AveCountWeekly2[1]
+			// 周线死叉股 5*10
+			wsicha1 = result.AveWeeklyPrice1[0] < result.AveWeeklyPrice2[0] && result.AveWeeklyPrice1[1] > result.AveWeeklyPrice2[1] && result.AveWeeklyPrice2[0] < result.AveWeeklyPrice2[1]
+			// 周线量能死叉 10x40
+			wsicha11 = result.AveCountWeekly1[0] < result.AveCountWeekly2[0] && result.AveCountWeekly1[1] < result.AveCountWeekly2[1]
+			// 5，10周线上扬
+			wpriceshangyang1 = result.AveWeeklyPrice1[0] > result.AveWeeklyPrice1[1] && result.AveWeeklyPrice1[1] > result.AveWeeklyPrice1[2] && result.AveWeeklyPrice1[2] > result.AveWeeklyPrice1[3] && result.AveWeeklyPrice1[3] > result.AveWeeklyPrice1[4] && result.AveWeeklyPrice1[4] > result.AveWeeklyPrice1[5]
+			wpriceshangyang2 = result.AveWeeklyPrice2[0] > result.AveWeeklyPrice2[1] && result.AveWeeklyPrice2[1] > result.AveWeeklyPrice2[2] && result.AveWeeklyPrice2[2] > result.AveWeeklyPrice2[3] && result.AveWeeklyPrice2[3] > result.AveWeeklyPrice2[4] && result.AveWeeklyPrice2[4] > result.AveWeeklyPrice2[5]
+			// 5，10周线下降
+			wpricexiajiang1 = result.AveWeeklyPrice1[0] < result.AveWeeklyPrice1[1] && result.AveWeeklyPrice1[1] < result.AveWeeklyPrice1[2] && result.AveWeeklyPrice1[2] < result.AveWeeklyPrice1[3] && result.AveWeeklyPrice1[3] < result.AveWeeklyPrice1[4] && result.AveWeeklyPrice1[4] < result.AveWeeklyPrice1[5]
+			wpricexiajiang2 = result.AveWeeklyPrice2[0] < result.AveWeeklyPrice2[1] && result.AveWeeklyPrice2[1] < result.AveWeeklyPrice2[2] && result.AveWeeklyPrice2[2] < result.AveWeeklyPrice2[3] && result.AveWeeklyPrice2[3] < result.AveWeeklyPrice2[4] && result.AveWeeklyPrice2[4] < result.AveWeeklyPrice2[5]
+			// 周线当前价格在短期均线上方 （取非为小于）
+			wpriceaboveave1 = result.RecentCloseWeek[0] >= result.AveWeeklyPrice1[0]
+			wpriceaboveave2 = result.RecentCloseWeek[0] >= result.AveWeeklyPrice2[0]
+			// 连续5周量能10均线上扬
+			wliangshangyang1 = result.AveCountWeekly1[0] > result.AveCountWeekly1[1] && result.AveCountWeekly1[1] > result.AveCountWeekly1[2] && result.AveCountWeekly1[2] > result.AveCountWeekly1[3] && result.AveCountWeekly1[3] > result.AveCountWeekly1[4] && result.AveCountWeekly1[4] > result.AveCountWeekly1[5]
+			// 连续5周量能40均线上扬
+			wliangshangyang2 = result.AveCountWeekly2[0] > result.AveCountWeekly2[1] && result.AveCountWeekly2[1] > result.AveCountWeekly2[2] && result.AveCountWeekly2[2] > result.AveCountWeekly2[3] && result.AveCountWeekly2[3] > result.AveCountWeekly2[4] && result.AveCountWeekly2[4] > result.AveCountWeekly2[5]
+			// 量能不断放大
+			wliangnengbuduanbigger = result.RecentCountWeek[0] > result.RecentCountWeek[1] && result.RecentCountWeek[1] > result.RecentCountWeek[2] && result.RecentCountWeek[2] > result.RecentCountWeek[3]
+			// 突放巨量
+			wtufangjuliang = (result.RecentCountWeek[0]-result.RecentCountWeek[1])/result.RecentCountWeek[1] > 3 || (result.RecentCountWeek[1]-result.RecentCountWeek[2])/result.RecentCountWeek[1] > 3
+			// 量能突破均线
+			wliangnengtupo1 = result.AveCountWeekly1[0] < result.RecentCountWeek[0] && result.AveCountWeekly1[1] > result.RecentCountWeek[1] && result.AveCountWeekly1[2] > result.RecentCountWeek[2] && result.AveCountWeekly1[3] > result.RecentCountWeek[3] && result.AveCountWeekly1[4] > result.RecentCountWeek[4] && result.AveCountWeekly1[5] > result.RecentCountWeek[5]
+			wliangnengtupo2 = result.AveCountWeekly2[0] < result.RecentCountWeek[0] && result.AveCountWeekly2[1] > result.RecentCountWeek[1] && result.AveCountWeekly2[2] > result.RecentCountWeek[2] && result.AveCountWeekly2[3] > result.RecentCountWeek[3] && result.AveCountWeekly2[4] > result.RecentCountWeek[4] && result.AveCountWeekly2[5] > result.RecentCountWeek[5]
+		}
 	}
 
 	// 月线数据如下
@@ -513,22 +515,24 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 				ypriceaboveave4 = result.RecentCloseMonth[0] >= result.AveMonthPrice4[0]
 			}
 		}
-		yjincha1 = result.AveMonthPrice1[0] > result.AveMonthPrice2[0] && result.AveMonthPrice1[1] < result.AveMonthPrice2[1] && result.AveMonthPrice2[0] > result.AveMonthPrice2[1]
-		yjincha11 = result.AveMonthPrice1[0] > result.AveMonthPrice2[0] && result.AveMonthPrice1[1] < result.AveMonthPrice2[1]
-		ysicha1 = result.AveMonthPrice1[0] < result.AveMonthPrice2[0] && result.AveMonthPrice1[1] > result.AveMonthPrice2[1] && result.AveMonthPrice2[0] < result.AveMonthPrice2[1]
-		ysicha11 = result.AveCountMonth1[0] < result.AveCountMonth2[0] && result.AveCountMonth1[1] < result.AveCountMonth2[1]
-		ypriceshangyang1 = result.AveMonthPrice1[0] > result.AveMonthPrice1[1] && result.AveMonthPrice1[1] > result.AveMonthPrice1[2] && result.AveMonthPrice1[2] > result.AveMonthPrice1[3] && result.AveMonthPrice1[3] > result.AveMonthPrice1[4] && result.AveMonthPrice1[4] > result.AveMonthPrice1[5]
-		ypriceshangyang2 = result.AveMonthPrice2[0] > result.AveMonthPrice2[1] && result.AveMonthPrice2[1] > result.AveMonthPrice2[2] && result.AveMonthPrice2[2] > result.AveMonthPrice2[3] && result.AveMonthPrice2[3] > result.AveMonthPrice2[4] && result.AveMonthPrice2[4] > result.AveMonthPrice2[5]
-		ypricexiajiang1 = result.AveMonthPrice1[0] < result.AveMonthPrice1[1] && result.AveMonthPrice1[1] < result.AveMonthPrice1[2] && result.AveMonthPrice1[2] < result.AveMonthPrice1[3] && result.AveMonthPrice1[3] < result.AveMonthPrice1[4] && result.AveMonthPrice1[4] < result.AveMonthPrice1[5]
-		ypricexiajiang2 = result.AveMonthPrice2[0] < result.AveMonthPrice2[1] && result.AveMonthPrice2[1] < result.AveMonthPrice2[2] && result.AveMonthPrice2[2] < result.AveMonthPrice2[3] && result.AveMonthPrice2[3] < result.AveMonthPrice2[4] && result.AveMonthPrice2[4] < result.AveMonthPrice2[5]
-		ypriceaboveave1 = result.RecentCloseMonth[0] >= result.AveMonthPrice1[0]
-		ypriceaboveave2 = result.RecentCloseMonth[0] >= result.AveMonthPrice2[0]
-		yliangshangyang1 = result.AveCountMonth1[0] > result.AveCountMonth1[1] && result.AveCountMonth1[1] > result.AveCountMonth1[2] && result.AveCountMonth1[2] > result.AveCountMonth1[3] && result.AveCountMonth1[3] > result.AveCountMonth1[4] && result.AveCountMonth1[4] > result.AveCountMonth1[5]
-		yliangshangyang2 = result.AveCountMonth2[0] > result.AveCountMonth2[1] && result.AveCountMonth2[1] > result.AveCountMonth2[2] && result.AveCountMonth2[2] > result.AveCountMonth2[3] && result.AveCountMonth2[3] > result.AveCountMonth2[4] && result.AveCountMonth2[4] > result.AveCountMonth2[5]
-		yliangnengbuduanbigger = result.RecentCountMonth[0] > result.RecentCountMonth[1] && result.RecentCountMonth[1] > result.RecentCountMonth[2] && result.RecentCountMonth[2] > result.RecentCountMonth[3]
-		ytufangjuliang = (result.RecentCountMonth[0]-result.RecentCountMonth[1])/result.RecentCountMonth[1] > 3 || (result.RecentCountMonth[1]-result.RecentCountMonth[2])/result.RecentCountMonth[1] > 3
-		yliangnengtupo1 = result.AveCountMonth1[0] < result.RecentCountMonth[0] && result.AveCountMonth1[1] > result.RecentCountMonth[1] && result.AveCountMonth1[2] > result.RecentCountMonth[2] && result.AveCountMonth1[3] > result.RecentCountMonth[3] && result.AveCountMonth1[4] > result.RecentCountMonth[4] && result.AveCountMonth1[5] > result.RecentCountMonth[5]
-		yliangnengtupo2 = result.AveCountMonth2[0] < result.RecentCountMonth[0] && result.AveCountMonth2[1] > result.RecentCountMonth[1] && result.AveCountMonth2[2] > result.RecentCountMonth[2] && result.AveCountMonth2[3] > result.RecentCountMonth[3] && result.AveCountMonth2[4] > result.RecentCountMonth[4] && result.AveCountMonth2[5] > result.RecentCountMonth[5]
+		if result.AveCountMonth1 != nil && result.AveCountMonth2 != nil {
+			yjincha1 = result.AveMonthPrice1[0] > result.AveMonthPrice2[0] && result.AveMonthPrice1[1] < result.AveMonthPrice2[1] && result.AveMonthPrice2[0] > result.AveMonthPrice2[1]
+			yjincha11 = result.AveMonthPrice1[0] > result.AveMonthPrice2[0] && result.AveMonthPrice1[1] < result.AveMonthPrice2[1]
+			ysicha1 = result.AveMonthPrice1[0] < result.AveMonthPrice2[0] && result.AveMonthPrice1[1] > result.AveMonthPrice2[1] && result.AveMonthPrice2[0] < result.AveMonthPrice2[1]
+			ysicha11 = result.AveCountMonth1[0] < result.AveCountMonth2[0] && result.AveCountMonth1[1] < result.AveCountMonth2[1]
+			ypriceshangyang1 = result.AveMonthPrice1[0] > result.AveMonthPrice1[1] && result.AveMonthPrice1[1] > result.AveMonthPrice1[2] && result.AveMonthPrice1[2] > result.AveMonthPrice1[3] && result.AveMonthPrice1[3] > result.AveMonthPrice1[4] && result.AveMonthPrice1[4] > result.AveMonthPrice1[5]
+			ypriceshangyang2 = result.AveMonthPrice2[0] > result.AveMonthPrice2[1] && result.AveMonthPrice2[1] > result.AveMonthPrice2[2] && result.AveMonthPrice2[2] > result.AveMonthPrice2[3] && result.AveMonthPrice2[3] > result.AveMonthPrice2[4] && result.AveMonthPrice2[4] > result.AveMonthPrice2[5]
+			ypricexiajiang1 = result.AveMonthPrice1[0] < result.AveMonthPrice1[1] && result.AveMonthPrice1[1] < result.AveMonthPrice1[2] && result.AveMonthPrice1[2] < result.AveMonthPrice1[3] && result.AveMonthPrice1[3] < result.AveMonthPrice1[4] && result.AveMonthPrice1[4] < result.AveMonthPrice1[5]
+			ypricexiajiang2 = result.AveMonthPrice2[0] < result.AveMonthPrice2[1] && result.AveMonthPrice2[1] < result.AveMonthPrice2[2] && result.AveMonthPrice2[2] < result.AveMonthPrice2[3] && result.AveMonthPrice2[3] < result.AveMonthPrice2[4] && result.AveMonthPrice2[4] < result.AveMonthPrice2[5]
+			ypriceaboveave1 = result.RecentCloseMonth[0] >= result.AveMonthPrice1[0]
+			ypriceaboveave2 = result.RecentCloseMonth[0] >= result.AveMonthPrice2[0]
+			yliangshangyang1 = result.AveCountMonth1[0] > result.AveCountMonth1[1] && result.AveCountMonth1[1] > result.AveCountMonth1[2] && result.AveCountMonth1[2] > result.AveCountMonth1[3] && result.AveCountMonth1[3] > result.AveCountMonth1[4] && result.AveCountMonth1[4] > result.AveCountMonth1[5]
+			yliangshangyang2 = result.AveCountMonth2[0] > result.AveCountMonth2[1] && result.AveCountMonth2[1] > result.AveCountMonth2[2] && result.AveCountMonth2[2] > result.AveCountMonth2[3] && result.AveCountMonth2[3] > result.AveCountMonth2[4] && result.AveCountMonth2[4] > result.AveCountMonth2[5]
+			yliangnengbuduanbigger = result.RecentCountMonth[0] > result.RecentCountMonth[1] && result.RecentCountMonth[1] > result.RecentCountMonth[2] && result.RecentCountMonth[2] > result.RecentCountMonth[3]
+			ytufangjuliang = (result.RecentCountMonth[0]-result.RecentCountMonth[1])/result.RecentCountMonth[1] > 3 || (result.RecentCountMonth[1]-result.RecentCountMonth[2])/result.RecentCountMonth[1] > 3
+			yliangnengtupo1 = result.AveCountMonth1[0] < result.RecentCountMonth[0] && result.AveCountMonth1[1] > result.RecentCountMonth[1] && result.AveCountMonth1[2] > result.RecentCountMonth[2] && result.AveCountMonth1[3] > result.RecentCountMonth[3] && result.AveCountMonth1[4] > result.RecentCountMonth[4] && result.AveCountMonth1[5] > result.RecentCountMonth[5]
+			yliangnengtupo2 = result.AveCountMonth2[0] < result.RecentCountMonth[0] && result.AveCountMonth2[1] > result.RecentCountMonth[1] && result.AveCountMonth2[2] > result.RecentCountMonth[2] && result.AveCountMonth2[3] > result.RecentCountMonth[3] && result.AveCountMonth2[4] > result.RecentCountMonth[4] && result.AveCountMonth2[5] > result.RecentCountMonth[5]
+		}
 	}
 
 	if jincha11 {
@@ -886,11 +890,11 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		score -= 2
 		bad_cond_str += "当前价位在10周均线下方; "
 	}
-	if !wpriceaboveave3 {
+	if !wpriceaboveave3 && result.AveWeeklyPrice3 != nil {
 		score -= 3
 		bad_cond_str += "当前价位在30周均线下方; "
 	}
-	if !wpriceaboveave4 {
+	if !wpriceaboveave4 && result.AveWeeklyPrice4 != nil {
 		score -= 4
 		bad_cond_str += "当前价位在60周均线下方; "
 	}
@@ -912,19 +916,19 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str += "当前价位在60月均线上方; "
 	}
 
-	if !ypriceaboveave1 {
+	if !ypriceaboveave1 && result.AveMonthPrice1 != nil {
 		score -= 1
 		bad_cond_str += "当前价位在5月均线下方; "
 	}
-	if !ypriceaboveave2 {
+	if !ypriceaboveave2 && result.AveMonthPrice2 != nil {
 		score -= 2
 		bad_cond_str += "当前价位在10月均线下方; "
 	}
-	if !ypriceaboveave3 {
+	if !ypriceaboveave3 && result.AveMonthPrice3 != nil {
 		score -= 3
 		bad_cond_str += "当前价位在30月均线下方; "
 	}
-	if !ypriceaboveave4 {
+	if !ypriceaboveave4 && result.AveMonthPrice4 != nil {
 		score -= 4
 		bad_cond_str += "当前价位在60月均线下方; "
 	}
@@ -1174,7 +1178,11 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	score += high*4 + middle*2 + low*-2 + bad*-4
 
 	if score < 0 {
-		score = 0
+		score = 15
+	}
+
+	if score >= 100 {
+		score = 95
 	}
 
 	fmt.Println(code, name, cond_str, bad_cond_str, finance)

@@ -422,14 +422,25 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 
 func (d *PredictControl) GetWeekDetail(c *gin.Context) {
 	code := c.DefaultQuery("code", "")
-	//typ := c.DefaultQuery("type", "")
+	typ := c.DefaultQuery("type", "")
 	date := d.getDate()
-	var TicketHistoryTmp, TicketHistory []dal.TicketHistoryWeekly
-	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", code, date).Limit(60).Order("date desc").Find(&TicketHistoryTmp)
-	for i := len(TicketHistoryTmp) - 1; i >= 0; i-- {
-		TicketHistory = append(TicketHistory, TicketHistoryTmp[i])
+	switch typ {
+	case "week":
+		var TicketHistoryTmp, TicketHistory []dal.TicketHistoryWeekly
+		store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", code, date).Limit(60).Order("date desc").Find(&TicketHistoryTmp)
+		for i := len(TicketHistoryTmp) - 1; i >= 0; i-- {
+			TicketHistory = append(TicketHistory, TicketHistoryTmp[i])
+		}
+		d.Response(c, TicketHistory, nil)
+	case "month":
+		var TicketHistoryTmp, TicketHistory []dal.TicketHistoryMonth
+		store.MysqlClient.GetDB().Model(&dal.TicketHistoryMonth{}).Where("code = ? and date <= ?", code, date).Limit(60).Order("date desc").Find(&TicketHistoryTmp)
+		for i := len(TicketHistoryTmp) - 1; i >= 0; i-- {
+			TicketHistory = append(TicketHistory, TicketHistoryTmp[i])
+		}
+		d.Response(c, TicketHistory, nil)
 	}
-	d.Response(c, TicketHistory, nil)
+	return
 }
 
 func (d *PredictControl) GetDetail(c *gin.Context) {
