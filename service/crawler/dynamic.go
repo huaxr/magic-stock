@@ -41,7 +41,7 @@ func (craw *Crawler) GetAllTicketTodayDetail(code, name, today, last_today_str s
 			} else {
 				doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://quotes.money.163.com/trade/lsjysj_%s.html?year=%d&season=%d", code, year, ji))
 			}
-			for i := 4; i >= 1; i-- { //for i := 73; i >= 1 ; i --
+			for i := 1; i >= 1; i-- { //for i := 73; i >= 1 ; i --
 				// 一季度按照72个交易日来算  // 因为第一栏是中文标题
 				text := ""
 				// 获取日期不要用
@@ -92,12 +92,12 @@ func (craw *Crawler) GetAllTicketTodayDetail(code, name, today, last_today_str s
 					value, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", liangbi), 64)
 					dh := dal.TicketHistory{Code: code, Name: name, Kai: kai, High: high, Low: low, Shou: shou, TotalCount: tc, TotalMoney: tm, Date: date,
 						Percent: percent, Change: zhangdiee, Amplitude: zhenfu, TurnoverRate: huanshou, NumberRate: value} //, Percent:p}
-					if utils.TellEnv() == "loc" {
-						err := store.MysqlClient.GetOnlineDB().Save(&dh).Error
-						if err != nil {
-							log.Println("写入线上错误")
-						}
-					}
+					//if utils.TellEnv() == "loc" {
+					//	err := store.MysqlClient.GetOnlineDB().Save(&dh).Error
+					//	if err != nil {
+					//		log.Println("写入线上错误")
+					//	}
+					//}
 					store.MysqlClient.GetDB().Save(&dh)
 					fmt.Println(code, name, date, kai, high, low, shou, zhangdiee, percent, tc, tm, zhenfu, huanshou)
 				}

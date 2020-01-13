@@ -58,6 +58,17 @@ type RecentWeeklyData struct {
 	RecentTurnoverRateWeek []float64 // 最近换手率
 }
 
+type RecentMonthData struct {
+	RecentCountMonth        []float64 // 最近成交量
+	RecentCloseMonth        []float64 // 最近收盘价
+	RecentOpenMonth         []float64 // 最近的开盘价
+	RecentHighMonth         []float64 // 最近的最高价
+	RecentLowMonth          []float64 // 最近的最低价
+	RecentPercentMonth      []float64 // 最近涨跌幅
+	RecentAmplitudeMonth    []float64 // 最近振幅
+	RecentTurnoverRateMonth []float64 // 最近换手率
+}
+
 type RecentAverage struct {
 	AveDailyPrice1 []float64
 	AveDailyPrice2 []float64
@@ -77,6 +88,16 @@ type RecentAverageWeekly struct {
 	AveCountWeekly2 []float64
 }
 
+type RecentAverageMonth struct {
+	AveMonthPrice1 []float64
+	AveMonthPrice2 []float64
+	AveMonthPrice3 []float64
+	AveMonthPrice4 []float64
+
+	AveCountMonth1 []float64
+	AveCountMonth2 []float64
+}
+
 type Params struct {
 	Code          string
 	Date          string
@@ -93,8 +114,10 @@ type Params struct {
 type CalcResult struct {
 	*RecentDailyData
 	*RecentWeeklyData
+	*RecentMonthData
 	*RecentAverage
 	*RecentAverageWeekly
+	*RecentAverageMonth
 }
 
 type PredictListResponse struct {

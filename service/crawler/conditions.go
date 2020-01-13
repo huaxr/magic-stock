@@ -66,6 +66,22 @@ func (craw *Crawler) getRecentWeeklyData(thw []dal.TicketHistoryWeekly) *model.R
 		recent_percent, recent_amplitude, recent_turn_over}
 }
 
+func (craw *Crawler) getRecentMonthData(thw []dal.TicketHistoryMonth) *model.RecentMonthData {
+	var recent_count, recent_money_shou, recent_money_kai, recent_money_high, recent_money_low, recent_percent, recent_amplitude, recent_turn_over []float64
+	for _, th := range thw {
+		recent_count = append(recent_count, th.TotalCount)
+		recent_money_shou = append(recent_money_shou, th.Shou)
+		recent_money_kai = append(recent_money_kai, th.Kai)
+		recent_money_high = append(recent_money_high, th.High)
+		recent_money_low = append(recent_money_low, th.Low)
+		recent_percent = append(recent_percent, th.Percent)
+		recent_amplitude = append(recent_amplitude, th.Amplitude)    // 振幅
+		recent_turn_over = append(recent_turn_over, th.TurnoverRate) // 换手率
+	}
+	return &model.RecentMonthData{recent_count, recent_money_shou, recent_money_kai, recent_money_high, recent_money_low,
+		recent_percent, recent_amplitude, recent_turn_over}
+}
+
 func (craw *Crawler) CalcResultWithDefined(params *model.Params) *model.CalcResult {
 	var ths []dal.TicketHistory
 	store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date <= ?", params.Code, params.Date).Limit(70).Offset(params.Offset).Order("date desc").Find(&ths)
@@ -73,17 +89,21 @@ func (craw *Crawler) CalcResultWithDefined(params *model.Params) *model.CalcResu
 	var thw []dal.TicketHistoryWeekly
 	store.MysqlClient.GetDB().Model(&dal.TicketHistoryWeekly{}).Where("code = ? and date <= ?", params.Code, params.Date).Limit(70).Offset(params.Offset).Order("date desc").Find(&thw)
 
+	var thm []dal.TicketHistoryMonth
+	store.MysqlClient.GetDB().Model(&dal.TicketHistoryMonth{}).Where("code = ? and date <= ?", params.Code, params.Date).Limit(70).Offset(params.Offset).Order("date desc").Find(&thm)
+
 	recent_daily := craw.getRecentDailyData(ths)
 	recent_weekly := craw.getRecentWeeklyData(thw)
-	//if recent_daily.CurrDate != params.Date {
-	//	return nil
-	//}
+	recent_month := craw.getRecentMonthData(thm)
+
 	if len(recent_daily.RecentCount) != 70 {
 		log.Println("交易日次数不足")
 		return nil
 	}
 	var recent_ave_price_1, recent_ave_price_2, recent_ave_price_3, recent_ave_price_4, recent_ave_count_1, recent_ave_count_2 []float64
 	var recent_ave_price_weekly_1, recent_ave_price_weekly_2, recent_ave_price_weekly_3, recent_ave_price_weekly_4, recent_ave_count_week_1, recent_ave_count_week_2 []float64
+	var recent_ave_price_month_1, recent_ave_price_month_2, recent_ave_price_month_3, recent_ave_price_month_4, recent_ave_count_month_1, recent_ave_count_month_2 []float64
+
 	recent_ave_price_1 = craw.getRecentAvePriceByNum(recent_daily.RecentClose, params.AveragePrice1, 6)
 	recent_ave_price_2 = craw.getRecentAvePriceByNum(recent_daily.RecentClose, params.AveragePrice2, 6)
 	recent_ave_price_3 = craw.getRecentAvePriceByNum(recent_daily.RecentClose, params.AveragePrice3, 6)
@@ -100,9 +120,19 @@ func (craw *Crawler) CalcResultWithDefined(params *model.Params) *model.CalcResu
 	recent_ave_count_week_1 = craw.getRecentAvePriceByNum(recent_weekly.RecentCountWeek, params.AverageCount1, 6)
 	recent_ave_count_week_2 = craw.getRecentAvePriceByNum(recent_weekly.RecentCountWeek, params.AverageCount2, 6)
 
+	recent_ave_price_month_1 = craw.getRecentAvePriceByNum(recent_month.RecentCloseMonth, params.AveragePrice1, 6)
+	recent_ave_price_month_2 = craw.getRecentAvePriceByNum(recent_month.RecentCloseMonth, params.AveragePrice2, 6)
+	recent_ave_price_month_3 = craw.getRecentAvePriceByNum(recent_month.RecentCloseMonth, params.AveragePrice3, 6)
+	recent_ave_price_month_4 = craw.getRecentAvePriceByNum(recent_month.RecentCloseMonth, params.AveragePrice4, 6)
+
+	recent_ave_count_month_1 = craw.getRecentAvePriceByNum(recent_month.RecentCloseMonth, params.AverageCount1, 6)
+	recent_ave_count_month_2 = craw.getRecentAvePriceByNum(recent_month.RecentCloseMonth, params.AverageCount2, 6)
+
 	return &model.CalcResult{RecentDailyData: recent_daily,
 		RecentWeeklyData:    recent_weekly,
+		RecentMonthData:     recent_month,
 		RecentAverage:       &model.RecentAverage{recent_ave_price_1, recent_ave_price_2, recent_ave_price_3, recent_ave_price_4, recent_ave_count_1, recent_ave_count_2},
 		RecentAverageWeekly: &model.RecentAverageWeekly{recent_ave_price_weekly_1, recent_ave_price_weekly_2, recent_ave_price_weekly_3, recent_ave_price_weekly_4, recent_ave_count_week_1, recent_ave_count_week_2},
+		RecentAverageMonth:  &model.RecentAverageMonth{recent_ave_price_month_1, recent_ave_price_month_2, recent_ave_price_month_3, recent_ave_price_month_4, recent_ave_count_month_1, recent_ave_count_month_2},
 	}
 }

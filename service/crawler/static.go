@@ -737,11 +737,63 @@ func (craw *Crawler) GetMonthDays(code dal.Code) {
 	} else {
 		model = &dal.HistoryALL2{}
 	}
-	//var year = []string{"2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"}
-	//var month = []string{"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"}
-	var da_min, da_max Date
-	store.MysqlClient.GetDB().Model(model).Select("max(date) as date").Where("code = ?", code.Code).Where("date >= ? and date < ?", "2012-01", "2012-02").Scan(&da_max)
-	store.MysqlClient.GetDB().Model(model).Select("min(date) as date").Where("code = ?", code.Code).Where("date >= ? and date < ?", "2012-01", "2012-02").Scan(&da_min)
+	var year = []string{"2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"}
+	var month = []string{"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"}
+	var last Res
+	for j := 0; j <= 8; j++ {
+		var date1, date2 string
+		for i := 0; i <= 11; i++ {
+			if i == 11 {
+				if j+1 > 8 {
+					continue
+				}
+				date1 = year[j] + "-" + month[i]
+				date2 = year[j+1] + "-" + month[0]
+			} else {
+				date1 = year[j] + "-" + month[i]
+				date2 = year[j] + "-" + month[i+1]
+			}
+			if date1 == "2020-01" {
+				break
+			}
+			var c int
+			store.MysqlClient.GetDB().Model(model).Select("max(date) as date").Where("code = ?", code.Code).Where("date >= ? and date < ?", date1, date2).Count(&c)
+			if c == 0 {
+				continue
+			}
+			var da_min, da_max Date
+			store.MysqlClient.GetDB().Model(model).Select("max(date) as date").Where("code = ?", code.Code).Where("date >= ? and date < ?", date1, date2).Scan(&da_max)
 
-	log.Println(da_max.Date, da_min.Date)
+			store.MysqlClient.GetDB().Model(model).Select("min(date) as date").Where("code = ?", code.Code).Where("date >= ? and date < ?", date1, date2).Scan(&da_min)
+
+			var high, low, kai, shou, liang, turnover_rate Res
+			var p, a float64 // percent 振幅
+
+			store.MysqlClient.GetDB().Model(model).Select("max(high) as number").Where("code = ?", code.Code).Where("date >= ? and date < ?", da_min.Date, da_max.Date).Scan(&high)
+			store.MysqlClient.GetDB().Model(model).Select("min(low) as number").Where("code = ?", code.Code).Where("date >= ? and date < ?", da_min.Date, da_max.Date).Scan(&low)
+			store.MysqlClient.GetDB().Model(model).Select("kai as number").Where("code = ?", code.Code).Where("date = ?", da_min.Date).Scan(&kai)
+			store.MysqlClient.GetDB().Model(model).Select("shou as number").Where("code = ?", code.Code).Where("date = ?", da_max.Date).Scan(&shou)
+			store.MysqlClient.GetDB().Model(model).Select("sum(total_count) as number").Where("code = ?", code.Code).Where("date >= ? and date < ?", da_min.Date, da_max.Date).Scan(&liang)
+			store.MysqlClient.GetDB().Model(model).Select("sum(turnover_rate) as number").Where("code = ?", code.Code).Where("date >= ? and date < ?", da_min.Date, da_max.Date).Scan(&turnover_rate)
+
+			if i == 0 && j == 0 {
+				p = 0
+				a = 0
+				last = shou
+			} else {
+				percent := (shou.Number - last.Number) / last.Number
+				amplitude := (high.Number - low.Number) / last.Number
+				p, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", percent*100), 64)
+				a, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", amplitude*100), 64)
+			}
+			change, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", shou.Number-last.Number), 64)
+			turnover, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", turnover_rate.Number), 64)
+			log.Println(high.Number, low.Number, kai.Number, shou.Number, liang.Number, turnover, p, a, change, da_max.Date, code.ID, code.Code, code.Name)
+			last = shou
+			h := dal.TicketHistoryMonth{Code: code.Code, Name: code.Name, Date: da_max.Date, Kai: kai.Number, Shou: shou.Number, High: high.Number, Low: low.Number,
+				TotalCount: liang.Number, Percent: p, Change: change, Amplitude: a, TurnoverRate: turnover}
+			store.MysqlClient.GetDB().Save(&h)
+		}
+	}
+
 }

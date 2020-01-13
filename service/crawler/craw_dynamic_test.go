@@ -12,8 +12,8 @@ import (
 )
 
 var wg sync.WaitGroup             //定义一个同步等待的组
-var last_today_str = "2020-01-03" // 可以计算量比用
-var today_str = "2020-01-06"
+var last_today_str = "2020-01-10" // 可以计算量比用
+var today_str = "2020-01-13"
 
 // 获取每只股票的基金持仓情况
 func TestGetStockAllFund(t *testing.T) {
@@ -44,7 +44,7 @@ func TestGetAllTicketTodayDetail(t *testing.T) {
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2000").Find(&code)
 		for _, i := range code {
 		RE:
-			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, "", false)
+			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, last_today_str, false)
 			if err != nil {
 				log.Println("爬虫错误， 休眠10秒继续...", i.Name)
 				time.Sleep(10 * time.Second)
@@ -59,7 +59,7 @@ func TestGetAllTicketTodayDetail(t *testing.T) {
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000").Find(&code)
 		for _, i := range code {
 		RE:
-			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, "", true)
+			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, last_today_str, true)
 			if err != nil {
 				log.Println("爬虫错误， 休眠10秒继续...", i.Name)
 				time.Sleep(10 * time.Second)

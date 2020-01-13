@@ -252,7 +252,23 @@ func TestGetWeekDays(t *testing.T) {
 // 获取70个月的数据 需要7年的数据
 func TestGetMouthDays(t *testing.T) {
 	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2").Find(&code)
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id <= ?", 1000).Find(&code)
+	for _, i := range code {
+		CrawlerGlobal.GetMonthDays(i)
+	}
+}
+
+func TestGetMouthDays2(t *testing.T) {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > ? and id <= ?", 1000, 2000).Find(&code)
+	for _, i := range code {
+		CrawlerGlobal.GetMonthDays(i)
+	}
+}
+
+func TestGetMouthDays3(t *testing.T) {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > ?", 2000).Find(&code)
 	for _, i := range code {
 		CrawlerGlobal.GetMonthDays(i)
 	}
