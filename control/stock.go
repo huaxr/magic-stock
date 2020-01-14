@@ -187,6 +187,10 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		d.Response(c, nil, err)
 		return
 	}
+
+	str, _ := json.Marshal(post)
+	log.Println("查询请求:", string(str))
+
 	err = d.doQueryLeft(authentication)
 	if err != nil {
 		d.Response(c, nil, err)
@@ -395,9 +399,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		tmp = tmp.Where("code IN (?)", coders)
 	}
 	tmp.Count(&total)
-
-	str, _ := json.Marshal(post)
-	log.Println("查询请求:", string(str))
 	log.Println(fmt.Sprintf("满足条件(%d个), 命中条件(%d个)", len(coders), total))
 
 	if !utils.ContainsString(OrderLimit, post.Order) {
