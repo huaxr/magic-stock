@@ -3,6 +3,7 @@
 package control
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -376,14 +377,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	}
 	var predicts []dal.Predict
 	var total int
-	if post.Date == "" {
-		var x []PredictDate
-		store.MysqlClient.GetDB().Model(&dal.Predict{}).Select("distinct(date) as date").Order("date desc").Scan(&x)
-		if len(x) > 0 {
-			post.Date = x[0].Date
-		}
-	}
-
+	post.Date = d.getDate()
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
 	for _, i := range post.Query.Predicts {
 		if len(i) == 0 {
@@ -397,6 +391,8 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	}
 	tmp.Count(&total)
 
+	str, _ := json.Marshal(post)
+	log.Println("查询请求:", string(str))
 	log.Println(fmt.Sprintf("满足条件(%d个), 命中条件(%d个)", len(coders), total))
 
 	if !utils.ContainsString(OrderLimit, post.Order) {
