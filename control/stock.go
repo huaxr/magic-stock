@@ -169,6 +169,11 @@ func (d *PredictControl) doQueryLeft(authentication *model.AuthResult) error {
 			err := store.MysqlClient.GetDB().Save(&user_obj).Error
 			log.Println("查询次数剩余", authentication.User, authentication.QueryLeft, left, err)
 		}
+	} else {
+		user_obj, _ := UserControlGlobal.Query("id = ?", []interface{}{authentication.Uid})
+		exp := user_obj.Exp + 1
+		user_obj.Exp = exp
+		store.MysqlClient.GetDB().Save(&user_obj)
 	}
 	return nil
 }
