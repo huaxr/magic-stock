@@ -204,6 +204,8 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		//	log.Println("保存用户查询数据失败", err)
 		//}
 	}
+	post.Date = d.getDate()
+
 	var where_belongs, where_locations, where_concepts, where_forms []string
 	var args_belongs, args_locationgs, args_concepts, args_forms []interface{}
 
@@ -321,12 +323,12 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	per_ticket_set5 = d.ParseStockPerTicket(post.Query.PerTickets.Gubengongjijin, "gubengongjijin")
 	per_ticket_set6 = d.ParseStockPerTicket(post.Query.PerTickets.Weifenpeilirun, "weifenpeilirun")
 
+	// 收盘情况
 	last_day_set1 = d.ParseLastDayRange(post.Query.LastDayRange.LastPercent, post.Date, "percent")
 	last_day_set2 = d.ParseLastDayRange(post.Query.LastDayRange.LastAmplitude, post.Date, "amplitude")
 	last_day_set3 = d.ParseLastDayRange(post.Query.LastDayRange.LastTurnoverrate, post.Date, "turnover_rate")
 	last_day_set4 = d.ParseLastDayRange(post.Query.LastDayRange.LastPrice, post.Date, "shou")
 	last_day_set5 = d.ParseLastDayRange(post.Query.LastDayRange.LastNumberRate, post.Date, "number_rate")
-
 	// 盈利能力
 	ability_set1 = d.ParseStockPerTicket(post.Query.YlAbility.YlZongzichanlirunlv, "yl_zongzichanlirunlv")
 	ability_set2 = d.ParseStockPerTicket(post.Query.YlAbility.YlZhuyingyewulirunlv, "yl_zhuyingyewulirunlv")
@@ -386,7 +388,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	}
 	var predicts []dal.Predict
 	var total int
-	post.Date = d.getDate()
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
 	for _, i := range post.Query.Predicts {
 		if len(i) == 0 {
