@@ -214,31 +214,11 @@ func TestCrawler_GetSubCompany(t *testing.T) {
 
 // 从日线中获取到周线的数据
 func TestGetWeekDays(t *testing.T) {
-	xxx := [][]string{{"2018-01-01", "2020-01-07"}}
+	xxx := [][]string{{"1994-05-02", "2020-01-07"}}
 
 	go func() {
 		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 583 and id <= 1000").Find(&code)
-		for _, m := range xxx {
-			for _, i := range code {
-				CrawlerGlobal.GetWeekDays(i, m[0], m[1])
-			}
-		}
-	}()
-
-	go func() {
-		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 1897 and id <= 2000").Find(&code)
-		for _, m := range xxx {
-			for _, i := range code {
-				CrawlerGlobal.GetWeekDays(i, m[0], m[1])
-			}
-		}
-	}()
-
-	go func() {
-		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 3347").Find(&code)
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 0").Find(&code)
 		for _, m := range xxx {
 			for _, i := range code {
 				CrawlerGlobal.GetWeekDays(i, m[0], m[1])
@@ -249,26 +229,9 @@ func TestGetWeekDays(t *testing.T) {
 }
 
 // 从日线中获取到月线的数据
-// 获取70个月的数据 需要7年的数据
 func TestGetMouthDays(t *testing.T) {
 	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id <= ?", 1000).Find(&code)
-	for _, i := range code {
-		CrawlerGlobal.GetMonthDays(i)
-	}
-}
-
-func TestGetMouthDays2(t *testing.T) {
-	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > ? and id <= ?", 1000, 2000).Find(&code)
-	for _, i := range code {
-		CrawlerGlobal.GetMonthDays(i)
-	}
-}
-
-func TestGetMouthDays3(t *testing.T) {
-	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > ?", 2000).Find(&code)
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
 	for _, i := range code {
 		CrawlerGlobal.GetMonthDays(i)
 	}

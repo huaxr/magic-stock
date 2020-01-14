@@ -724,7 +724,7 @@ func (craw *Crawler) GetWeekDays(code dal.Code, date1, date2 string) {
 		turnover, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", turnover_rate.Number), 64)
 		log.Println(high.Number, low.Number, kai.Number, shou.Number, liang.Number, turnover, p, a, change, res[len(res)-1][1], code.Code)
 		last = shou
-		h := dal.TicketHistoryWeekly{Code: code.Code, Name: code.Name, Date: res[len(res)-1][1].(string), Kai: kai.Number, Shou: shou.Number, High: high.Number, Low: low.Number,
+		h := dal.TicketHistoryWeeklyALL{Code: code.Code, Name: code.Name, Date: res[len(res)-1][1].(string), Kai: kai.Number, Shou: shou.Number, High: high.Number, Low: low.Number,
 			TotalCount: liang.Number, Percent: p, Change: change, Amplitude: a, TurnoverRate: turnover}
 		store.MysqlClient.GetDB().Save(&h)
 	}
@@ -737,14 +737,16 @@ func (craw *Crawler) GetMonthDays(code dal.Code) {
 	} else {
 		model = &dal.HistoryALL2{}
 	}
-	var year = []string{"2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"}
+	var year = []string{"1991", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999",
+		"2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010",
+		"2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"}
 	var month = []string{"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"}
 	var last Res
-	for j := 0; j <= 8; j++ {
+	for j := 0; j <= 29; j++ {
 		var date1, date2 string
 		for i := 0; i <= 11; i++ {
 			if i == 11 {
-				if j+1 > 8 {
+				if j+1 > 29 {
 					continue
 				}
 				date1 = year[j] + "-" + month[i]
@@ -790,7 +792,7 @@ func (craw *Crawler) GetMonthDays(code dal.Code) {
 			turnover, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", turnover_rate.Number), 64)
 			log.Println(high.Number, low.Number, kai.Number, shou.Number, liang.Number, turnover, p, a, change, da_max.Date, code.ID, code.Code, code.Name)
 			last = shou
-			h := dal.TicketHistoryMonth{Code: code.Code, Name: code.Name, Date: da_max.Date, Kai: kai.Number, Shou: shou.Number, High: high.Number, Low: low.Number,
+			h := dal.TicketHistoryMonthAll{Code: code.Code, Name: code.Name, Date: da_max.Date, Kai: kai.Number, Shou: shou.Number, High: high.Number, Low: low.Number,
 				TotalCount: liang.Number, Percent: p, Change: change, Amplitude: a, TurnoverRate: turnover}
 			store.MysqlClient.GetDB().Save(&h)
 		}

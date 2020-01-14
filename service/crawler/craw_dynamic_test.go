@@ -12,8 +12,8 @@ import (
 )
 
 var wg sync.WaitGroup             //定义一个同步等待的组
-var last_today_str = "2020-01-10" // 可以计算量比用
-var today_str = "2020-01-13"
+var last_today_str = "2020-01-13" // 可以计算量比用
+var today_str = "2020-01-14"
 
 // 获取每只股票的基金持仓情况
 func TestGetStockAllFund(t *testing.T) {
