@@ -8,22 +8,22 @@ import (
 )
 
 func GetWeekPair(date []string) (string, [][]interface{}) {
-	// 去除首部直到遇到1
-	for i := 0; i <= 5; i++ {
-		if str2Week(date[0]) != 1 {
-			date = date[1:len(date)]
-		} else {
-			break
-		}
-	}
-	// 去除尾部直到遇到5
-	for i := 5; i >= 0; i-- {
-		if str2Week(date[len(date)-1]) != 5 {
-			date = date[0 : len(date)-1]
-		} else {
-			break
-		}
-	}
+	//// 去除首部直到遇到1
+	//for i := 0; i <= 5; i++ {
+	//	if str2Week(date[0]) != 1 {
+	//		date = date[1:len(date)]
+	//	} else {
+	//		break
+	//	}
+	//}
+	//// 去除尾部直到遇到5
+	//for i := 5; i >= 0; i-- {
+	//	if str2Week(date[len(date)-1]) != 5 {
+	//		date = date[0 : len(date)-1]
+	//	} else {
+	//		break
+	//	}
+	//}
 
 	var x string
 	var xx = [][]interface{}{}
@@ -33,13 +33,6 @@ func GetWeekPair(date []string) (string, [][]interface{}) {
 		xx = append(xx, []interface{}{week, i})
 	}
 	y := calc(x)
-	//log.Println(y)
-	//for i := 0; i <= len(y)/5-1; i++ {
-	//	tmp := strings.Replace(y[5*i:5*(i+1)], "0", "", -1)
-	//	res := xx[0:len(tmp)]
-	//	xx = xx[len(tmp):len(xx)]
-	//	log.Println(res)
-	//}
 	return y, xx
 
 }

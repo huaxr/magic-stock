@@ -11,29 +11,14 @@ import (
 	"time"
 )
 
-var wg sync.WaitGroup             //定义一个同步等待的组
-var last_today_str = "2020-01-13" // 可以计算量比用
-var today_str = "2020-01-14"
+var wg sync.WaitGroup //定义一个同步等待的组
 
-// 获取每只股票的基金持仓情况
-func TestGetStockAllFund(t *testing.T) {
-	//go func() {
-	//	var code []dal.Code
-	//	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 1538 and id < 2000").Find(&code)
-	//	for _, i := range code {
-	//		CrawlerGlobal.GetStockAllFund(i.Code, false)
-	//	}
-	//}()
-
-	go func() {
-		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 3357").Find(&code)
-		for _, i := range code {
-			CrawlerGlobal.GetStockAllFund(i.Code, true)
-		}
-	}()
-	select {}
-}
+const (
+	today_str      = "2020-01-14"
+	last_today_str = "2020-01-13" // 可以计算量比用
+	last_week      = "2020-01-03"
+	last_month     = "2019-12-31"
+)
 
 // 获取今日的所有股票 （自动加入到线上）
 func TestGetAllTicketTodayDetail(t *testing.T) {
@@ -69,4 +54,24 @@ func TestGetAllTicketTodayDetail(t *testing.T) {
 		wg.Done()
 	}()
 	wg.Wait()
+}
+
+// 从日线中获取到周线的数据
+func TestGetWeekDay(t *testing.T) {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
+
+	for _, i := range code {
+		//CrawlerGlobal.GetWeekDay(i, last_week, today_str, last_today_str) // 会删除 last_today_str 的所有数据
+		CrawlerGlobal.GetWeekDay(i, "2020-01-04", "2020-01-14", "")
+	}
+}
+
+// 从日线中获取到月线的数据
+func TestGetMouthDay(t *testing.T) {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2").Find(&code)
+	for _, i := range code {
+		CrawlerGlobal.GetMonthDay(i, today_str, last_month, last_today_str)
+	}
 }

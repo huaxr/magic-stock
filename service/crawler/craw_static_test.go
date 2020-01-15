@@ -17,6 +17,26 @@ func TestCrawler(t *testing.T) {
 	CrawlerGlobal.GetAllTicketCode()
 }
 
+// 获取每只股票的基金持仓情况
+func TestGetStockAllFund(t *testing.T) {
+	//go func() {
+	//	var code []dal.Code
+	//	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 1538 and id < 2000").Find(&code)
+	//	for _, i := range code {
+	//		CrawlerGlobal.GetStockAllFund(i.Code, false)
+	//	}
+	//}()
+
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 3357").Find(&code)
+		for _, i := range code {
+			CrawlerGlobal.GetStockAllFund(i.Code, true)
+		}
+	}()
+	select {}
+}
+
 // 获取所有股票概念信息 所属行业 GetAllTicketCodeBelong
 // 首先更新数据表 update magic_stock_code set concept = null   新浪api
 func TestGetAllTicketCodeConcept(T *testing.T) {

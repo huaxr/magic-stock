@@ -797,5 +797,98 @@ func (craw *Crawler) GetMonthDays(code dal.Code) {
 			store.MysqlClient.GetDB().Save(&h)
 		}
 	}
+}
 
+// 只获取今日的周线
+func (craw *Crawler) GetWeekDay(code dal.Code, date1, date2 string, last_day_delete string) {
+	if last_day_delete != "" {
+		store.MysqlClient.GetDB().Exec("delete from magic_stock_history_week where date = ?", last_day_delete)
+	}
+	var model = &dal.TicketHistory{}
+	var dates []Date
+	var res []string
+	store.MysqlClient.GetDB().Model(model).Select("date").Where("code = ?", code.Code).Where("date >= ? and date <= ?", date1, date2).Scan(&dates)
+	for _, i := range dates {
+		res = append(res, i.Date)
+	}
+	if len(res) == 0 {
+		return
+	}
+	x, xx := utils.GetWeekPair(res)
+	log.Println(x, xx)
+	var last Res
+	for i := 0; i <= len(x)/5-1; i++ {
+		tmp := strings.Replace(x[5*i:5*(i+1)], "0", "", -1)
+		if len(tmp) == 0 {
+			continue
+		}
+		res := xx[0:len(tmp)]
+		xx = xx[len(tmp):len(xx)]
+
+		var high, low, kai, shou, liang, turnover_rate Res
+		var p, a float64 // percent 振幅
+
+		store.MysqlClient.GetDB().Model(model).Select("max(high) as number").Where("code = ?", code.Code).Where("date >= ? and date <= ?", res[0][1], res[len(res)-1][1]).Scan(&high)
+		store.MysqlClient.GetDB().Model(model).Select("min(low) as number").Where("code = ?", code.Code).Where("date >= ? and date <= ?", res[0][1], res[len(res)-1][1]).Scan(&low)
+		store.MysqlClient.GetDB().Model(model).Select("kai as number").Where("code = ?", code.Code).Where("date = ?", res[0][1]).Scan(&kai)
+		store.MysqlClient.GetDB().Model(model).Select("shou as number").Where("code = ?", code.Code).Where("date = ?", res[len(res)-1][1]).Scan(&shou)
+		store.MysqlClient.GetDB().Model(model).Select("sum(total_count) as number").Where("code = ?", code.Code).Where("date >= ? and date <= ?", res[0][1], res[len(res)-1][1]).Scan(&liang)
+		store.MysqlClient.GetDB().Model(model).Select("sum(turnover_rate) as number").Where("code = ?", code.Code).Where("date >= ? and date <= ?", res[0][1], res[len(res)-1][1]).Scan(&turnover_rate)
+		if i == 0 {
+			p = 0
+			a = 0
+			last = shou
+		} else {
+			percent := (shou.Number - last.Number) / last.Number
+			amplitude := (high.Number - low.Number) / last.Number
+			p, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", percent*100), 64)
+			a, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", amplitude*100), 64)
+		}
+		change, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", shou.Number-last.Number), 64)
+		turnover, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", turnover_rate.Number), 64)
+		log.Println(high.Number, low.Number, kai.Number, shou.Number, liang.Number, turnover, p, a, change, res[len(res)-1][1], code.Code)
+		last = shou
+		h := dal.TicketHistoryWeekly{Code: code.Code, Name: code.Name, Date: res[len(res)-1][1].(string), Kai: kai.Number, Shou: shou.Number, High: high.Number, Low: low.Number,
+			TotalCount: liang.Number, Percent: p, Change: change, Amplitude: a, TurnoverRate: turnover}
+		store.MysqlClient.GetDB().Save(&h)
+	}
+}
+func (craw *Crawler) GetMonthDay(code dal.Code, today string, last_month_day string, last_day_delete string) {
+	if last_day_delete != "" {
+		store.MysqlClient.GetDB().Exec("delete from magic_stock_history_month where date = ?", last_day_delete)
+
+	}
+	model := &dal.TicketHistory{}
+	var c int
+	store.MysqlClient.GetDB().Model(model).Select("max(date) as date").Where("code = ?", code.Code).Where("date > ? and date <= ?", last_month_day, today).Count(&c)
+	if c == 0 {
+		return
+	}
+	var da_min, da_max Date
+	store.MysqlClient.GetDB().Model(model).Select("max(date) as date").Where("code = ?", code.Code).Where("date > ? and date <= ?", last_month_day, today).Scan(&da_max)
+	store.MysqlClient.GetDB().Model(model).Select("min(date) as date").Where("code = ?", code.Code).Where("date > ? and date <= ?", last_month_day, today).Scan(&da_min)
+
+	var high, low, kai, shou, liang, turnover_rate Res
+	var p, a float64 // percent 振幅
+	store.MysqlClient.GetDB().Model(model).Select("max(high) as number").Where("code = ?", code.Code).Where("date > ? and date <= ?", da_min.Date, da_max.Date).Scan(&high)
+	store.MysqlClient.GetDB().Model(model).Select("min(low) as number").Where("code = ?", code.Code).Where("date > ? and date <= ?", da_min.Date, da_max.Date).Scan(&low)
+	store.MysqlClient.GetDB().Model(model).Select("kai as number").Where("code = ?", code.Code).Where("date = ?", da_min.Date).Scan(&kai)
+	store.MysqlClient.GetDB().Model(model).Select("shou as number").Where("code = ?", code.Code).Where("date = ?", da_max.Date).Scan(&shou)
+	store.MysqlClient.GetDB().Model(model).Select("sum(total_count) as number").Where("code = ?", code.Code).Where("date > ? and date <= ?", da_min.Date, da_max.Date).Scan(&liang)
+	store.MysqlClient.GetDB().Model(model).Select("sum(turnover_rate) as number").Where("code = ?", code.Code).Where("date > ? and date <=?", da_min.Date, da_max.Date).Scan(&turnover_rate)
+
+	var last dal.TicketHistoryMonth
+	store.MysqlClient.GetDB().Model(&dal.TicketHistoryMonth{}).Where("code = ? and date = ?", code.Code, last_month_day).Find(&last)
+
+	percent := (shou.Number - last.Shou) / last.Shou
+	amplitude := (high.Number - low.Number) / last.Shou
+	p, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", percent*100), 64)
+	a, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", amplitude*100), 64)
+
+	change, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", shou.Number-last.Shou), 64)
+	turnover, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", turnover_rate.Number), 64)
+	log.Println(high.Number, low.Number, kai.Number, shou.Number, liang.Number, turnover, p, a, change, da_max.Date, code.ID, code.Code, code.Name)
+	h := dal.TicketHistoryMonth{Code: code.Code, Name: code.Name, Date: da_max.Date, Kai: kai.Number, Shou: shou.Number, High: high.Number, Low: low.Number,
+		TotalCount: liang.Number, Percent: p, Change: change, Amplitude: a, TurnoverRate: turnover}
+	store.MysqlClient.GetDB().Save(&h)
 }

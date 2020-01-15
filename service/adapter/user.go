@@ -136,7 +136,7 @@ func (u *UserService) PayWxJsAPi(authentication *model.AuthResult, post *model.S
 	if payment == nil {
 		return nil, errors.New("唤起支付调用失败")
 	}
-	pay_record := dal.Pay{UserId: authentication.Uid, Spend: price.Spend, PaySuccess: false, OrderId: NonceStr, Type: price.TypeDesc, Month: price.Month}
+	pay_record := dal.Pay{UserId: authentication.Uid, Spend: price.Spend, PaySuccess: false, OrderId: NonceStr, Type: price.TypeDesc, Count: price.Count}
 	store.MysqlClient.GetDB().Save(&pay_record)
 	return payment, nil
 }

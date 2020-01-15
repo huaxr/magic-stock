@@ -5,9 +5,10 @@ package dal
 // 价格档位
 type Price struct {
 	ID       uint   `gorm:"primary_key" json:"id"`
+	Type     string `json:"type"`      //  类型 member data query
 	TypeDesc string `json:"type_desc"` //  类型描述
 	Spend    int    `json:"spend"`
-	Month    int    `json:"month"` // 几个月
+	Count    int    `json:"count"` // 几个月 几次 等
 }
 
 func (Price) TableName() string {

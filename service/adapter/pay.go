@@ -66,14 +66,25 @@ func (m *PayService) UpdatePaySuccessAndGenerateIndent(order_id string) {
 	payment.PaySuccess = true
 	store.MysqlClient.GetDB().Save(payment)
 
-	// update user obj 续充和开通
-	user, _ := UserServiceGlobal.Query("id = ?", []interface{}{payment.UserId})
-	now := time.Now()
-	if now.Before(user.MemberExpireTime) {
-		user.MemberExpireTime = now.AddDate(0, 1*payment.Month, 0)
-	} else {
-		user.MemberExpireTime = user.MemberExpireTime.AddDate(0, 1*payment.Month, 0)
+	switch payment.Type {
+	case "member":
+		// 购买会员
+		// update user obj 续充和开通
+		user, _ := UserServiceGlobal.Query("id = ?", []interface{}{payment.UserId})
+		now := time.Now()
+		if now.Before(user.MemberExpireTime) {
+			user.MemberExpireTime = user.MemberExpireTime.AddDate(0, 1*payment.Count, 0)
+		} else {
+			user.MemberExpireTime = now.AddDate(0, 1*payment.Count, 0)
+		}
+		store.MysqlClient.GetDB().Save(user)
+	case "data":
+		// 购买数据
 
+	case "query":
+		// 购买查询次数
+		user, _ := UserServiceGlobal.Query("id = ?", []interface{}{payment.UserId})
+		user.QueryLeft += payment.Count
+		store.MysqlClient.GetDB().Save(user)
 	}
-	store.MysqlClient.GetDB().Save(user)
 }

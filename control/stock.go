@@ -159,7 +159,7 @@ type Codes struct {
 func (d *PredictControl) doQueryLeft(authentication *model.AuthResult) error {
 	if !authentication.Member {
 		if authentication.QueryLeft == 0 {
-			return errors.New("查询次数不足")
+			return errors.New("查询次数不足, 分享邀请好友/开通会员即可参与定制查询")
 		} else {
 			user_obj, _ := UserControlGlobal.Query("id = ?", []interface{}{authentication.Uid})
 			left := user_obj.QueryLeft - 1
