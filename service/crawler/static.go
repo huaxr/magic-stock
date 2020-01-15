@@ -800,10 +800,7 @@ func (craw *Crawler) GetMonthDays(code dal.Code) {
 }
 
 // 只获取今日的周线
-func (craw *Crawler) GetWeekDay(code dal.Code, date1, date2 string, last_day_delete string) {
-	if last_day_delete != "" {
-		store.MysqlClient.GetDB().Exec("delete from magic_stock_history_week where date = ?", last_day_delete)
-	}
+func (craw *Crawler) GetWeekDay(code dal.Code, date1, date2 string) {
 	var model = &dal.TicketHistory{}
 	var dates []Date
 	var res []string
@@ -834,7 +831,7 @@ func (craw *Crawler) GetWeekDay(code dal.Code, date1, date2 string, last_day_del
 
 	change, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", shou.Number-last.Shou), 64)
 	turnover, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", turnover_rate.Number), 64)
-	log.Println(high.Number, low.Number, kai.Number, shou.Number, liang.Number, turnover, p, a, change, res[len(res)-1], code.Code)
+	log.Println("抽取计算今日周线数据", high.Number, low.Number, kai.Number, shou.Number, liang.Number, turnover, p, a, change, res[len(res)-1], code.Code)
 	h := dal.TicketHistoryWeekly{Code: code.Code, Name: code.Name, Date: res[len(res)-1], Kai: kai.Number, Shou: shou.Number, High: high.Number, Low: low.Number,
 		TotalCount: liang.Number, Percent: p, Change: change, Amplitude: a, TurnoverRate: turnover}
 	store.MysqlClient.GetDB().Save(&h)
@@ -846,11 +843,7 @@ func (craw *Crawler) GetWeekDay(code dal.Code, date1, date2 string, last_day_del
 		}
 	}
 }
-func (craw *Crawler) GetMonthDay(code dal.Code, date1 string, date2 string, last_day_delete string) {
-	if last_day_delete != "" {
-		store.MysqlClient.GetDB().Exec("delete from magic_stock_history_month where date = ?", last_day_delete)
-
-	}
+func (craw *Crawler) GetMonthDay(code dal.Code, date1 string, date2 string) {
 	var model = &dal.TicketHistory{}
 	var dates []Date
 	var res []string
@@ -881,13 +874,13 @@ func (craw *Crawler) GetMonthDay(code dal.Code, date1 string, date2 string, last
 
 	change, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", shou.Number-last.Shou), 64)
 	turnover, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", turnover_rate.Number), 64)
-	log.Println(high.Number, low.Number, kai.Number, shou.Number, liang.Number, turnover, p, a, change, res[len(res)-1], code.ID, code.Code, code.Name)
+	log.Println("抽取计算月线数据", high.Number, low.Number, kai.Number, shou.Number, liang.Number, turnover, p, a, change, res[len(res)-1], code.ID, code.Code, code.Name)
 	h := dal.TicketHistoryMonth{Code: code.Code, Name: code.Name, Date: res[len(res)-1], Kai: kai.Number, Shou: shou.Number, High: high.Number, Low: low.Number,
 		TotalCount: liang.Number, Percent: p, Change: change, Amplitude: a, TurnoverRate: turnover}
 	store.MysqlClient.GetDB().Save(&h)
 
 	if utils.TellEnv() == "loc" {
-		err := store.MysqlClient.GetOnlineDB().Save(&p).Error
+		err := store.MysqlClient.GetOnlineDB().Save(&h).Error
 		if err != nil {
 			fmt.Println("写入线上错误")
 		}

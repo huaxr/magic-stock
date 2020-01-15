@@ -6,6 +6,8 @@ import (
 	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
+	"magic/stock/model"
+	"magic/stock/utils"
 	"sync"
 	"testing"
 	"time"
@@ -13,14 +15,14 @@ import (
 
 var wg sync.WaitGroup //定义一个同步等待的组
 
-const (
-	today_str    = "2020-01-14"
-	last_day_str = "2020-01-13" // 上一个交易日数据 可以计算量比用, 删除昨日周线等
+var (
+	today_str    = "2020-01-15"
+	last_day_str = "2020-01-14" // 上一个交易日数据 可以计算量比用, 删除昨日周线等
 	week_begin   = "2020-01-09"
 	month_begin  = "2020-01-01"
 )
 
-// 获取今日的所有股票 （自动加入到线上）
+// 获取今日的所有股票 周 月线， 分析结果并自动加入线上
 func TestGetAllTicketTodayDetail(t *testing.T) {
 	today := today_str
 	wg.Add(2)
@@ -54,24 +56,63 @@ func TestGetAllTicketTodayDetail(t *testing.T) {
 		wg.Done()
 	}()
 	wg.Wait()
+
+	// 抽出周 月线
+	wg.Add(2)
+	go GetWeekDay(wg)
+	go GetMouthDay(wg)
+	wg.Wait()
+
+	// 计算分析数据
+	GetData()
+}
+
+// 获取具体日期的分析结果
+func GetData() {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
+	for _, i := range code {
+		x := &model.Params{i.Code, today_str, 0, 5, 10, 30, 60, 10, 40}
+		y := CrawlerGlobal.CalcResultWithDefined(x)
+		if y == nil {
+			continue
+		}
+		CrawlerGlobal.Analyze(y, i.Code, i.Name)
+	}
+}
+
+func TestGetData(t *testing.T) {
+	GetData()
 }
 
 // 从日线中获取到周线的数据
-func TestGetWeekDay(t *testing.T) {
+func GetWeekDay(wg sync.WaitGroup) {
+	// 需要删除的昨日数据 注意 如果为周线周五或者节假日收盘 请注释
+	store.MysqlClient.GetDB().Exec("delete from magic_stock_history_week where date = ?", last_day_str)
+	if utils.TellEnv() == "loc" {
+		store.MysqlClient.GetOnlineDB().Exec("delete from magic_stock_history_week where date = ?", last_day_str)
+	}
+
 	var code []dal.Code
 	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
 
 	for _, i := range code {
 		//CrawlerGlobal.GetWeekDay(i, last_week, today_str, last_today_str) // 会删除 last_today_str 的所有数据
-		CrawlerGlobal.GetWeekDay(i, week_begin, today_str, "")
+		CrawlerGlobal.GetWeekDay(i, week_begin, today_str)
 	}
+	defer wg.Done()
 }
 
 // 从日线中获取到月线的数据
-func TestGetMouthDay(t *testing.T) {
-	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2").Find(&code)
-	for _, i := range code {
-		CrawlerGlobal.GetMonthDay(i, month_begin, today_str, "")
+func GetMouthDay(wg sync.WaitGroup) {
+	store.MysqlClient.GetDB().Exec("delete from magic_stock_history_month where date = ?", last_day_str)
+	if utils.TellEnv() == "loc" {
+		store.MysqlClient.GetOnlineDB().Exec("delete from magic_stock_history_month where date = ?", last_day_str)
 	}
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
+	for _, i := range code {
+		CrawlerGlobal.GetMonthDay(i, month_begin, today_str)
+	}
+	defer wg.Done()
 }

@@ -67,8 +67,8 @@ type CrawlerIF interface {
 	GetMonthDays(code dal.Code)
 
 	// 只把今日的周线月线加入
-	GetWeekDay(code dal.Code, week_begin, today string, last_day_delete string)
-	GetMonthDay(code dal.Code, month_begin string, today string, last_day_delete string)
+	GetWeekDay(code dal.Code, week_begin, today string)
+	GetMonthDay(code dal.Code, month_begin string, today string)
 }
 
 var CrawlerGlobal CrawlerIF

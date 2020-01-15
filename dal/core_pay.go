@@ -11,10 +11,11 @@ type Pay struct {
 	gorm.Model
 	UserId     int    `json:"user_id"`     // 支付用户
 	Spend      int    `json:"spend"`       // 支付总金额
-	Type       string `json:"type"`        // 支付类型
+	Type       string `json:"type"`        // 支付类型 member data query
 	Count      int    `json:"count"`       // 个数
 	PaySuccess bool   `json:"pay_success"` // 支付成功
 	OrderId    string `json:"order_id"`    // 订单号
+	Extra      string `json:"extra"`       // 附加信息 如用户的地址 例如 phone-1214341 email-xx@com
 }
 
 func (Pay) TableName() string {

@@ -6,24 +6,8 @@ import (
 	"fmt"
 	"magic/stock/core/store"
 	"magic/stock/dal"
-	"magic/stock/model"
 	"testing"
 )
-
-// 获取具体日期的分析结果
-func TestGetData(t *testing.T) {
-	var date = "2020-01-14"
-	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
-	for _, i := range code {
-		x := &model.Params{i.Code, date, 0, 5, 10, 30, 60, 10, 40}
-		y := CrawlerGlobal.CalcResultWithDefined(x)
-		if y == nil {
-			continue
-		}
-		CrawlerGlobal.Analyze(y, i.Code, i.Name)
-	}
-}
 
 func TestMultiQuery(t *testing.T) {
 	var c []dal.Predict
