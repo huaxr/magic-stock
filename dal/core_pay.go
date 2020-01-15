@@ -11,7 +11,7 @@ type Pay struct {
 	gorm.Model
 	UserId     int    `json:"user_id"`     // 支付用户
 	Spend      int    `json:"spend"`       // 支付总金额
-	Type       string `json:"type"`        // 支付类型 年费至尊 购买日线数据等
+	Type       string `json:"type"`        // 支付类型
 	Count      int    `json:"count"`       // 个数
 	PaySuccess bool   `json:"pay_success"` // 支付成功
 	OrderId    string `json:"order_id"`    // 订单号
