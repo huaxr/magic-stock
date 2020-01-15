@@ -63,7 +63,7 @@ func TestGetWeekDay(t *testing.T) {
 
 	for _, i := range code {
 		//CrawlerGlobal.GetWeekDay(i, last_week, today_str, last_today_str) // 会删除 last_today_str 的所有数据
-		CrawlerGlobal.GetWeekDay(i, "2020-01-04", "2020-01-14", "")
+		CrawlerGlobal.GetWeekDay(i, "2020-01-11", "2020-01-14", "")
 	}
 }
 
