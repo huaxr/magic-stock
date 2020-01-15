@@ -307,7 +307,7 @@ func (craw *Crawler) HasLimitUpInTheseDays(result *model.CalcResult, recent_days
 
 // 5 10 15 30 60
 func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
-	score := 0 // max 37  // low 17
+	score := 0
 	cond_str, bad_cond_str, finance := "", "", ""
 	// 5 10 金叉  并且 今日10 均大于昨日 10均
 	jincha1 := result.AveDailyPrice1[0] > result.AveDailyPrice2[0] && result.AveDailyPrice1[1] < result.AveDailyPrice2[1] && result.AveDailyPrice2[0] > result.AveDailyPrice2[1]
@@ -335,11 +335,11 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	// 涨停股
 	zhangting := result.RecentPercent[0] > 9.94
 	// 一字板
-	yiziban := result.RecentPercent[0] > 9.94 && result.RecentOpen[0] == result.RecentLow[0]
+	yiziban := result.RecentPercent[0] > 9.94 && result.RecentHigh[0] == result.RecentLow[0]
 	// T 字板
 	tziban := result.RecentPercent[0] > 9.94 && result.RecentOpen[0] == result.RecentClose[0] && result.RecentClose[0] > result.RecentLow[0]
 	// 一字跌停板
-	dietingban := result.RecentPercent[0] < -9.94 && result.RecentOpen[0] == result.RecentLow[0]
+	dietingban := result.RecentPercent[0] < -9.94 && result.RecentHigh[0] == result.RecentLow[0]
 	// 倒T板
 	daotban := result.RecentPercent[0] < -9.94 && result.RecentOpen[0] == result.RecentClose[0] && result.RecentHigh[0] > result.RecentClose[0]
 
@@ -719,7 +719,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str += "T字板; "
 	}
 	if zhangting {
-		score += 2
+		score += 1
 		cond_str += "涨停股; "
 	}
 	if dietingban {
@@ -1176,10 +1176,10 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	middle := strings.Count(finance, "一般")
 	low := strings.Count(finance, "偏低")
 	bad := strings.Count(finance, "较差")
-	score += high*4 + middle*2 + low*-2 + bad*-4
+	score += high*4 + middle*2 + low*-2 + bad*-3
 
 	if score < 0 {
-		score = 15
+		score = 1
 	}
 
 	if score >= 100 {

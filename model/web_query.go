@@ -103,10 +103,11 @@ type Query struct {
 }
 
 type GetPredicts struct {
-	Query Query  `json:"query"`
-	Date  string `json:"date"`
-	Order string `json:"order"`
-	Save  bool   `json:"save"` // 查询并保存条件
+	Query     Query  `json:"query"`
+	Date      string `json:"date"`
+	Order     string `json:"order"`
+	OrderType string `json:"order_type"` // asc desc
+	Save      bool   `json:"save"`       // 查询并保存条件
 }
 
 type EditPredicts struct {
@@ -139,7 +140,7 @@ type StockFund struct {
 
 type SpendType struct {
 	Id      int    `json:"id"`
-	Contact string `json:"contact"` // 联系方式 邮箱地址/手机号码
+	Contact string `json:"contact"` // 联系方式 邮箱地址/手机号码/下载格式
 }
 
 type SubmitDemand struct {

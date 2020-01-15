@@ -238,7 +238,7 @@ func TestGetWeekDays(t *testing.T) {
 
 	go func() {
 		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 0").Find(&code)
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 1735").Find(&code)
 		for _, m := range xxx {
 			for _, i := range code {
 				CrawlerGlobal.GetWeekDays(i, m[0], m[1])

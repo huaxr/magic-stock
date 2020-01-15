@@ -227,7 +227,7 @@ func (d *UserControl) SubmitDemand(c *gin.Context) {
 		d.Response(c, nil, err)
 		return
 	}
-	de := dal.UserDemands{UserId: authentication.Uid, Response: post.Content, Type: post.Type}
+	de := dal.UserDemands{UserId: authentication.Uid, Content: post.Content, Type: post.Type}
 	store.MysqlClient.GetDB().Save(&de)
 	d.Response(c, "提交成功", nil)
 }
