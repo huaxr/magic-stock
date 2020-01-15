@@ -7,6 +7,7 @@ import (
 	"magic/stock/core/store"
 	"magic/stock/dal"
 	"magic/stock/model"
+	"magic/stock/utils"
 	"math"
 	"math/rand"
 	"strings"
@@ -1194,11 +1195,11 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		Date: result.CurrDate, Score: score + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0],
 		FundCount: jigouchicangcount, SMCount: simuchicangcount, FenghongCount: fenhong, PeiguCount: pergu, ZhuangzengCount: zhuangzeng,
 		SongguCount: songgu, ZengfaCount: zengfa, SubcompCount: subcomp}
-	//if utils.TellEnv() == "loc" {
-	//	err := store.MysqlClient.GetOnlineDB().Save(&p).Error
-	//	if err != nil {
-	//		fmt.Println("写入线上错误")
-	//	}
-	//}
+	if utils.TellEnv() == "loc" {
+		err := store.MysqlClient.GetOnlineDB().Save(&p).Error
+		if err != nil {
+			fmt.Println("写入线上错误")
+		}
+	}
 	store.MysqlClient.GetDB().Save(&p)
 }

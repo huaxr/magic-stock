@@ -41,17 +41,15 @@ func (d *CommonControl) ReloadCaptcha(c *gin.Context) {
 
 func (d *CommonControl) PaymentList(c *gin.Context) {
 	typ := c.DefaultQuery("type", "")
-	if typ == "" {
-		var res []dal.Price
-		store.MysqlClient.GetDB().Model(&dal.Price{}).Where("type = ? OR type = ?", "member", "query").Find(&res)
-		d.Response(c, res, nil)
-		return
-	}
 	if typ == "data" {
 		var res []dal.Price
 		store.MysqlClient.GetDB().Model(&dal.Price{}).Where("type = ?", "data").Find(&res)
 		d.Response(c, res, nil)
 		return
+	} else {
+		var res []dal.Price
+		store.MysqlClient.GetDB().Model(&dal.Price{}).Where("type = ? OR type = ?", "member", "query").Find(&res)
+		d.Response(c, res, nil)
+		return
 	}
-
 }

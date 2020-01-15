@@ -14,10 +14,10 @@ import (
 var wg sync.WaitGroup //定义一个同步等待的组
 
 const (
-	today_str      = "2020-01-14"
-	last_today_str = "2020-01-13" // 可以计算量比用
-	last_week      = "2020-01-03"
-	last_month     = "2019-12-31"
+	today_str    = "2020-01-14"
+	last_day_str = "2020-01-13" // 上一个交易日数据 可以计算量比用, 删除昨日周线等
+	week_begin   = "2020-01-09"
+	month_begin  = "2020-01-01"
 )
 
 // 获取今日的所有股票 （自动加入到线上）
@@ -29,7 +29,7 @@ func TestGetAllTicketTodayDetail(t *testing.T) {
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2000").Find(&code)
 		for _, i := range code {
 		RE:
-			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, last_today_str, false)
+			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, last_day_str, false)
 			if err != nil {
 				log.Println("爬虫错误， 休眠10秒继续...", i.Name)
 				time.Sleep(10 * time.Second)
@@ -44,7 +44,7 @@ func TestGetAllTicketTodayDetail(t *testing.T) {
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000").Find(&code)
 		for _, i := range code {
 		RE:
-			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, last_today_str, true)
+			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, last_day_str, true)
 			if err != nil {
 				log.Println("爬虫错误， 休眠10秒继续...", i.Name)
 				time.Sleep(10 * time.Second)
@@ -63,7 +63,7 @@ func TestGetWeekDay(t *testing.T) {
 
 	for _, i := range code {
 		//CrawlerGlobal.GetWeekDay(i, last_week, today_str, last_today_str) // 会删除 last_today_str 的所有数据
-		CrawlerGlobal.GetWeekDay(i, "2020-01-11", "2020-01-14", "")
+		CrawlerGlobal.GetWeekDay(i, week_begin, today_str, "")
 	}
 }
 
@@ -72,6 +72,6 @@ func TestGetMouthDay(t *testing.T) {
 	var code []dal.Code
 	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2").Find(&code)
 	for _, i := range code {
-		CrawlerGlobal.GetMonthDay(i, today_str, last_month, last_today_str)
+		CrawlerGlobal.GetMonthDay(i, month_begin, today_str, "")
 	}
 }
