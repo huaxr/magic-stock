@@ -393,7 +393,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		if len(i) == 0 {
 			continue
 		}
-		tmp = tmp.Where("`condition` LIKE ? OR `bad_condition` LIKE ? OR `finance` LIKE ?", "%"+i+"%", "%"+i+"%", "%"+i+"%")
+		tmp = tmp.Where("`condition_` LIKE ? OR `bad_condition_` LIKE ? OR `finance` LIKE ?", "%"+i+"%", "%"+i+"%", "%"+i+"%")
 	}
 	// 如果除了筛选条件不为空才用IN操作
 	if len(coders) > 0 {
