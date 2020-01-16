@@ -13,17 +13,18 @@ import (
 	"time"
 )
 
-var wg sync.WaitGroup //定义一个同步等待的组
+var wg, wg2 sync.WaitGroup //定义一个同步等待的组
 
 var (
-	today_str    = "2020-01-15"
-	last_day_str = "2020-01-14" // 上一个交易日数据 可以计算量比用, 删除昨日周线等
+	today_str    = "2020-01-16"
+	last_day_str = "2020-01-15" // 上一个交易日数据 可以计算量比用, 删除昨日周线等
 	week_begin   = "2020-01-09"
 	month_begin  = "2020-01-01"
 )
 
 // 获取今日的所有股票 周 月线， 分析结果并自动加入线上
 func TestGetAllTicketTodayDetail(t *testing.T) {
+	start := time.Now()
 	today := today_str
 	wg.Add(2)
 	go func() {
@@ -57,14 +58,42 @@ func TestGetAllTicketTodayDetail(t *testing.T) {
 	}()
 	wg.Wait()
 
+	wg2.Add(2)
 	// 抽出周 月线
-	wg.Add(2)
-	go GetWeekDay(wg)
-	go GetMouthDay(wg)
-	wg.Wait()
+	go func() {
+		store.MysqlClient.GetDB().Exec("delete from magic_stock_history_week where date = ?", last_day_str)
+		if utils.TellEnv() == "loc" {
+			store.MysqlClient.GetOnlineDB().Exec("delete from magic_stock_history_week where date = ?", last_day_str)
+		}
+
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
+
+		for _, i := range code {
+			//CrawlerGlobal.GetWeekDay(i, last_week, today_str, last_today_str) // 会删除 last_today_str 的所有数据
+			CrawlerGlobal.GetWeekDay(i, week_begin, today_str)
+		}
+		wg2.Done()
+	}()
+
+	go func() {
+		store.MysqlClient.GetDB().Exec("delete from magic_stock_history_month where date = ?", last_day_str)
+		if utils.TellEnv() == "loc" {
+			store.MysqlClient.GetOnlineDB().Exec("delete from magic_stock_history_month where date = ?", last_day_str)
+		}
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
+		for _, i := range code {
+			CrawlerGlobal.GetMonthDay(i, month_begin, today_str)
+		}
+		wg2.Done()
+	}()
+	wg2.Wait()
 
 	// 计算分析数据
 	GetData()
+	end := time.Now()
+	log.Println("一共耗时（s）:", end.Sub(start).Seconds())
 }
 
 // 获取具体日期的分析结果

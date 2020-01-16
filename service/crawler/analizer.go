@@ -881,74 +881,6 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str_ += "长下影; "
 	}
 
-	var shangshengtongdao string
-	if priceshangyang1 {
-		score += 2
-		cond_str += "5日均线处于上升通道; "
-		shangshengtongdao += "5日,"
-	}
-	if priceshangyang2 {
-		score += 2
-		cond_str += "10日均线处于上升通道; "
-		shangshengtongdao += "10日,"
-	}
-	if priceshangyang3 {
-		score += 2
-		cond_str += "30日均线处于上升通道; "
-		shangshengtongdao += "30日,"
-	}
-	if priceshangyang4 {
-		score += 2
-		cond_str += "60日均线处于上升通道; "
-		shangshengtongdao += "60日,"
-	}
-
-	if wpriceshangyang1 {
-		score += 2
-		cond_str += "5周均线处于上升通道; "
-		shangshengtongdao += "5周,"
-	}
-	if wpriceshangyang2 {
-		score += 2
-		cond_str += "10周均线处于上升通道; "
-		shangshengtongdao += "10周,"
-	}
-	if wpriceshangyang3 {
-		score += 2
-		cond_str += "30周均线处于上升通道; "
-		shangshengtongdao += "30周,"
-	}
-	if wpriceshangyang4 {
-		score += 2
-		cond_str += "60周均线处于上升通道; "
-		shangshengtongdao += "60周,"
-	}
-
-	if ypriceshangyang1 {
-		score += 2
-		cond_str += "5月均线处于上升通道; "
-		shangshengtongdao += "5月,"
-	}
-	if ypriceshangyang2 {
-		score += 2
-		cond_str += "10月均线处于上升通道; "
-		shangshengtongdao += "10月,"
-	}
-	if ypriceshangyang3 {
-		score += 2
-		cond_str += "30月均线处于上升通道; "
-		shangshengtongdao += "30月,"
-	}
-	if ypriceshangyang4 {
-		score += 2
-		cond_str += "60月均线处于上升通道; "
-		shangshengtongdao += "60月,"
-	}
-	if shangshengtongdao != "" {
-		shangshengtongdao = strings.TrimRight(shangshengtongdao, ",") + "均线处于上升通道; "
-		cond_str_ += shangshengtongdao
-	}
-
 	var tupo string
 	if tupo1 {
 		score += 2
@@ -1083,6 +1015,74 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	if jichuang != "" {
 		jichuang = strings.TrimRight(jichuang, ",")
 		bad_cond_str_ += fmt.Sprintf("收盘价击穿%s均线支撑位; ", jichuang)
+	}
+
+	var shangshengtongdao string
+	if priceshangyang1 {
+		score += 2
+		cond_str += "5日均线处于上升通道; "
+		shangshengtongdao += "5日,"
+	}
+	if priceshangyang2 {
+		score += 2
+		cond_str += "10日均线处于上升通道; "
+		shangshengtongdao += "10日,"
+	}
+	if priceshangyang3 {
+		score += 2
+		cond_str += "30日均线处于上升通道; "
+		shangshengtongdao += "30日,"
+	}
+	if priceshangyang4 {
+		score += 2
+		cond_str += "60日均线处于上升通道; "
+		shangshengtongdao += "60日,"
+	}
+
+	if wpriceshangyang1 {
+		score += 2
+		cond_str += "5周均线处于上升通道; "
+		shangshengtongdao += "5周,"
+	}
+	if wpriceshangyang2 {
+		score += 2
+		cond_str += "10周均线处于上升通道; "
+		shangshengtongdao += "10周,"
+	}
+	if wpriceshangyang3 {
+		score += 2
+		cond_str += "30周均线处于上升通道; "
+		shangshengtongdao += "30周,"
+	}
+	if wpriceshangyang4 {
+		score += 2
+		cond_str += "60周均线处于上升通道; "
+		shangshengtongdao += "60周,"
+	}
+
+	if ypriceshangyang1 {
+		score += 2
+		cond_str += "5月均线处于上升通道; "
+		shangshengtongdao += "5月,"
+	}
+	if ypriceshangyang2 {
+		score += 2
+		cond_str += "10月均线处于上升通道; "
+		shangshengtongdao += "10月,"
+	}
+	if ypriceshangyang3 {
+		score += 2
+		cond_str += "30月均线处于上升通道; "
+		shangshengtongdao += "30月,"
+	}
+	if ypriceshangyang4 {
+		score += 2
+		cond_str += "60月均线处于上升通道; "
+		shangshengtongdao += "60月,"
+	}
+	if shangshengtongdao != "" {
+		shangshengtongdao = strings.TrimRight(shangshengtongdao, ",") + "均线处于上升通道; "
+		cond_str_ += shangshengtongdao
 	}
 
 	var xiajiangtongdao string
@@ -1551,7 +1551,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	middle := strings.Count(finance, "一般")
 	low := strings.Count(finance, "偏低")
 	bad := strings.Count(finance, "较差")
-	score += high*4 + middle*2 + low*-2 + bad*-3
+	score += high*4 + middle*2 + low*-2 + bad*-4
 
 	if score < 0 {
 		score = 1

@@ -406,7 +406,10 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		post.Order = "id"
 		tmp.Order(fmt.Sprintf("%s asc", post.Order))
 	} else {
-		tmp.Order(fmt.Sprintf("%s %S", post.Order, post.OrderType))
+		if post.OrderType == "" {
+			post.OrderType = "desc"
+		}
+		tmp.Order(fmt.Sprintf("%s %s", post.Order, post.OrderType))
 	}
 	tmp.Limit(limit).Offset(offset).Find(&predicts)
 
