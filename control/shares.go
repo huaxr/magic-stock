@@ -9,9 +9,12 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"magic/stock/model"
 	mathRand "math/rand"
 	"net/http"
+	urls "net/url"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -39,20 +42,20 @@ func (d *UserControl) GetWxSign(c *gin.Context) {
 		wxSignature                                                                   WxSignature
 	)
 
-	//_auth, _ := c.Get("auth")
-	//authentication := _auth.(*model.AuthResult)
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
 
-	//user, _ := UserControlGlobal.Query("id = ?", []interface{}{authentication.Uid})
+	user, _ := UserControlGlobal.Query("id = ?", []interface{}{authentication.Uid})
 	url = c.DefaultQuery("url", "")
 	if url == "" {
 		c.JSON(200, gin.H{"error_code": 1, "err_msg": "没有指定的url参数", "data": nil})
 		return
 	}
-	//if strings.Contains(url, "?") {
-	//	url += "&token=" + user.ShareToken
-	//} else {
-	//	url += "?token=" + user.ShareToken
-	//}
+	if strings.Contains(url, "?") {
+		url += "&token=" + user.ShareToken
+	} else {
+		url += "?token=" + user.ShareToken
+	}
 
 	log.Println("分享的url:", url)
 	noncestr = RandStringBytes(16)
@@ -112,7 +115,7 @@ func (d *UserControl) GetWxSign(c *gin.Context) {
 	log.Println("分享接口jsapi_ticket:", jsapi_ticket)
 
 	// 获取 signature
-	signatureStr = "jsapi_ticket=" + jsapi_ticket + "&noncestr=" + noncestr + "&timestamp=" + timestamp + "&url=" + url
+	signatureStr = "jsapi_ticket=" + jsapi_ticket + "&noncestr=" + noncestr + "&timestamp=" + timestamp + "&url=" + urls.QueryEscape(url)
 	signature = GetSha1(signatureStr)
 	log.Println("签名:", signatureStr, signature)
 	wxSignature.Url = url
