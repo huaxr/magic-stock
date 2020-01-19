@@ -20,8 +20,8 @@ import (
 
 var (
 	MemoryCacheVar  *MemoryCache
-	AppID           string = "你的AppID"
-	AppSecret       string = "你的AppSecret"
+	AppID                  = "wx921b6afd43dddd8e"
+	AppSecret              = "247a017acef5b2a65af1854d2ae4a950"
 	AccessTokenHost string = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + AppID + "&secret=" + AppSecret
 	JsAPITicketHost string = "https://api.weixin.qq.com/cgi-bin/ticket/getticket"
 )
