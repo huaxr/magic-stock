@@ -16,9 +16,9 @@ import (
 var wg, wg2 sync.WaitGroup //定义一个同步等待的组
 
 var (
-	today_str    = "2020-01-16"
-	last_day_str = "2020-01-15" // 上一个交易日数据 可以计算量比用, 删除昨日周线等
-	week_begin   = "2020-01-09"
+	today_str    = "2020-01-17"
+	last_day_str = "2020-01-16" // 上一个交易日数据 可以计算量比用, 删除昨日周线等
+	week_begin   = "2020-01-13"
 	month_begin  = "2020-01-01"
 )
 

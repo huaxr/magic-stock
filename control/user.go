@@ -28,7 +28,8 @@ type UserIF interface {
 	// 充值 (h5 和 jsapi)
 	PayByWeChatJsApi(c *gin.Context)
 	PayByWeChatH5(c *gin.Context)
-
+	// 分享
+	GetWxSign(c *gin.Context)
 	TradeCallBack(c *gin.Context)
 
 	GetConditions(c *gin.Context)
