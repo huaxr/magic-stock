@@ -9,9 +9,11 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"magic/stock/model"
 	mathRand "math/rand"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -39,7 +41,21 @@ func (d *UserControl) GetWxSign(c *gin.Context) {
 		wxSignature                                                                   WxSignature
 	)
 
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
+
+	user, _ := UserControlGlobal.Query("id = ?", []interface{}{authentication.Uid})
 	url = c.DefaultQuery("url", "")
+	if url == "" {
+		c.JSON(200, gin.H{"error_code": 1, "err_msg": "没有指定的url参数", "data": nil})
+		return
+	}
+	if strings.Contains(url, "?") {
+		url += "&token=" + user.ShareToken
+	} else {
+		url += "?token=" + user.ShareToken
+	}
+
 	noncestr = RandStringBytes(16)
 	timestamp = strconv.FormatInt(time.Now().Unix(), 10)
 
