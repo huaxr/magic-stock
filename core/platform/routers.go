@@ -28,6 +28,7 @@ func (r *Router) addCommon() {
 	router.GET("/conditions", control.PredictControlGlobal.GetConditions)
 	router.GET("/high_conditions", control.PredictControlGlobal.GetHighConditions)
 	router.GET("/query_list", control.PredictControlGlobal.GetQueryList)
+	router.GET("/share", control.UserControlGlobal.GetWxSign)
 }
 
 func (r *Router) addRouters() {
@@ -36,7 +37,6 @@ func (r *Router) addRouters() {
 	{
 		router.GET("/user", control.UserControlGlobal.GetUserInfo)
 		router.GET("/is_member", control.UserControlGlobal.JudgeIsMember)
-		router.GET("/share", control.UserControlGlobal.GetWxSign)
 		router.POST("/jsapi_pay", control.UserControlGlobal.PayByWeChatJsApi)
 		router.POST("/make_comment", control.UserControlGlobal.SubmitDemand)
 		router.POST("/add_stock", control.UserControlGlobal.AddStock)
