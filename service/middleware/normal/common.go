@@ -21,9 +21,8 @@ func LoginRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authentication := check.Authentication.JudgeApi(c)
 		if authentication.Err != nil {
-			log.Println("暂未登录")
 			token := c.DefaultQuery("token", "")
-			//c.String(400, wechat.WechatGlobal.GetCodeUrl())
+			log.Println("暂未登录", token)
 			c.JSON(200, gin.H{"error_code": 2, "err_msg": "请登录", "data": wechat.WechatGlobal.GetCodeUrl(conf.Config.WxRedirect + "?token=" + token)})
 			c.Abort()
 			return
