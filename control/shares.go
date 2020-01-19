@@ -26,6 +26,11 @@ var (
 	JsAPITicketHost string = "https://api.weixin.qq.com/cgi-bin/ticket/getticket"
 )
 
+func init() {
+	MemoryCacheVar = new(MemoryCache)
+	MemoryCacheVar.Items = make(map[string]*Item)
+}
+
 func (d *UserControl) GetWxSign(c *gin.Context) {
 	var (
 		noncestr, jsapi_ticket, timestamp, url, signature, signatureStr, access_token string
