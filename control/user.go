@@ -76,12 +76,11 @@ func (d *UserControl) GetUserInfo(c *gin.Context) {
 }
 
 func (d *UserControl) GetUserToken(c *gin.Context) {
-	_auth, b := c.Get("auth")
-	if !b {
+	authentication := check.Authentication.JudgeApi(c)
+	if authentication.Err != nil {
 		d.Response(c, "", nil)
 		return
 	}
-	authentication := _auth.(*model.AuthResult)
 	user, _ := d.Query("id = ?", []interface{}{authentication.Uid})
 	d.Response(c, user.ShareToken, nil)
 	return
