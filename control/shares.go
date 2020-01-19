@@ -54,7 +54,6 @@ func (d *UserControl) GetWxSign(c *gin.Context) {
 	//	url += "?token=" + user.ShareToken
 	//}
 
-	log.Println("分享的url:", url)
 	noncestr = RandStringBytes(16)
 	timestamp = strconv.FormatInt(time.Now().Unix(), 10)
 
@@ -108,18 +107,20 @@ func (d *UserControl) GetWxSign(c *gin.Context) {
 		access_token = MemoryCacheVar.Get("access_token").(*Item).Value
 		jsapi_ticket = MemoryCacheVar.Get("jsapi_ticket").(*Item).Value
 	}
-	log.Println("分享接口access_token:", access_token)
-	log.Println("分享接口jsapi_ticket:", jsapi_ticket)
-
 	// 获取 signature
 	signatureStr = "jsapi_ticket=" + jsapi_ticket + "&noncestr=" + noncestr + "&timestamp=" + timestamp + "&url=" + url
 	signature = GetSha1(signatureStr)
-	log.Println("签名:", signatureStr, signature)
 	wxSignature.Url = url
 	wxSignature.Noncestr = noncestr
 	wxSignature.Timestamp = timestamp
 	wxSignature.Signature = signature
 	wxSignature.AppID = AppID
+
+	log.Println("分享的url:", url)
+	log.Println("分享的noncestr:", noncestr)
+	log.Println("分享的timestamp:", timestamp)
+	log.Println("分享的signature:", signature)
+	log.Println("appid:", AppID)
 
 	c.JSON(200, gin.H{"error_code": 0, "err_msg": nil, "data": gin.H{"url": url, "noncestr": noncestr, "timestamp": timestamp, "signature": signature, "appid": AppID}})
 
