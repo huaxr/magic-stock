@@ -122,7 +122,7 @@ func (d *UserControl) GetWxSign(c *gin.Context) {
 	wxSignature.Signature = signature
 	wxSignature.AppID = AppID
 
-	c.JSON(200, gin.H{"error_code": 0, "err_msg": nil, "data": wxSignature})
+	c.JSON(200, gin.H{"error_code": 0, "err_msg": nil, "data": gin.H{"url": url, "noncestr": noncestr, "timestamp": timestamp, "signature": signature, "appid": AppID}})
 
 }
 
