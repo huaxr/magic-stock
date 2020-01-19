@@ -56,6 +56,7 @@ func (d *UserControl) GetWxSign(c *gin.Context) {
 		url += "?token=" + user.ShareToken
 	}
 
+	log.Println("分享的url:", url)
 	noncestr = RandStringBytes(16)
 	timestamp = strconv.FormatInt(time.Now().Unix(), 10)
 
@@ -115,7 +116,7 @@ func (d *UserControl) GetWxSign(c *gin.Context) {
 	// 获取 signature
 	signatureStr = "jsapi_ticket=" + jsapi_ticket + "&noncestr=" + noncestr + "&timestamp=" + timestamp + "&url=" + url
 	signature = GetSha1(signatureStr)
-
+	log.Println("签名:", signatureStr, signature)
 	wxSignature.Url = url
 	wxSignature.Noncestr = noncestr
 	wxSignature.Timestamp = timestamp
