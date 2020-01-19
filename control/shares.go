@@ -121,6 +121,7 @@ func (d *UserControl) GetWxSign(c *gin.Context) {
 	log.Println("分享的timestamp:", timestamp)
 	log.Println("分享的signature:", signature)
 	log.Println("appid:", AppID)
+	log.Println("jsapi_ticket:", jsapi_ticket)
 
 	c.JSON(200, gin.H{"error_code": 0, "err_msg": nil, "data": gin.H{"url": url, "noncestr": noncestr, "timestamp": timestamp, "signature": signature, "appid": AppID}})
 
