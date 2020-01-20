@@ -416,23 +416,23 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	var response []model.PredictListResponse
 	for _, i := range predicts {
 		log.Println(i.Condition, len(i.Condition))
-		var str1 = i.Condition
-		var str2 = i.BadCondition
-		var str3 = i.Finance
-		if len(str1) > 80 {
-			str1 = str1[:80]
+		var str1 = []rune(i.Condition)
+		var str2 = []rune(i.BadCondition)
+		var str3 = []rune(i.Finance)
+		if len(str1) > 70 {
+			str1 = str1[:70]
 		}
-		if len(str2) > 80 {
-			str2 = str2[:80]
+		if len(str2) > 70 {
+			str2 = str2[:70]
 		}
-		if len(str3) > 80 {
-			str3 = str3[:80]
+		if len(str3) > 70 {
+			str3 = str3[:70]
 		}
 		var coder dal.Code
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", i.Code).Find(&coder)
 		x := model.PredictListResponse{Name: i.Name, Code: i.Code, Price: i.Price, Percent: i.Percent, Location: coder.Location,
-			Form: coder.OrganizationalForm, Belong: coder.Belong, FundCount: i.FundCount, SimuCount: i.SMCount, Conditions: str1,
-			BadConditions: str2, Finance: str3, Date: i.Date, Score: i.Score,
+			Form: coder.OrganizationalForm, Belong: coder.Belong, FundCount: i.FundCount, SimuCount: i.SMCount, Conditions: string(str1) + "...",
+			BadConditions: string(str2) + "...", Finance: string(str3) + "...", Date: i.Date, Score: i.Score,
 			FenghongCount: i.FenghongCount, SongguCount: i.SongguCount, ZhuangzengCount: i.ZhuangzengCount,
 			PeiguCount: i.PeiguCount, ZengfaCount: i.ZengfaCount, SubcompCount: i.SubcompCount, Tape: coder.Tape}
 		response = append(response, x)
