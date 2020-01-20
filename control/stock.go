@@ -552,6 +552,8 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	_response.StockProfit = StockProfit
 	//response.TicketHistoryWeekly = TicketHistoryWeekly
 	_response.PerTicket = response
+
+	log.Println(_response)
 	d.Response(c, _response, nil)
 }
 
