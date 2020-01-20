@@ -141,4 +141,5 @@ type PredictListResponse struct {
 	Finance         string  `json:"finance"`          // 财务指标
 	Date            string  `json:"date"`
 	Score           int     `json:"score"` // 得分
+	Tape            string  `json:"tape"`  // 盘口
 }

@@ -210,3 +210,11 @@ func TestMultiQuery(t *testing.T) {
 		fmt.Println(i.Code)
 	}
 }
+
+// 从concepts中拿出盘口信息
+func TestGetTape(t *testing.T) {
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("concept like ?", "%超大盘%").Update("tape", "超大盘")
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("concept like ?", "%大盘%").Update("tape", "大盘")
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("concept like ?", "%中盘%").Update("tape", "中盘")
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("concept like ?", "%小盘%").Update("tape", "小盘")
+}

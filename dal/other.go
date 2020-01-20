@@ -57,7 +57,7 @@ type StockLabels struct {
 }
 
 func (StockLabels) TableName() string {
-	return "magic_stock_labels"
+	return "magic_stock_concept_labels"
 }
 
 // 条件表

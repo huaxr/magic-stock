@@ -39,6 +39,7 @@ func TestGetStockAllFund(t *testing.T) {
 
 // 获取所有股票概念信息 所属行业 GetAllTicketCodeBelong
 // 首先更新数据表 update magic_stock_code set concept = null   新浪api
+// 最近更新时间 2020-01-19
 func TestGetAllTicketCodeConcept(T *testing.T) {
 	go func() {
 		var code []dal.Code
