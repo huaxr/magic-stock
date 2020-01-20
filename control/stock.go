@@ -470,6 +470,7 @@ func (d *PredictControl) GetWeekDetail(c *gin.Context) {
 
 func (d *PredictControl) GetDetail(c *gin.Context) {
 	code := c.DefaultQuery("code", "")
+	code = string([]rune(code))
 	if code == "" {
 		d.Response(c, nil, errors.New("证券代码空"))
 		return
