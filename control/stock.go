@@ -389,7 +389,12 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	var predicts []dal.Predict
 	var total int
 	tmp := store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", post.Date)
-	for _, i := range post.Query.Predicts {
+
+	var predicts_tmp []string
+	for _, v := range post.Query.Predicts {
+		predicts_tmp = append(predicts_tmp, v...)
+	}
+	for _, i := range predicts_tmp {
 		if len(i) == 0 {
 			continue
 		}

@@ -87,12 +87,12 @@ type Other struct {
 }
 
 type Query struct {
-	Predicts  []string `json:"predicts"`  // 预测的打标
-	Belongs   []string `json:"belongs"`   // 所属行业
-	Locations []string `json:"locations"` // 所属地区
-	Concepts  []string `json:"concepts"`  // 所属概念 ex 腾讯概念
-	Labels    []string `json:"labels"`    // 标签
-	Forms     []string `json:"forms"`     // 组织形式
+	Predicts  map[string][]string `json:"predicts"`  // 预测的打标
+	Belongs   []string            `json:"belongs"`   // 所属行业
+	Locations []string            `json:"locations"` // 所属地区
+	Concepts  []string            `json:"concepts"`  // 所属概念 ex 腾讯概念
+	Labels    []string            `json:"labels"`    // 标签
+	Forms     []string            `json:"forms"`     // 组织形式
 
 	PerTickets   QueryPerTicket `json:"per_tickets"`    // 高级条件区间
 	LastDayRange LastDayRange   `json:"last_day_range"` // 昨日收盘情况区间
