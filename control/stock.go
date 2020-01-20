@@ -553,7 +553,6 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	//response.TicketHistoryWeekly = TicketHistoryWeekly
 	_response.PerTicket = response
 
-	log.Println(_response)
 	d.Response(c, _response, nil)
 }
 
