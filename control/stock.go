@@ -408,6 +408,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	log.Println(fmt.Sprintf("满足条件(%d个), 命中条件(%d个)", len(coders), total))
 
 	field, ok := OrderLimitMap[post.Order]
+	log.Println(field, ok)
 	if !ok {
 		tmp.Order(fmt.Sprintf("%s asc", "id"))
 	} else {
