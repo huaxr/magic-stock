@@ -447,6 +447,16 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 
 func (d *PredictControl) GetWeekDetail(c *gin.Context) {
 	code := c.DefaultQuery("code", "")
+	code = string([]rune(code))
+	var coder_obj dal.Code
+	err := store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ? or name = ?", code, code).Find(&coder_obj).Error
+	if err != nil {
+		d.Response(c, nil, errors.New("证券代码不存在"))
+		return
+	} else {
+		code = coder_obj.Code
+	}
+
 	typ := c.DefaultQuery("type", "")
 	date := d.getDate()
 	switch typ {
