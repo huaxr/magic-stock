@@ -412,7 +412,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		tmp.Order(fmt.Sprintf("%s asc", "id"))
 	} else {
 		if post.OrderType == "" {
-			post.OrderType = "desc"
+			post.OrderType = "降序"
 		}
 		tmp.Order(fmt.Sprintf("%s %s", field, OrderTypeMap[post.OrderType]))
 	}
