@@ -570,15 +570,15 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		}
 	}
 	// 价格突破5日压力位
-	tupo1 := result.AveDailyPrice1[0] < result.RecentClose[0] && result.AveDailyPrice1[1] >= result.RecentClose[1] && result.AveDailyPrice1[2] > result.RecentClose[2] && result.AveDailyPrice1[3] > result.RecentClose[3]
-	tupo2 := result.AveDailyPrice2[0] < result.RecentClose[0] && result.AveDailyPrice2[1] >= result.RecentClose[1] && result.AveDailyPrice2[2] > result.RecentClose[2] && result.AveDailyPrice2[3] > result.RecentClose[3]
-	tupo3 := result.AveDailyPrice3[0] < result.RecentClose[0] && result.AveDailyPrice3[1] >= result.RecentClose[1] && result.AveDailyPrice3[2] > result.RecentClose[2] && result.AveDailyPrice3[3] > result.RecentClose[3]
-	tupo4 := result.AveDailyPrice4[0] < result.RecentClose[0] && result.AveDailyPrice4[1] >= result.RecentClose[1] && result.AveDailyPrice4[2] > result.RecentClose[2] && result.AveDailyPrice4[3] > result.RecentClose[3]
+	tupo1 := result.AveDailyPrice1[0] < result.RecentClose[0] && result.AveDailyPrice1[1] >= result.RecentClose[1] && result.AveDailyPrice1[2] > result.RecentClose[2]
+	tupo2 := result.AveDailyPrice2[0] < result.RecentClose[0] && result.AveDailyPrice2[1] >= result.RecentClose[1] && result.AveDailyPrice2[2] > result.RecentClose[2]
+	tupo3 := result.AveDailyPrice3[0] < result.RecentClose[0] && result.AveDailyPrice3[1] >= result.RecentClose[1] && result.AveDailyPrice3[2] > result.RecentClose[2]
+	tupo4 := result.AveDailyPrice4[0] < result.RecentClose[0] && result.AveDailyPrice4[1] >= result.RecentClose[1] && result.AveDailyPrice4[2] > result.RecentClose[2]
 
-	jichuang1 := result.AveDailyPrice1[0] > result.RecentClose[0] && result.AveDailyPrice1[1] <= result.RecentClose[1] && result.AveDailyPrice1[2] < result.RecentClose[2] && result.AveDailyPrice1[3] < result.RecentClose[3]
-	jichuang2 := result.AveDailyPrice2[0] > result.RecentClose[0] && result.AveDailyPrice2[1] <= result.RecentClose[1] && result.AveDailyPrice2[2] < result.RecentClose[2] && result.AveDailyPrice2[3] < result.RecentClose[3]
-	jichuang3 := result.AveDailyPrice3[0] > result.RecentClose[0] && result.AveDailyPrice3[1] <= result.RecentClose[1] && result.AveDailyPrice3[2] < result.RecentClose[2] && result.AveDailyPrice3[3] < result.RecentClose[3]
-	jichuang4 := result.AveDailyPrice4[0] > result.RecentClose[0] && result.AveDailyPrice4[1] <= result.RecentClose[1] && result.AveDailyPrice4[2] < result.RecentClose[2] && result.AveDailyPrice4[3] < result.RecentClose[3]
+	jichuang1 := result.AveDailyPrice1[0] > result.RecentClose[0] && result.AveDailyPrice1[1] <= result.RecentClose[1] && result.AveDailyPrice1[2] < result.RecentClose[2]
+	jichuang2 := result.AveDailyPrice2[0] > result.RecentClose[0] && result.AveDailyPrice2[1] <= result.RecentClose[1] && result.AveDailyPrice2[2] < result.RecentClose[2]
+	jichuang3 := result.AveDailyPrice3[0] > result.RecentClose[0] && result.AveDailyPrice3[1] <= result.RecentClose[1] && result.AveDailyPrice3[2] < result.RecentClose[2]
+	jichuang4 := result.AveDailyPrice4[0] > result.RecentClose[0] && result.AveDailyPrice4[1] <= result.RecentClose[1] && result.AveDailyPrice4[2] < result.RecentClose[2]
 
 	if jincha11 {
 		score += 5
@@ -797,12 +797,12 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 
 	if yiziban {
-		score += 2
+		score += 3
 		cond_str += "一字板; "
 		cond_str_ += "一字板; "
 	}
 	if tziban {
-		score += 1
+		score += 2
 		cond_str += "T字板; "
 		cond_str_ += "T字板; "
 	}
@@ -812,7 +812,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str_ += "涨停股; "
 	}
 	if dietingban {
-		score -= 2
+		score -= 1
 		bad_cond_str += "一字跌停； "
 		bad_cond_str_ += "一字跌停； "
 	}
@@ -823,18 +823,22 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 
 	if dikaigaozou {
+		score += 2
 		cond_str += "低开高走; "
 		cond_str_ += "低开高走; "
 	}
 	if gaokaigaozou {
+		score += 2
 		cond_str += "高开高走; "
 		cond_str_ += "高开高走; "
 	}
 	if gaokaidizou {
+		score -= 1
 		bad_cond_str += "高开低走; "
 		bad_cond_str_ += "高开低走; "
 	}
 	if dikaidizou {
+		score -= 1
 		bad_cond_str += "低开低走; "
 		bad_cond_str_ += "低开低走; "
 	}
@@ -873,10 +877,12 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 
 	if changshangying {
+		score += 1
 		cond_str += "长上影; "
 		cond_str_ += "长上影; "
 	}
 	if changxiaying {
+		score += 1
 		cond_str += "长下影; "
 		cond_str_ += "长下影; "
 	}
@@ -888,59 +894,59 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		tupo += "5日,"
 	}
 	if tupo2 {
-		score += 2
+		score += 4
 		cond_str += "收盘突破10日压力位; "
 		tupo += "10日,"
 	}
 	if tupo3 {
-		score += 2
+		score += 4
 		cond_str += "收盘突破30日压力位; "
 		tupo += "30日,"
 	}
 
 	if tupo4 {
-		score += 2
+		score += 4
 		cond_str += "收盘突破60日压力位; "
 		tupo += "60日,"
 	}
 
 	if tupo5 {
-		score += 2
+		score += 4
 		cond_str += "收盘突破5周压力位; "
 		tupo += "5周,"
 	}
 	if tupo6 {
-		score += 2
+		score += 4
 		cond_str += "收盘突破10周压力位; "
 		tupo += "10周,"
 	}
 	if tupo7 {
-		score += 2
+		score += 4
 		cond_str += "收盘突破30周压力位; "
 		tupo += "30周,"
 	}
 	if tupo8 {
-		score += 2
+		score += 4
 		cond_str += "收盘突破60周压力位; "
 		tupo += "60周,"
 	}
 	if tupo9 {
-		score += 2
+		score += 4
 		cond_str += "收盘突破5月压力位; "
 		tupo += "5月,"
 	}
 	if tupo10 {
-		score += 2
+		score += 4
 		cond_str += "收盘突破10月压力位; "
 		tupo += "10月,"
 	}
 	if tupo11 {
-		score += 2
+		score += 4
 		cond_str += "收盘突破30月压力位; "
 		tupo += "30月,"
 	}
 	if tupo12 {
-		score += 2
+		score += 4
 		cond_str += "收盘突破60月压力位; "
 		tupo += "60月,"
 	}
@@ -1155,7 +1161,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 
 	var shangfang string
 	if priceaboveave1 {
-		score += 1
+		score += 2
 		cond_str += "当前价位在5日均线上方; "
 		shangfang += "5日,"
 	}
@@ -1165,18 +1171,18 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		shangfang += "10日,"
 	}
 	if priceaboveave3 {
-		score += 3
+		score += 2
 		cond_str += "当前价位在30日均线上方; "
 		shangfang += "30日,"
 	}
 	if priceaboveave4 {
-		score += 4
+		score += 2
 		cond_str += "当前价位在60日均线上方; "
 		shangfang += "60日,"
 	}
 
 	if wpriceaboveave1 {
-		score += 1
+		score += 2
 		cond_str += "当前价位在5周均线上方; "
 		shangfang += "5周,"
 	}
@@ -1186,18 +1192,18 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		shangfang += "10周,"
 	}
 	if wpriceaboveave3 {
-		score += 3
+		score += 2
 		cond_str += "当前价位在30周均线上方; "
 		shangfang += "30周,"
 	}
 	if wpriceaboveave4 {
-		score += 4
+		score += 2
 		cond_str += "当前价位在60周均线上方; "
 		shangfang += "60周,"
 	}
 
 	if ypriceaboveave1 {
-		score += 1
+		score += 2
 		cond_str += "当前价位在5月均线上方; "
 		shangfang += "5月,"
 	}
@@ -1207,12 +1213,12 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		shangfang += "10月,"
 	}
 	if ypriceaboveave3 {
-		score += 3
+		score += 2
 		cond_str += "当前价位在30月均线上方; "
 		shangfang += "30月,"
 	}
 	if ypriceaboveave4 {
-		score += 4
+		score += 2
 		cond_str += "当前价位在60月均线上方; "
 		shangfang += "60月,"
 	}
@@ -1228,17 +1234,17 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		xiafang += "5日,"
 	}
 	if !priceaboveave2 {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在10日均线下方; "
 		xiafang += "10日,"
 	}
 	if !priceaboveave3 {
-		score -= 3
+		score -= 1
 		bad_cond_str += "当前价位在30日均线下方; "
 		xiafang += "30日,"
 	}
 	if !priceaboveave4 {
-		score -= 4
+		score -= 1
 		bad_cond_str += "当前价位在60日均线下方; "
 		xiafang += "60日,"
 	}
@@ -1249,17 +1255,17 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		xiafang += "5周,"
 	}
 	if !wpriceaboveave2 {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在10周均线下方; "
 		xiafang += "10周,"
 	}
 	if !wpriceaboveave3 && result.AveWeeklyPrice3 != nil {
-		score -= 3
+		score -= 1
 		bad_cond_str += "当前价位在30周均线下方; "
 		xiafang += "30周,"
 	}
 	if !wpriceaboveave4 && result.AveWeeklyPrice4 != nil {
-		score -= 4
+		score -= 1
 		bad_cond_str += "当前价位在60周均线下方; "
 		xiafang += "60周,"
 	}
@@ -1270,17 +1276,17 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		xiafang += "5月,"
 	}
 	if !ypriceaboveave2 && result.AveMonthPrice2 != nil {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在10月均线下方; "
 		xiafang += "10月,"
 	}
 	if !ypriceaboveave3 && result.AveMonthPrice3 != nil {
-		score -= 3
+		score -= 1
 		bad_cond_str += "当前价位在30月均线下方; "
 		xiafang += "30月,"
 	}
 	if !ypriceaboveave4 && result.AveMonthPrice4 != nil {
-		score -= 4
+		score -= 1
 		bad_cond_str += "当前价位在60月均线下方; "
 		xiafang += "60月,"
 	}
@@ -1551,7 +1557,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	middle := strings.Count(finance, "一般")
 	low := strings.Count(finance, "偏低")
 	bad := strings.Count(finance, "较差")
-	score += high*4 + middle*2 + low*-2 + bad*-4
+	score += high*2 + middle*1 + low*-1 + bad*-2
 
 	if score < 0 {
 		score = 1
