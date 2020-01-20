@@ -415,14 +415,14 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 
 	var response []model.PredictListResponse
 	for _, i := range predicts {
-		if len(i.Condition) > 50 {
-			i.Condition = i.Condition[:50] + "..."
+		if len(i.Condition) > 80 {
+			i.Condition = i.Condition[:80]
 		}
-		if len(i.BadCondition) > 50 {
-			i.BadCondition = i.BadCondition[:50] + "..."
+		if len(i.BadCondition) > 80 {
+			i.BadCondition = i.BadCondition[:80]
 		}
-		if len(i.Finance) > 50 {
-			i.Finance = i.Finance[:50] + "..."
+		if len(i.Finance) > 80 {
+			i.Finance = i.Finance[:80]
 		}
 		var coder dal.Code
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", i.Code).Find(&coder)
