@@ -68,7 +68,7 @@ func TestGetConcepts(t *testing.T) {
 
 // 获取labels
 func TestGetLabels(t *testing.T) {
-	rows, _ := store.MysqlClient.GetDB().Raw("select distinct(name) from magic_stock_labels order by convert(name using gbk)").Rows()
+	rows, _ := store.MysqlClient.GetDB().Raw("select distinct(name) from magic_stock_concept_labels order by convert(name using gbk)").Rows()
 	var belongs []string
 	for rows.Next() {
 		var l Concept

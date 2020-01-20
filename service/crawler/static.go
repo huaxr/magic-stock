@@ -33,6 +33,11 @@ func (craw *Crawler) GetAllTicketCode() {
 		if name == "" {
 			continue
 		}
+		var count int
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", x[0][len(x[0])-6:]).Count(&count)
+		if count == 1 {
+			continue
+		}
 		dh := dal.Code{Code: x[0][len(x[0])-6:], Name: name}
 		err := store.MysqlClient.GetDB().Save(&dh).Error
 
@@ -50,6 +55,11 @@ func (craw *Crawler) GetAllTicketCode() {
 		}
 		name := utils.ConvertToString(x[12], "gbk", "utf-8")
 		if name == "" {
+			continue
+		}
+		var count int
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", x[0][len(x[0])-6:]).Count(&count)
+		if count == 1 {
 			continue
 		}
 		dh := dal.Code{Code: x[0][len(x[0])-6:], Name: name}
@@ -71,9 +81,14 @@ func (craw *Crawler) GetAllTicketCode() {
 		if name == "" {
 			continue
 		}
+		var count int
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", x[2]).Count(&count)
+		if count == 1 {
+			continue
+		}
 		dh := dal.Code{Code: x[2], Name: name}
 		store.MysqlClient.GetDB().Save(&dh)
-		fmt.Println(x[0][len(x[0])-6:], name)
+		fmt.Println(x[2], name)
 	}
 
 	for i := 300001; i <= 300900; i++ { // 创业板
@@ -87,6 +102,11 @@ func (craw *Crawler) GetAllTicketCode() {
 		}
 		name := utils.ConvertToString(x[12], "gbk", "utf-8")
 		if name == "" {
+			continue
+		}
+		var count int
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", x[0][len(x[0])-6:]).Count(&count)
+		if count == 1 {
 			continue
 		}
 		dh := dal.Code{Code: x[0][len(x[0])-6:], Name: name}
