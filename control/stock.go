@@ -415,6 +415,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 
 	var response []model.PredictListResponse
 	for _, i := range predicts {
+		log.Println(i.Condition, len(i.Condition))
 		var str1 = i.Condition
 		var str2 = i.BadCondition
 		var str3 = i.Finance
