@@ -196,7 +196,6 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		d.Response(c, nil, err)
 		return
 	}
-	offset, limit := check.ParamParse.GetPagination(c)
 	// 如果用户提交查询并保存查询结果
 	if post.Save {
 		//err := adapter.UserServiceGlobal.SaveUserConditions(&post, authentication)
@@ -411,7 +410,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		}
 		tmp.Order(fmt.Sprintf("%s %s", post.Order, post.OrderType))
 	}
-	tmp.Limit(limit).Offset(offset).Find(&predicts)
+	tmp.Limit(100).Find(&predicts)
 
 	var response []model.PredictListResponse
 	for _, i := range predicts {
@@ -419,13 +418,13 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		var str2 = []rune(i.BadCondition)
 		var str3 = []rune(i.Finance)
 		if len(str1) > 70 {
-			str1 = str1[:70]
+			str1 = str1[:60]
 		}
-		if len(str2) > 70 {
-			str2 = str2[:70]
+		if len(str2) > 60 {
+			str2 = str2[:60]
 		}
-		if len(str3) > 70 {
-			str3 = str3[:70]
+		if len(str3) > 60 {
+			str3 = str3[:60]
 		}
 		var coder dal.Code
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", i.Code).Find(&coder)
