@@ -108,7 +108,7 @@ func (d *UserControl) LoginByWeChat(c *gin.Context) {
 		c.Redirect(302, conf.Config.Host)
 		return
 	} else {
-		d.Response(c, nil, errors.New("未知错误"))
+		d.Response(c, nil, errors.New("OpenId 异常"))
 	}
 }
 

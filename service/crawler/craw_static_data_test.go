@@ -218,3 +218,14 @@ func TestGetTape(t *testing.T) {
 	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("concept like ?", "%中盘%").Update("tape", "中盘")
 	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("concept like ?", "%小盘%").Update("tape", "小盘")
 }
+
+// 更新历史数据存在 low=0的情况
+func TestUpdateLow(t *testing.T) {
+	var history []dal.TicketHistoryMonth
+	store.MysqlClient.GetDB().Model(&dal.TicketHistoryMonth{}).Where("low = ?", 0).Find(&history)
+	for _, i := range history {
+		i.Low = i.Shou
+		i.High = i.Shou
+		store.MysqlClient.GetDB().Save(&i)
+	}
+}
