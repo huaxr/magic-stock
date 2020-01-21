@@ -123,10 +123,12 @@ func (d *UserControl) PayByWeChatJsApi(c *gin.Context) {
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
 
+	var xx []byte
+	c.Request.Body.Read(xx)
 	var post model.SpendType
 	err := c.BindJSON(&post)
 
-	log.Println("充值post请求:", post)
+	log.Println("充值post请求:", post, string(xx))
 
 	res, err := adapter.UserServiceGlobal.PayWxJsAPi(authentication, &post)
 	if err != nil {
@@ -232,10 +234,6 @@ func (d *UserControl) GetInvite(c *gin.Context) {
 func (d *UserControl) SubmitDemand(c *gin.Context) {
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
-
-	var xx []byte
-	c.Request.Body.Read(xx)
-	log.Println(string(xx))
 	var post model.SubmitDemand
 	err := c.BindJSON(&post)
 	if err != nil {
