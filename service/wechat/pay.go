@@ -25,6 +25,7 @@ func (w *WeChat) genOutTrade() string {
 
 // https://www.ctolib.com/panghu1024-anypay.html
 func (w *WeChat) JSApiPay(openid string, money string) (*anypay.WeResJsApi, string) {
+	log.Println("支付金额:", money)
 	nonce_str := w.genOutTrade() // 下单随机值
 	config := anypay.WeConfig{
 		AppId: STOCK_WX_APPID,
