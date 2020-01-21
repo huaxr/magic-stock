@@ -123,12 +123,10 @@ func (d *UserControl) PayByWeChatJsApi(c *gin.Context) {
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
 
-	var xx []byte
-	c.Request.Body.Read(xx)
 	var post model.SpendType
 	err := c.BindJSON(&post)
 
-	log.Println("充值post请求:", post, string(xx))
+	log.Println("充值post请求:", post)
 
 	res, err := adapter.UserServiceGlobal.PayWxJsAPi(authentication, &post)
 	if err != nil {
