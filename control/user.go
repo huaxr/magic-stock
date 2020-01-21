@@ -22,6 +22,7 @@ type UserIF interface {
 	Query(where string, args []interface{}) (*dal.User, error)
 	Exist(where string, args []interface{}) bool
 	GetUserInfo(c *gin.Context)
+	GetToken(c *gin.Context)
 	JudgeIsMember(c *gin.Context)
 	LoginByWeChat(c *gin.Context)
 	LogOut(c *gin.Context)
@@ -72,6 +73,13 @@ func (d *UserControl) GetUserInfo(c *gin.Context) {
 	authentication := _auth.(*model.AuthResult)
 	user, err := d.Query("id = ?", []interface{}{authentication.Uid})
 	d.Response(c, user, err)
+}
+
+func (d *UserControl) GetToken(c *gin.Context) {
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
+	user, _ := d.Query("id = ?", []interface{}{authentication.Uid})
+	d.Response(c, user.ShareToken, nil)
 }
 
 func (d *UserControl) JudgeIsMember(c *gin.Context) {
