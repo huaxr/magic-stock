@@ -140,7 +140,7 @@ type StockFund struct {
 
 type SpendType struct {
 	Id      int    `json:"id"`
-	Contact string `json:"contact"` // 联系方式 邮箱地址/手机号码/下载格式
+	Content string `json:"content"` // 联系方式 邮箱地址/手机号码/下载格式
 }
 
 type SubmitDemand struct {
