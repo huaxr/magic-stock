@@ -128,6 +128,7 @@ func (d *UserControl) PayByWeChatJsApi(c *gin.Context) {
 	err := c.BindJSON(&post)
 	res, err := adapter.UserServiceGlobal.PayWxJsAPi(authentication, &post)
 	if err != nil {
+		log.Println(err)
 		d.Response(c, nil, err)
 		return
 	}
