@@ -232,6 +232,10 @@ func (d *UserControl) GetInvite(c *gin.Context) {
 func (d *UserControl) SubmitDemand(c *gin.Context) {
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
+
+	var xx []byte
+	c.Request.Body.Read(xx)
+	log.Println(string(xx))
 	var post model.SubmitDemand
 	err := c.BindJSON(&post)
 	if err != nil {
