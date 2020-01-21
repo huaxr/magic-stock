@@ -105,7 +105,7 @@ func (u *UserService) LoginWx(code, token string) (*dal.User, error) {
 		return nil, err
 	}
 	res := check.Authentication.HttpGetWithToken(fmt.Sprintf(wechat.UserInfoUrl, login_response.AccessToken, login_response.Openid), "")
-	log.Println("微信返回:", res)
+	log.Println("微信返回:", string(res))
 	var user_info model.WxUserInfo
 	err = json.Unmarshal(res, &user_info)
 	if err != nil {
