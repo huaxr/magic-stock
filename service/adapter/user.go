@@ -105,7 +105,7 @@ func (u *UserService) LoginWx(code, token string) (*dal.User, error) {
 		return nil, err
 	}
 	res := check.Authentication.HttpGetWithToken(fmt.Sprintf(wechat.UserInfoUrl, login_response.AccessToken, login_response.Openid), "")
-	log.Println("微信返回:", string(res))
+	//log.Println("微信返回:", string(res))
 	var user_info model.WxUserInfo
 	err = json.Unmarshal(res, &user_info)
 	if err != nil {
@@ -119,7 +119,7 @@ func (u *UserService) LoginWx(code, token string) (*dal.User, error) {
 	username := user_info.Nickname
 	openid := user_info.OpenId
 	if openid == "" {
-		return nil, errors.New("OpenID出错，请在手机版微信试试？")
+		return nil, errors.New("未知错误")
 	}
 	uid := uuid.Must(uuid.NewV4()).String()
 	user := dal.User{OpenId: openid, UserName: username, Avatar: avatar, Sex: sex, City: city, Province: province, Country: country, MemberExpireTime: time.Now(), QueryLeft: 20, ShareToken: uid[0:23]}
