@@ -28,6 +28,8 @@ func (r *Router) addCommon() {
 	router.GET("/conditions", control.PredictControlGlobal.GetConditions)
 	router.GET("/high_conditions", control.PredictControlGlobal.GetHighConditions)
 	router.GET("/query_list", control.PredictControlGlobal.GetQueryList)
+	router.GET("/share", control.UserControlGlobal.GetWxSign)
+
 }
 
 func (r *Router) addRouters() {
