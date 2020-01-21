@@ -427,8 +427,8 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		if len(str1) > 70 {
 			str1 = str1[:70]
 		}
-		if len(str2) > 70 {
-			str2 = str2[:70]
+		if len(str2) > 60 {
+			str2 = str2[:60]
 		}
 		if len(str3) > 60 {
 			str3 = str3[:60]
