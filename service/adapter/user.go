@@ -101,13 +101,14 @@ func (u *UserService) CreateUserIfNotExist(user *dal.User, token string) (us *da
 func (u *UserService) LoginWx(code, token string) (*dal.User, error) {
 	login_response, err := wechat.WechatGlobal.GetAccessTokenByCode(code)
 	if err != nil {
+		log.Println("GetAccessTokenByCode error:", err)
 		return nil, err
 	}
 	res := check.Authentication.HttpGetWithToken(fmt.Sprintf(wechat.UserInfoUrl, login_response.AccessToken, login_response.Openid), "")
+	log.Println("微信返回:", res)
 	var user_info model.WxUserInfo
 	err = json.Unmarshal(res, &user_info)
 	if err != nil {
-		log.Println(err, "获取用户信息失败")
 		return nil, errors.New("获取用户信息失败")
 	}
 	avatar := user_info.Headimgurl
@@ -118,7 +119,6 @@ func (u *UserService) LoginWx(code, token string) (*dal.User, error) {
 	username := user_info.Nickname
 	openid := user_info.OpenId
 	if openid == "" {
-		log.Println(err, "openid 为空出错")
 		return nil, errors.New("OpenID出错，请在手机版微信试试？")
 	}
 	uid := uuid.Must(uuid.NewV4()).String()

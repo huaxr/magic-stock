@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	DefaultKey  = "session"
+	DefaultKey  = "stock_session"
 	errorFormat = "[sessions] ERROR! %s\n"
 )
 

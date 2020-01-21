@@ -104,7 +104,6 @@ func (d *UserControl) LoginByWeChat(c *gin.Context) {
 		session.Set("open_id", user.OpenId)
 		session.Set("uid", int(user.ID))
 		session.Save()
-		log.Println("登录成功")
 		c.Redirect(302, conf.Config.Host)
 		return
 	} else {

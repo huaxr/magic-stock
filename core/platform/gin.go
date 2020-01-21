@@ -25,7 +25,7 @@ func (r *Router) InitGin() Route {
 	e.registerMiddleware(
 		gin.Logger(),
 		gin.Recovery(),
-		session.Sessions("session", mysql.NewGormStore(store.MysqlClient.GetDB(), []byte(conf.Config.SessionSecret))),
+		session.Sessions(session.DefaultKey, mysql.NewGormStore(store.MysqlClient.GetDB(), []byte(conf.Config.SessionSecret))),
 	)
 	switch e.env {
 	case "loc":
