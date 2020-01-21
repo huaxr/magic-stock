@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"strings"
 
 	"github.com/axgle/mahonia"
 )
@@ -89,4 +90,11 @@ func ConvertToString(src string, srcCode string, tagCode string) string {
 	_, cdata, _ := tagCoder.Translate([]byte(srcResult), true)
 	result := string(cdata)
 	return result
+}
+
+func TellWeChat(agent string) bool {
+	if strings.Contains(strings.ToLower(agent), "micromessenger") {
+		return true
+	}
+	return false
 }

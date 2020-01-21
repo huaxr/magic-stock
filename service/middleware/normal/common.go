@@ -2,10 +2,10 @@ package normal
 
 import (
 	"fmt"
-	"log"
 	"magic/stock/model"
 	"magic/stock/service/conf"
 	"magic/stock/service/wechat"
+	"magic/stock/utils"
 	"net/http"
 	"runtime/debug"
 	"strings"
@@ -22,7 +22,12 @@ func LoginRequired() gin.HandlerFunc {
 		authentication := check.Authentication.JudgeApi(c)
 		if authentication.Err != nil {
 			ua := c.Request.Header.Get("User-Agent")
-			log.Println("客户端", ua)
+			is_wechat := utils.TellWeChat(ua)
+			if !is_wechat {
+				c.JSON(200, gin.H{"error_code": 2, "err_msg": "请登录", "data": "https://mmbiz.qpic.cn/mmbiz_png/lVrFuibmIN73J0kvNLHrSy1rjgbWEPJia4pSQcrhWlJ1AQrwicLFCZ3lHua4SsqbY6s8Fzx13UOLba6aIzGz7VhmQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1"})
+				c.Abort()
+				return
+			}
 			token := c.DefaultQuery("token", "")
 			c.JSON(200, gin.H{"error_code": 2, "err_msg": "请登录", "data": wechat.WechatGlobal.GetCodeUrl(conf.Config.WxRedirect + "?token=" + token)})
 			c.Abort()
