@@ -25,8 +25,7 @@ func (w *WeChat) genOutTrade() string {
 
 // https://www.ctolib.com/panghu1024-anypay.html
 func (w *WeChat) JSApiPay(openid string, money string) (*anypay.WeResJsApi, string) {
-	nonce_str := w.genOutTrade()
-	log.Println("下单随机值", nonce_str)
+	nonce_str := w.genOutTrade() // 下单随机值
 	config := anypay.WeConfig{
 		AppId: STOCK_WX_APPID,
 		MchId: WX_MCH,
@@ -52,6 +51,8 @@ func (w *WeChat) JSApiPay(openid string, money string) (*anypay.WeResJsApi, stri
 			param := resParam.Data.(anypay.WeResJsApi)
 			return &param, nonce_str
 		}
+	} else {
+		log.Println("调用失败", res)
 	}
 	return nil, ""
 }

@@ -138,7 +138,6 @@ func (u *UserService) PayWxJsAPi(authentication *model.AuthResult, post *model.S
 	user, _ := u.Query("id = ?", []interface{}{authentication.Uid})
 	payment, NonceStr := wechat.WechatGlobal.JSApiPay(user.OpenId, strconv.Itoa(price.Spend))
 	if payment == nil {
-		log.Println("唤起支付调用失败")
 		return nil, errors.New("唤起支付调用失败")
 	}
 	pay_record := dal.Pay{UserId: authentication.Uid, Spend: price.Spend, PaySuccess: false, OrderId: NonceStr, Type: price.Type, Count: price.Count, Extra: post.Content}
