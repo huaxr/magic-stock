@@ -22,6 +22,7 @@ type UserIF interface {
 	Query(where string, args []interface{}) (*dal.User, error)
 	Exist(where string, args []interface{}) bool
 	GetUserInfo(c *gin.Context)
+	GetAdminCount(c *gin.Context)
 	GetToken(c *gin.Context)
 	JudgeIsMember(c *gin.Context)
 	LoginByWeChat(c *gin.Context)
@@ -141,6 +142,13 @@ func (d *UserControl) PayByWeChatH5(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{"error_code": 0, "err_msg": "", "url": web_url})
+}
+
+func (d *UserControl) GetAdminCount(c *gin.Context) {
+	var u_count, b_count int
+	store.MysqlClient.GetDB().Model(&dal.User{}).Count(&u_count)
+	store.MysqlClient.GetDB().Model(&dal.Pay{}).Count(&b_count)
+	c.JSON(200, gin.H{"error_code": 0, "err_msg": "", "data": gin.H{"user": u_count, "buy_count": b_count}})
 }
 
 func (d *UserControl) TradeCallBack(c *gin.Context) {

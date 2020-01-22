@@ -889,7 +889,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 
 	var tupo string
 	if tupo1 {
-		score += 3
+		score += 2
 		cond_str += "收盘突破5日压力位; "
 		tupo += "5日,"
 	}
@@ -905,48 +905,48 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 
 	if tupo4 {
-		score += 3
+		score += 4
 		cond_str += "收盘突破60日压力位; "
 		tupo += "60日,"
 	}
 
 	if tupo5 {
-		score += 3
+		score += 4
 		cond_str += "收盘突破5周压力位; "
 		tupo += "5周,"
 	}
 	if tupo6 {
-		score += 3
+		score += 4
 		cond_str += "收盘突破10周压力位; "
 		tupo += "10周,"
 	}
 	if tupo7 {
-		score += 3
+		score += 4
 		cond_str += "收盘突破30周压力位; "
 		tupo += "30周,"
 	}
 	if tupo8 {
-		score += 3
+		score += 4
 		cond_str += "收盘突破60周压力位; "
 		tupo += "60周,"
 	}
 	if tupo9 {
-		score += 3
+		score += 4
 		cond_str += "收盘突破5月压力位; "
 		tupo += "5月,"
 	}
 	if tupo10 {
-		score += 3
+		score += 4
 		cond_str += "收盘突破10月压力位; "
 		tupo += "10月,"
 	}
 	if tupo11 {
-		score += 3
+		score += 4
 		cond_str += "收盘突破30月压力位; "
 		tupo += "30月,"
 	}
 	if tupo12 {
-		score += 3
+		score += 4
 		cond_str += "收盘突破60月压力位; "
 		tupo += "60月,"
 	}
@@ -957,53 +957,53 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 
 	var jichuang string
 	if jichuang1 {
-		score -= 3
+		score -= 2
 		bad_cond_str += "收盘击穿5日支撑位; "
 		jichuang += "5日,"
 	}
 	if jichuang2 {
-		score -= 3
+		score -= 2
 		bad_cond_str += "收盘击穿10日支撑位; "
 		jichuang += "10日,"
 	}
 	if jichuang3 {
-		score -= 3
+		score -= 2
 		bad_cond_str += "收盘击穿30日支撑位; "
 		jichuang += "30日,"
 	}
 	if jichuang4 {
-		score -= 3
+		score -= 2
 		bad_cond_str += "收盘击穿60日支撑位; "
 		jichuang += "60日,"
 	}
 
 	if jichuang5 {
-		score -= 3
+		score -= 2
 		bad_cond_str += "收盘击穿5周支撑位; "
 		jichuang += "5周,"
 	}
 	if jichuang6 {
-		score -= 3
+		score -= 2
 		bad_cond_str += "收盘击穿10周支撑位; "
 		jichuang += "10周,"
 	}
 	if jichuang7 {
-		score -= 3
+		score -= 2
 		bad_cond_str += "收盘击穿30周支撑位; "
 		jichuang += "30周,"
 	}
 	if jichuang8 {
-		score -= 3
+		score -= 2
 		bad_cond_str += "收盘击穿60周支撑位; "
 		jichuang += "60周,"
 	}
 	if jichuang9 {
-		score -= 3
+		score -= 2
 		bad_cond_str += "收盘击穿5月支撑位; "
 		jichuang += "5月,"
 	}
 	if jichuang10 {
-		score -= 3
+		score -= 2
 		bad_cond_str += "收盘击穿10月支撑位; "
 		jichuang += "10月,"
 	}
@@ -1013,7 +1013,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		jichuang += "30月,"
 	}
 	if jichuang12 {
-		score -= 3
+		score -= 2
 		bad_cond_str += "收盘击穿60月支撑位; "
 		jichuang += "60月,"
 	}
@@ -1229,64 +1229,64 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 
 	var xiafang string
 	if !priceaboveave1 {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在5日均线下方; "
 		xiafang += "5日,"
 	}
 	if !priceaboveave2 {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在10日均线下方; "
 		xiafang += "10日,"
 	}
 	if !priceaboveave3 {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在30日均线下方; "
 		xiafang += "30日,"
 	}
 	if !priceaboveave4 {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在60日均线下方; "
 		xiafang += "60日,"
 	}
 
 	if !wpriceaboveave1 {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在5周均线下方; "
 		xiafang += "5周,"
 	}
 	if !wpriceaboveave2 {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在10周均线下方; "
 		xiafang += "10周,"
 	}
 	if !wpriceaboveave3 && result.AveWeeklyPrice3 != nil {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在30周均线下方; "
 		xiafang += "30周,"
 	}
 	if !wpriceaboveave4 && result.AveWeeklyPrice4 != nil {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在60周均线下方; "
 		xiafang += "60周,"
 	}
 
 	if !ypriceaboveave1 && result.AveMonthPrice1 != nil {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在5月均线下方; "
 		xiafang += "5月,"
 	}
 	if !ypriceaboveave2 && result.AveMonthPrice2 != nil {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在10月均线下方; "
 		xiafang += "10月,"
 	}
 	if !ypriceaboveave3 && result.AveMonthPrice3 != nil {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在30月均线下方; "
 		xiafang += "30月,"
 	}
 	if !ypriceaboveave4 && result.AveMonthPrice4 != nil {
-		score -= 2
+		score -= 1
 		bad_cond_str += "当前价位在60月均线下方; "
 		xiafang += "60月,"
 	}
@@ -1422,12 +1422,12 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 
 	if simuchicangcount > 0 {
-		score += 1
+		score += 3
 		cond_str += fmt.Sprintf("%d个私募持仓; ", simuchicangcount)
 		cond_str_ += fmt.Sprintf("%d个私募持仓; ", simuchicangcount)
 	}
 	if jigouchicangcount > 0 {
-		score += 1
+		score += 3
 		cond_str += fmt.Sprintf("%d个基金持仓; ", jigouchicangcount)
 		cond_str_ += fmt.Sprintf("%d个基金持仓; ", jigouchicangcount)
 	}
@@ -1557,7 +1557,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	middle := strings.Count(finance, "一般")
 	low := strings.Count(finance, "偏低")
 	bad := strings.Count(finance, "较差")
-	score += high*4 + middle*2 + low*-2 + bad*-4
+	score += high*4 + middle*3 + low*-3 + bad*-4
 
 	if score < 0 {
 		score = 1
