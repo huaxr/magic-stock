@@ -207,13 +207,15 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	}
 	post.Date = d.getDate()
 
-	var where_belongs, where_locations, where_concepts, where_forms []string
-	var args_belongs, args_locationgs, args_concepts, args_forms []interface{}
+	var where_belongs, where_locations, where_concepts, where_forms, where_tapes []string
+	var args_belongs, args_locationgs, args_concepts, args_forms, args_tapes []interface{}
 
 	belong_set := set.New(set.ThreadSafe)
 	form_set := set.New(set.ThreadSafe)
+	tape_set := set.New(set.ThreadSafe)
 	location_set := set.New(set.ThreadSafe)
 	concept_set := set.New(set.ThreadSafe)
+	keyword_set := set.New(set.ThreadSafe)
 	per_ticket_set1 := set.New(set.ThreadSafe)
 	per_ticket_set2 := set.New(set.ThreadSafe)
 	per_ticket_set3 := set.New(set.ThreadSafe)
@@ -282,6 +284,30 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_forms...).Scan(&codes)
 		for _, i := range codes {
 			form_set.Add(i.Code)
+		}
+	}
+
+	if len(post.Query.Tapes) > 0 {
+		var codes []Codes
+		for _, i := range post.Query.Tapes {
+			if len(i) == 0 {
+				continue
+			}
+			where_tapes = append(where_tapes, "tape = ?")
+			args_tapes = append(args_tapes, i)
+		}
+		where_str := strings.Join(where_tapes, " OR ")
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where(where_str, args_tapes...).Scan(&codes)
+		for _, i := range codes {
+			tape_set.Add(i.Code)
+		}
+	}
+
+	if post.Query.MajorKeyword != "" {
+		var codes []Codes
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Select("code").Where("business_scope like ? ", "%"+post.Query.MajorKeyword+"%").Scan(&codes)
+		for _, i := range codes {
+			keyword_set.Add(i.Code)
 		}
 	}
 
@@ -360,7 +386,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	other_set6 = d.ParseCount(post.Query.Other.PgCount, post.Date, "pg_count")
 	other_set7 = d.ParseCount(post.Query.Other.ZfCount, post.Date, "zf_count")
 
-	all_sets := []set.Interface{belong_set, location_set, concept_set, form_set,
+	all_sets := []set.Interface{belong_set, location_set, concept_set, form_set, tape_set, keyword_set,
 		per_ticket_set1, per_ticket_set2, per_ticket_set3, per_ticket_set4, per_ticket_set5, per_ticket_set6,
 		last_day_set1, last_day_set2, last_day_set3, last_day_set4, last_day_set5,
 		other_set1, other_set2, other_set3, other_set4, other_set5, other_set6, other_set7,

@@ -87,19 +87,20 @@ type Other struct {
 }
 
 type Query struct {
-	Predicts  map[string][]string `json:"predicts"`  // 预测的打标
-	Belongs   []string            `json:"belongs"`   // 所属行业
-	Locations []string            `json:"locations"` // 所属地区
-	Concepts  []string            `json:"concepts"`  // 所属概念 ex 腾讯概念
-	Labels    []string            `json:"labels"`    // 标签
-	Forms     []string            `json:"forms"`     // 组织形式
-
-	PerTickets   QueryPerTicket `json:"per_tickets"`    // 高级条件区间
-	LastDayRange LastDayRange   `json:"last_day_range"` // 昨日收盘情况区间
-	YlAbility    YlAbility      `json:"yl_ability"`     // 盈利能力区间
-	CzAbility    CzAbility      `json:"cz_ability"`     // 成长能力区间
-	YyAbility    YyAbility      `json:"yy_ability"`     // 运营能力区间
-	Other        Other          `json:"other"`          // 其它数据
+	Predicts     map[string][]string `json:"predicts"`       // 预测的打标
+	Belongs      []string            `json:"belongs"`        // 所属行业
+	Locations    []string            `json:"locations"`      // 所属地区
+	Concepts     []string            `json:"concepts"`       // 所属概念 ex 腾讯概念
+	Labels       []string            `json:"labels"`         // 标签
+	Forms        []string            `json:"forms"`          // 组织形式
+	Tapes        []string            `json:"tapes"`          // 盘口
+	MajorKeyword string              `json:"majorkeyword"`   // 主营业务关键词
+	PerTickets   QueryPerTicket      `json:"per_tickets"`    // 高级条件区间
+	LastDayRange LastDayRange        `json:"last_day_range"` // 昨日收盘情况区间
+	YlAbility    YlAbility           `json:"yl_ability"`     // 盈利能力区间
+	CzAbility    CzAbility           `json:"cz_ability"`     // 成长能力区间
+	YyAbility    YyAbility           `json:"yy_ability"`     // 运营能力区间
+	Other        Other               `json:"other"`          // 其它数据
 }
 
 type GetPredicts struct {
