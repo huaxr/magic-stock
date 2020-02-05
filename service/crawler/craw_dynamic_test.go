@@ -16,12 +16,12 @@ import (
 var wg, wg2 sync.WaitGroup //定义一个同步等待的组
 
 var (
-	today_str        = "2020-01-21"
-	last_day_str     = "2020-01-20" // 上一个交易日数据 可以计算量比用, 删除昨日周线等
-	delete_day_week  = "2020-01-20" //要删除的周线日线  一般情况=last_day_str
-	delete_day_month = "2020-01-20"
-	week_begin       = "2020-01-20"
-	month_begin      = "2020-01-01"
+	today_str        = "2020-02-05"
+	last_day_str     = "2020-02-04" // 上一个交易日数据 可以计算量比用
+	delete_day_week  = "2020-02-04" //要删除的周线日线  一般情况=last_day_str
+	delete_day_month = "2020-02-04"
+	week_begin       = "2020-02-03"
+	month_begin      = "2020-02-03"
 )
 
 // 获取今日的所有股票 周 月线， 分析结果并自动加入线上

@@ -29,9 +29,9 @@ func TestGetStockAllFund(t *testing.T) {
 
 	go func() {
 		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 3357").Find(&code)
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 1").Find(&code)
 		for _, i := range code {
-			CrawlerGlobal.GetStockAllFund(i.Code, true)
+			CrawlerGlobal.GetStockAllFund(i.Code, false)
 		}
 	}()
 	select {}

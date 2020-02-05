@@ -219,9 +219,9 @@ func (craw *Crawler) GetFundHighHold(date string) {
 func (craw *Crawler) GetStockAllFund(code string, proxy bool) {
 	var doc *goquery.Document
 	if !proxy {
-		doc, _ = craw.NewDocument(fmt.Sprintf("https://fund.jrj.com.cn/fhs/detail/20190930/%s.shtml", code))
+		doc, _ = craw.NewDocument(fmt.Sprintf("http://fund.jrj.com.cn/fhs/detail/20191231/%s.shtml", code))
 	} else {
-		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("https://fund.jrj.com.cn/fhs/detail/20190930/%s.shtml", code))
+		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://fund.jrj.com.cn/fhs/detail/20191231/%s.shtml", code))
 	}
 	time.Sleep(1 * time.Second)
 	//var err error
