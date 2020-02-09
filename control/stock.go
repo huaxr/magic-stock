@@ -216,6 +216,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	location_set := set.New(set.ThreadSafe)
 	concept_set := set.New(set.ThreadSafe)
 	keyword_set := set.New(set.ThreadSafe)
+
 	per_ticket_set1 := set.New(set.ThreadSafe)
 	per_ticket_set2 := set.New(set.ThreadSafe)
 	per_ticket_set3 := set.New(set.ThreadSafe)
@@ -343,6 +344,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 			concept_set.Add(i.Code)
 		}
 	}
+
 	per_ticket_set1 = d.ParseStockPerTicket(post.Query.PerTickets.Shouyiafter, "shouyiafter")
 	per_ticket_set2 = d.ParseStockPerTicket(post.Query.PerTickets.Jiaquanshouyi, "jiaquanshouyi")
 	per_ticket_set3 = d.ParseStockPerTicket(post.Query.PerTickets.Jinzichanafter, "jinzichanafter")

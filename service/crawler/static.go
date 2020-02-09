@@ -248,10 +248,14 @@ func (craw *Crawler) GetAllTicketCodeInfo2(code dal.Code, proxy bool) {
 	HistoryNames := strings.TrimSpace(doc.Find(fmt.Sprintf("#comInfo1 > tbody > tr:nth-child(17) > td.ccl")).Text())
 	InstitutionalType = utils.ConvertToString(InstitutionalType, "gbk", "utf-8")
 	HistoryNames = utils.ConvertToString(HistoryNames, "gbk", "utf-8")
-	fmt.Println(code.ID, code.Name, OrganizationalForm, HistoryNames, InstitutionalType)
+	BusinessScope := strings.TrimSpace(doc.Find(fmt.Sprintf("#comInfo1 > tbody > tr:nth-child(21) > td.ccl")).Text())
+	BusinessScope = utils.ConvertToString(BusinessScope, "gbk", "utf-8")
 	code.OrganizationalForm = OrganizationalForm
 	code.InstitutionalType = InstitutionalType
 	code.HistoryNames = HistoryNames
+	code.BusinessScope = BusinessScope
+
+	fmt.Println(code.ID, code.Name, BusinessScope)
 	store.MysqlClient.GetDB().Save(&code)
 }
 

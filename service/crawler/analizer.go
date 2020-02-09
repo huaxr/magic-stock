@@ -305,6 +305,28 @@ func (craw *Crawler) HasLimitUpInTheseDays(result *model.CalcResult, recent_days
 	return ArrayHasLimitUp(result.RecentPercent, recent_days)
 }
 
+func JudgeNumber(n float64, numbers []float64, typ string) bool {
+	if typ == "low" {
+		for _, i := range numbers {
+			if n > i {
+				return false
+			}
+		}
+		return true
+	}
+
+	if typ == "high" {
+		for _, i := range numbers {
+			if n < i {
+				return false
+			}
+		}
+		return true
+	}
+
+	return false
+}
+
 // 5 10 15 30 60
 func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	score := 0
@@ -580,6 +602,54 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	jichuang3 := result.AveDailyPrice3[0] > result.RecentClose[0] && result.AveDailyPrice3[1] <= result.RecentClose[1] && result.AveDailyPrice3[2] < result.RecentClose[2]
 	jichuang4 := result.AveDailyPrice4[0] > result.RecentClose[0] && result.AveDailyPrice4[1] <= result.RecentClose[1] && result.AveDailyPrice4[2] < result.RecentClose[2]
 
+	current_low, current_high := result.RecentLowMonth[0], result.RecentHighMonth[0]
+	// 3月新低、新高
+	// 6月新低
+	// 9月新低
+	// 12月新低
+	if len(result.RecentLowMonth) >= 3 {
+		if JudgeNumber(current_low, result.RecentLowMonth[0:3], "low") {
+			bad_cond_str += "三月新低; "
+			bad_cond_str_ += "三月新低; "
+		}
+
+		if JudgeNumber(current_high, result.RecentHighMonth[0:3], "high") {
+			cond_str += "三月新高; "
+			cond_str_ += "三月新高; "
+		}
+	}
+	if len(result.RecentLowMonth) >= 6 {
+		if JudgeNumber(current_low, result.RecentLowMonth[0:6], "low") {
+			bad_cond_str += "六月新低; "
+			bad_cond_str_ += "六月新低; "
+		}
+		if JudgeNumber(current_high, result.RecentHighMonth[0:6], "high") {
+			cond_str += "六月新高; "
+			cond_str_ += "六月新高; "
+		}
+	}
+	if len(result.RecentLowMonth) >= 9 {
+		if JudgeNumber(current_low, result.RecentLowMonth[0:9], "low") {
+			bad_cond_str += "九月新低; "
+			bad_cond_str_ += "九月新低; "
+		}
+		if JudgeNumber(current_high, result.RecentHighMonth[0:9], "high") {
+			cond_str += "九月新高; "
+			cond_str_ += "九月新高; "
+		}
+	}
+
+	if len(result.RecentLowMonth) >= 12 {
+		if JudgeNumber(current_low, result.RecentLowMonth[0:12], "low") {
+			bad_cond_str += "十二月新低; "
+			bad_cond_str_ += "十二月新低; "
+		}
+		if JudgeNumber(current_high, result.RecentHighMonth[0:12], "high") {
+			cond_str += "十二月新高; "
+			cond_str_ += "十二月新高; "
+		}
+	}
+
 	if jincha11 {
 		score += 4
 		cond_str += "(量能金叉)10日上穿40日均线; "
@@ -659,8 +729,8 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 	if yjincha1 {
 		score += 4
-		cond_str += "(金叉)5月上穿10月周均线; "
-		cond_str_ += "(金叉)5月上穿10月周均线; "
+		cond_str += "(金叉)5月上穿10月均线; "
+		cond_str_ += "(金叉)5月上穿10月均线; "
 	}
 	if yjincha2 {
 		score += 4

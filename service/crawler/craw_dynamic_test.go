@@ -16,49 +16,49 @@ import (
 var wg, wg2 sync.WaitGroup //定义一个同步等待的组
 
 var (
-	today_str        = "2020-02-05"
-	last_day_str     = "2020-02-04" // 上一个交易日数据 可以计算量比用
-	delete_day_week  = "2020-02-04" //要删除的周线日线  一般情况=last_day_str
-	delete_day_month = "2020-02-04"
-	week_begin       = "2020-02-03"
-	month_begin      = "2020-02-03"
+	today_str        = "2020-02-07"
+	last_day_str     = "2020-02-06" // 上一个交易日数据 可以计算量比用
+	delete_day_week  = "2020-02-06" //要删除的周线日线  一般情况=last_day_str
+	delete_day_month = "2020-02-06"
+	week_begin       = "2020-02-03" // 本周的开始 周一
+	month_begin      = "2020-02-03" // 本月的开始 一号 基本可不变
 )
 
 // 获取今日的所有股票 周 月线， 分析结果并自动加入线上
 func TestGetAllTicketTodayDetail(t *testing.T) {
 	start := time.Now()
-	//today := today_str
-	//wg.Add(2)
-	//go func() {
-	//	var code []dal.Code
-	//	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2000").Find(&code)
-	//	for _, i := range code {
-	//	RE:
-	//		err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, last_day_str, false)
-	//		if err != nil {
-	//			log.Println("爬虫错误， 休眠10秒继续...", i.Name)
-	//			time.Sleep(10 * time.Second)
-	//			goto RE
-	//		}
-	//	}
-	//	wg.Done()
-	//}()
-	//
-	//go func() {
-	//	var code []dal.Code
-	//	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000").Find(&code)
-	//	for _, i := range code {
-	//	RE:
-	//		err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, last_day_str, true)
-	//		if err != nil {
-	//			log.Println("爬虫错误， 休眠10秒继续...", i.Name)
-	//			time.Sleep(10 * time.Second)
-	//			goto RE
-	//		}
-	//	}
-	//	wg.Done()
-	//}()
-	//wg.Wait()
+	today := today_str
+	wg.Add(2)
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id < 2000").Find(&code)
+		for _, i := range code {
+		RE:
+			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, last_day_str, false)
+			if err != nil {
+				log.Println("爬虫错误， 休眠10秒继续...", i.Name)
+				time.Sleep(10 * time.Second)
+				goto RE
+			}
+		}
+		wg.Done()
+	}()
+
+	go func() {
+		var code []dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id >= 2000").Find(&code)
+		for _, i := range code {
+		RE:
+			err := CrawlerGlobal.GetAllTicketTodayDetail(i.Code, i.Name, today, last_day_str, true)
+			if err != nil {
+				log.Println("爬虫错误， 休眠10秒继续...", i.Name)
+				time.Sleep(10 * time.Second)
+				goto RE
+			}
+		}
+		wg.Done()
+	}()
+	wg.Wait()
 
 	wg2.Add(2)
 	// 抽出周 月线
