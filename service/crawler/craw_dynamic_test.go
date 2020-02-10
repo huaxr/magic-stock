@@ -112,16 +112,6 @@ func GetData() {
 	}
 }
 
-//func TestCalcData(t *testing.T) {
-//	var code dal.Code
-//	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", "002609").Find(&code)
-//
-//	x := &model.Params{code.Code, today_str, 0, 5, 10, 30, 60, 10, 40}
-//	y := CrawlerGlobal.CalcResultWithDefined(x)
-//	log.Println(y.RecentOpen[0], y.RecentLow[0])
-//	//CrawlerGlobal.Analyze(y, code.Code, code.Name)
-//}
-
 func TestGetData(t *testing.T) {
 	GetData()
 }

@@ -43,6 +43,8 @@ type PredictIF interface {
 	GetPeiGuZhuangZeng(c *gin.Context)
 	// 获取所有子公司
 	GetSubComp(c *gin.Context)
+	// 获取公告新闻
+	GetPublic(c *gin.Context)
 	Response(c *gin.Context, data interface{}, err error, param ...int)
 }
 
@@ -771,4 +773,25 @@ func (d *PredictControl) GetTop3(c *gin.Context) {
 	var res []dal.Predict
 	store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("date = ?", date).Order("score desc").Limit(3).Scan(&res)
 	d.Response(c, res, nil)
+}
+
+func (d *PredictControl) GetPublic(c *gin.Context) {
+	code := c.DefaultQuery("code", "")
+	typ := c.DefaultQuery("type", "news")
+	if code == "" {
+		d.Response(c, nil, errors.New("code 为空"))
+		return
+	}
+	if typ == "news" {
+		var subs []dal.StockPublicNews
+		store.MysqlClient.GetDB().Model(&dal.StockPublicNews{}).Where("code = ?", code).Find(&subs)
+		d.Response(c, subs, nil)
+		return
+	}
+	if typ == "reports" {
+		var subs []dal.StockPublicReports
+		store.MysqlClient.GetDB().Model(&dal.StockPublicReports{}).Where("code = ?", code).Find(&subs)
+		d.Response(c, subs, nil)
+		return
+	}
 }

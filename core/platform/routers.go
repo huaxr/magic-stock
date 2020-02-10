@@ -29,7 +29,15 @@ func (r *Router) addCommon() {
 	router.GET("/high_conditions", control.PredictControlGlobal.GetHighConditions)
 	router.GET("/query_list", control.PredictControlGlobal.GetQueryList)
 	router.GET("/share", control.UserControlGlobal.GetWxSign)
-
+	// 获取公告新闻
+	router.GET("/stock/public", control.PredictControlGlobal.GetPublic)
+	// 机构持仓
+	router.GET("/fund_hold", control.PredictControlGlobal.FundHold)
+	// 流通股东持仓
+	router.GET("/top_holder_hold", control.PredictControlGlobal.TopHolderHold)
+	router.GET("/stock/fhsgzz", control.PredictControlGlobal.GetFenHong)
+	router.GET("/stock/pgzf", control.PredictControlGlobal.GetPeiGuZhuangZeng)
+	router.GET("/stock/subcomp", control.PredictControlGlobal.GetSubComp)
 }
 
 func (r *Router) addRouters() {
@@ -54,12 +62,6 @@ func (r *Router) addRouters() {
 		router.GET("/stock/detail", control.PredictControlGlobal.GetDetail)
 		router.GET("/stock/k/detail", control.PredictControlGlobal.GetWeekDetail)
 		router.GET("/stock/fund", control.PredictControlGlobal.GetFunds)
-		// 机构持仓
-		router.GET("/fund_hold", control.PredictControlGlobal.FundHold)
-		// 流通股东持仓
-		router.GET("/top_holder_hold", control.PredictControlGlobal.TopHolderHold)
-		router.GET("/stock/fhsgzz", control.PredictControlGlobal.GetFenHong)
-		router.GET("/stock/pgzf", control.PredictControlGlobal.GetPeiGuZhuangZeng)
-		router.GET("/stock/subcomp", control.PredictControlGlobal.GetSubComp)
+
 	}
 }

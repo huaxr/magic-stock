@@ -910,3 +910,59 @@ func (craw *Crawler) GetMonthDay(code dal.Code, date1 string, date2 string) {
 		}
 	}
 }
+
+func (craw *Crawler) GetPublicNews(code dal.Code, proxy bool) {
+	var doc *goquery.Document
+	if !proxy {
+		doc, _ = craw.NewDocument(fmt.Sprintf("http://quotes.money.163.com/f10/gsgg_%s,zjgg.html", code.Code))
+	} else {
+		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://quotes.money.163.com/f10/gsgg_%s,zjgg.html", code.Code))
+	}
+	for i := 1; i <= 20; i++ {
+		title := doc.Find(fmt.Sprintf("#newsTabs > div > table > tbody > tr:nth-child(%d) > td:nth-child(1) > a", i)).Text()
+		if len(title) == 0 {
+			break
+		}
+		url, _ := doc.Find(fmt.Sprintf("#newsTabs > div > table > tbody > tr:nth-child(%d) > td:nth-child(1) > a", i)).Attr("href")
+		if len(url) > 0 {
+			url = "http://quotes.money.163.com" + url
+		}
+		//title = utils.ConvertToString(title, "gbk", "utf-8")
+		if len(title) == 0 {
+			break
+		}
+		times := doc.Find(fmt.Sprintf("#newsTabs > div > table > tbody > tr:nth-child(%d) > td.align_c", i)).Text()
+		typ := doc.Find(fmt.Sprintf("#newsTabs > div > table > tbody > tr:nth-child(%d) > td:nth-child(3)", i)).Text()
+		//typ = utils.ConvertToString(typ, "gbk", "utf-8")
+		//log.Println(code.Code, title, times, typ, url)
+		news := dal.StockPublicNews{Code: code.Code, Title: title, Time: times, Type: typ, Url: url}
+		store.MysqlClient.GetDB().Save(&news)
+	}
+}
+
+func (craw *Crawler) GetPublicReports(code dal.Code, proxy bool) {
+	var doc *goquery.Document
+	if !proxy {
+		doc, _ = craw.NewDocument(fmt.Sprintf("http://quotes.money.163.com/f10/gsgg_%s,dqbg.html", code.Code))
+	} else {
+		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://quotes.money.163.com/f10/gsgg_%s,dqbg.html", code.Code))
+	}
+	for i := 1; i <= 20; i++ {
+		title := doc.Find(fmt.Sprintf("#newsTabs > div > table > tbody > tr:nth-child(%d) > td:nth-child(1) > a", i)).Text()
+		if len(title) == 0 {
+			break
+		}
+		url, _ := doc.Find(fmt.Sprintf("#newsTabs > div > table > tbody > tr:nth-child(%d) > td:nth-child(1) > a", i)).Attr("href")
+		if len(url) > 0 {
+			url = "http://quotes.money.163.com" + url
+		}
+		//title = utils.ConvertToString(title, "gbk", "utf-8")
+		if len(title) == 0 {
+			break
+		}
+		times := doc.Find(fmt.Sprintf("#newsTabs > div > table > tbody > tr:nth-child(%d) > td.align_c", i)).Text()
+		typ := doc.Find(fmt.Sprintf("#newsTabs > div > table > tbody > tr:nth-child(%d) > td:nth-child(3)", i)).Text()
+		news := dal.StockPublicReports{Code: code.Code, Title: title, Time: times, Type: typ, Url: url}
+		store.MysqlClient.GetDB().Save(&news)
+	}
+}

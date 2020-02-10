@@ -10,11 +10,25 @@ import (
 	"time"
 )
 
-// 注意: 这里的static要注意使用， 不要重复多次使用
+// 获取每只股票的最新公告
+func TestGetPublicNews(t *testing.T) {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 0").Find(&code)
+	for _, i := range code {
+		CrawlerGlobal.GetPublicNews(i, false)
+		CrawlerGlobal.GetPublicReports(i, true)
+		log.Println(i.ID, i.Code, i.Name)
+	}
+}
 
-// 获取所有股票证券代码
-func TestCrawler(t *testing.T) {
-	CrawlerGlobal.GetAllTicketCode()
+// 获取季度报告 一般一个季度执行一次即可
+func TestGetPublicReports(t *testing.T) {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 0").Find(&code)
+	for _, i := range code {
+		CrawlerGlobal.GetPublicReports(i, true)
+		log.Println(i.ID, i.Code, i.Name)
+	}
 }
 
 // 获取每只股票的基金持仓情况
@@ -256,4 +270,9 @@ func TestGetMouthDays(t *testing.T) {
 	for _, i := range code {
 		CrawlerGlobal.GetMonthDays(i)
 	}
+}
+
+// 获取所有股票证券代码
+func TestCrawler(t *testing.T) {
+	CrawlerGlobal.GetAllTicketCode()
 }

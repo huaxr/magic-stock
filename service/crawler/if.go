@@ -34,6 +34,9 @@ type CrawlerIF interface {
 	// 获取股票的公司简介信息
 	GetAllTicketCodeInfo(code dal.Code, proxy bool)
 	GetAllTicketCodeInfo2(code dal.Code, proxy bool)
+	// 获取公司的公告新闻
+	GetPublicNews(code dal.Code, proxy bool)
+	GetPublicReports(code dal.Code, proxy bool)
 
 	// 网易api获得十大流通股东（带新进变化趋势
 	GetTopStockholder(code, namer string, proxy bool)
