@@ -612,7 +612,7 @@ func (d *PredictControl) GetFunds(c *gin.Context) {
 	var total int
 	tmp := store.MysqlClient.GetDB().Model(&dal.StockFund{}).Where("code = ?", code)
 	tmp.Count(&total)
-	tmp.Offset(offset).Limit(limit).Order("percent_jingzhi desc").Find(&StockFund)
+	tmp.Offset(offset).Limit(limit).Order("percent_signal_stock desc").Find(&StockFund)
 	d.Response(c, StockFund, nil, total)
 }
 
