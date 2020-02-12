@@ -160,9 +160,12 @@ type SubmitDemand struct {
 }
 
 type AddStock struct {
-	Code  string  `json:"code"`
-	Name  string  `json:"name"`
-	Price float64 `json:"price"` // 关注时的股价
+	Code string `json:"code"`
+	Name string `json:"name"`
+}
+
+type DelStock struct {
+	Id int `json:"id"`
 }
 
 type Signal struct {

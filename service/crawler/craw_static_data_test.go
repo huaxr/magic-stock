@@ -214,10 +214,17 @@ func TestMultiQuery(t *testing.T) {
 // 从concepts中拿出盘口信息
 func TestGetTape(t *testing.T) {
 	//store.MysqlClient.GetDB().Model(&dal.Code{}).Where("concept like ?", "%大盘%").Update("tape", "大盘")
-	store.MysqlClient.GetOnlineDB().Model(&dal.Code{}).Where("concept like ?", "%超大%").Update("tape", "超大盘")
+	//store.MysqlClient.GetOnlineDB().Model(&dal.Code{}).Where("concept like ?", "%超大%").Update("tape", "超大盘")
 
 	//store.MysqlClient.GetDB().Model(&dal.Code{}).Where("concept like ?", "%中盘%").Update("tape", "中盘")
 	//store.MysqlClient.GetDB().Model(&dal.Code{}).Where("concept like ?", "%小盘%").Update("tape", "小盘")
+	var conds []dal.Conditions
+	store.MysqlClient.GetDB().Model(&dal.Conditions{}).Order("name desc").Find(&conds)
+	for _, i := range conds {
+		c := dal.Conditions{Type: i.Type, Name: i.Name}
+		store.MysqlClient.GetDB().Save(&c)
+	}
+
 }
 
 // 更新历史数据存在 low=0的情况

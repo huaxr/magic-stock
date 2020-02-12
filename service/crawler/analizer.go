@@ -463,18 +463,18 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	liangshangyang1 := result.AveCount1[0] > result.AveCount1[1] && result.AveCount1[1] > result.AveCount1[2] && result.AveCount1[2] > result.AveCount1[3] && result.AveCount1[3] > result.AveCount1[4] && result.AveCount1[4] > result.AveCount1[5]
 	// 连续5日量能40均线上扬
 	liangshangyang2 := result.AveCount2[0] > result.AveCount2[1] && result.AveCount2[1] > result.AveCount2[2] && result.AveCount2[2] > result.AveCount2[3] && result.AveCount2[3] > result.AveCount2[4] && result.AveCount2[4] > result.AveCount2[5]
-	// 连续5日量能站上10均线
-	liangnengbigger1 := result.AveCount1[0] < result.RecentCount[0] && result.AveCount1[1] < result.RecentCount[1] && result.AveCount1[2] < result.RecentCount[2] && result.AveCount1[3] < result.RecentCount[3] && result.AveCount1[4] < result.RecentCount[4]
-	// 连续5日量能站上40均线
-	liangnengbigger2 := result.AveCount2[0] < result.RecentCount[0] && result.AveCount2[1] < result.RecentCount[1] && result.AveCount2[2] < result.RecentCount[2] && result.AveCount2[3] < result.RecentCount[3] && result.AveCount2[4] < result.RecentCount[4]
-	// 连续5日量能低于10均线
-	liangnengsmaller1 := result.AveCount1[0] > result.RecentCount[0] && result.AveCount1[1] > result.RecentCount[1] && result.AveCount1[2] > result.RecentCount[2] && result.AveCount1[3] > result.RecentCount[3] && result.AveCount1[4] > result.RecentCount[4]
-	// 连续5日量能低于40均线
-	liangnengsmaller2 := result.AveCount2[0] > result.RecentCount[0] && result.AveCount2[1] > result.RecentCount[1] && result.AveCount2[2] > result.RecentCount[2] && result.AveCount2[3] > result.RecentCount[3] && result.AveCount2[4] > result.RecentCount[4]
+	// 连续3日量能站上10均线
+	liangnengbigger1 := result.AveCount1[0] < result.RecentCount[0] && result.AveCount1[1] < result.RecentCount[1] && result.AveCount1[2] < result.RecentCount[2] //&& result.AveCount1[3] < result.RecentCount[3] && result.AveCount1[4] < result.RecentCount[4]
+	// 连续3日量能站上40均线
+	liangnengbigger2 := result.AveCount2[0] < result.RecentCount[0] && result.AveCount2[1] < result.RecentCount[1] && result.AveCount2[2] < result.RecentCount[2] //&& result.AveCount2[3] < result.RecentCount[3] && result.AveCount2[4] < result.RecentCount[4]
+	// 连续3日量能低于10均线
+	liangnengsmaller1 := result.AveCount1[0] > result.RecentCount[0] && result.AveCount1[1] > result.RecentCount[1] && result.AveCount1[2] > result.RecentCount[2] // && result.AveCount1[3] > result.RecentCount[3] && result.AveCount1[4] > result.RecentCount[4]
+	// 连续3日量能低于40均线
+	liangnengsmaller2 := result.AveCount2[0] > result.RecentCount[0] && result.AveCount2[1] > result.RecentCount[1] && result.AveCount2[2] > result.RecentCount[2] //&& result.AveCount2[3] > result.RecentCount[3] && result.AveCount2[4] > result.RecentCount[4]
 	// 量能不断放大
 	liangnengbuduanbigger := result.RecentCount[0] > result.RecentCount[1] && result.RecentCount[1] > result.RecentCount[2] && result.RecentCount[2] > result.RecentCount[3]
 	// 突放巨量
-	tufangjuliang := (result.RecentCount[0]-result.RecentCount[1])/result.RecentCount[1] > 3 || (result.RecentCount[1]-result.RecentCount[2])/result.RecentCount[1] > 3
+	//tufangjuliang := (result.RecentCount[0]-result.RecentCount[1])/result.RecentCount[1] > 3 || (result.RecentCount[1]-result.RecentCount[2])/result.RecentCount[1] > 3
 	// 量能突破均线
 	liangnengtupo1 := result.AveCount1[0] < result.RecentCount[0] && result.AveCount1[1] > result.RecentCount[1] && result.AveCount1[2] > result.RecentCount[2] && result.AveCount1[3] > result.RecentCount[3] && result.AveCount1[4] > result.RecentCount[4] && result.AveCount1[5] > result.RecentCount[5]
 	liangnengtupo2 := result.AveCount2[0] < result.RecentCount[0] && result.AveCount2[1] > result.RecentCount[1] && result.AveCount2[2] > result.RecentCount[2] && result.AveCount2[3] > result.RecentCount[3] && result.AveCount2[4] > result.RecentCount[4] && result.AveCount2[5] > result.RecentCount[5]
@@ -483,9 +483,6 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	simuchicangcount := GetHolderByCode(code, "私募")
 	// 基金持仓
 	jigouchicangcount := GetFundByCode(code)
-
-	// 成交过亿
-	guoyi := result.CurrTotalMoney > 10000
 
 	// 现金流量表 非负
 	up1, up2, up3, up4 := GetUpManageCashFlow(code)
@@ -506,7 +503,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	var wsicha1, wsicha2, wsicha3, wsicha5, wsicha6, wsicha8, wsicha11 bool
 	var wpriceshangyang1, wpriceshangyang2, wpriceshangyang3, wpriceshangyang4 bool
 	var wpricexiajiang1, wpricexiajiang2, wpricexiajiang3, wpricexiajiang4 bool
-	var wpriceaboveave1, wpriceaboveave2, wpriceaboveave3, wpriceaboveave4, wliangshangyang1, wliangshangyang2, wliangnengbuduanbigger, wtufangjuliang, wliangnengtupo1, wliangnengtupo2 bool
+	var wpriceaboveave1, wpriceaboveave2, wpriceaboveave3, wpriceaboveave4, wliangshangyang1, wliangshangyang2, wliangnengbuduanbigger, wliangnengtupo1, wliangnengtupo2 bool
 	var tupo5, tupo6, tupo7, tupo8, jichuang5, jichuang6, jichuang7, jichuang8 bool // 突破5,10,30,60yue
 
 	if result.AveWeeklyPrice1 != nil && result.AveWeeklyPrice2 != nil { // 两条短均线一定不能为nil
@@ -558,14 +555,14 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 			wjincha11 = result.AveCountWeekly1[0] > result.AveCountWeekly2[0] && result.AveCountWeekly1[1] < result.AveCountWeekly2[1] && result.AveCountWeekly2[0] > result.AveCountWeekly2[1]
 			// 周线量能死叉 10x40
 			wsicha11 = result.AveCountWeekly1[0] < result.AveCountWeekly2[0] && result.AveCountWeekly1[1] > result.AveCountWeekly2[1] && result.AveCountWeekly2[0] < result.AveCountWeekly2[1]
-			// 连续5周量能10均线上扬
-			wliangshangyang1 = result.AveCountWeekly1[0] > result.AveCountWeekly1[1] && result.AveCountWeekly1[1] > result.AveCountWeekly1[2] && result.AveCountWeekly1[2] > result.AveCountWeekly1[3] && result.AveCountWeekly1[3] > result.AveCountWeekly1[4] && result.AveCountWeekly1[4] > result.AveCountWeekly1[5]
-			// 连续5周量能40均线上扬
-			wliangshangyang2 = result.AveCountWeekly2[0] > result.AveCountWeekly2[1] && result.AveCountWeekly2[1] > result.AveCountWeekly2[2] && result.AveCountWeekly2[2] > result.AveCountWeekly2[3] && result.AveCountWeekly2[3] > result.AveCountWeekly2[4] && result.AveCountWeekly2[4] > result.AveCountWeekly2[5]
+			// 连续3周量能10均线上扬
+			wliangshangyang1 = result.AveCountWeekly1[0] > result.AveCountWeekly1[1] && result.AveCountWeekly1[1] > result.AveCountWeekly1[2] && result.AveCountWeekly1[2] > result.AveCountWeekly1[3] //&& result.AveCountWeekly1[3] > result.AveCountWeekly1[4] && result.AveCountWeekly1[4] > result.AveCountWeekly1[5]
+			// 连续3周量能40均线上扬
+			wliangshangyang2 = result.AveCountWeekly2[0] > result.AveCountWeekly2[1] && result.AveCountWeekly2[1] > result.AveCountWeekly2[2] && result.AveCountWeekly2[2] > result.AveCountWeekly2[3] // && result.AveCountWeekly2[3] > result.AveCountWeekly2[4] && result.AveCountWeekly2[4] > result.AveCountWeekly2[5]
 			// 量能不断放大
 			wliangnengbuduanbigger = result.RecentCountWeek[0] > result.RecentCountWeek[1] && result.RecentCountWeek[1] > result.RecentCountWeek[2] && result.RecentCountWeek[2] > result.RecentCountWeek[3]
 			// 突放巨量
-			wtufangjuliang = (result.RecentCountWeek[0]-result.RecentCountWeek[1])/result.RecentCountWeek[1] > 3 || (result.RecentCountWeek[1]-result.RecentCountWeek[2])/result.RecentCountWeek[1] > 3
+			//wtufangjuliang = (result.RecentCountWeek[0]-result.RecentCountWeek[1])/result.RecentCountWeek[1] > 3 || (result.RecentCountWeek[1]-result.RecentCountWeek[2])/result.RecentCountWeek[1] > 3
 			// 量能突破均线
 			wliangnengtupo1 = result.AveCountWeekly1[0] < result.RecentCountWeek[0] && result.AveCountWeekly1[1] > result.RecentCountWeek[1] && result.AveCountWeekly1[2] > result.RecentCountWeek[2] && result.AveCountWeekly1[3] > result.RecentCountWeek[3] && result.AveCountWeekly1[4] > result.RecentCountWeek[4] && result.AveCountWeekly1[5] > result.RecentCountWeek[5]
 			wliangnengtupo2 = result.AveCountWeekly2[0] < result.RecentCountWeek[0] && result.AveCountWeekly2[1] > result.RecentCountWeek[1] && result.AveCountWeekly2[2] > result.RecentCountWeek[2] && result.AveCountWeekly2[3] > result.RecentCountWeek[3] && result.AveCountWeekly2[4] > result.RecentCountWeek[4] && result.AveCountWeekly2[5] > result.RecentCountWeek[5]
@@ -578,7 +575,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	var ysicha1, ysicha2, ysicha3, ysicha5, ysicha6, ysicha8, ysicha11 bool
 	var ypriceshangyang1, ypriceshangyang2, ypriceshangyang3, ypriceshangyang4 bool
 	var ypricexiajiang1, ypricexiajiang2, ypricexiajiang3, ypricexiajiang4 bool
-	var ypriceaboveave1, ypriceaboveave2, ypriceaboveave3, ypriceaboveave4, yliangshangyang1, yliangshangyang2, yliangnengbuduanbigger, ytufangjuliang, yliangnengtupo1, yliangnengtupo2 bool
+	var ypriceaboveave1, ypriceaboveave2, ypriceaboveave3, ypriceaboveave4, yliangshangyang1, yliangshangyang2, yliangnengbuduanbigger, yliangnengtupo1, yliangnengtupo2 bool
 	var tupo9, tupo10, tupo11, tupo12, jichuang9, jichuang10, jichuang11, jichuang12 bool // 突破5,10,30,60yue
 	// 5 10 金叉  并且 今日10 均大于昨日 10均
 	if result.AveMonthPrice1 != nil && result.AveMonthPrice2 != nil { // 两条短均线一定不能为nil
@@ -628,7 +625,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 			yliangshangyang1 = result.AveCountMonth1[0] > result.AveCountMonth1[1] && result.AveCountMonth1[1] > result.AveCountMonth1[2] && result.AveCountMonth1[2] > result.AveCountMonth1[3] && result.AveCountMonth1[3] > result.AveCountMonth1[4] && result.AveCountMonth1[4] > result.AveCountMonth1[5]
 			yliangshangyang2 = result.AveCountMonth2[0] > result.AveCountMonth2[1] && result.AveCountMonth2[1] > result.AveCountMonth2[2] && result.AveCountMonth2[2] > result.AveCountMonth2[3] && result.AveCountMonth2[3] > result.AveCountMonth2[4] && result.AveCountMonth2[4] > result.AveCountMonth2[5]
 			yliangnengbuduanbigger = result.RecentCountMonth[0] > result.RecentCountMonth[1] && result.RecentCountMonth[1] > result.RecentCountMonth[2] && result.RecentCountMonth[2] > result.RecentCountMonth[3]
-			ytufangjuliang = (result.RecentCountMonth[0]-result.RecentCountMonth[1])/result.RecentCountMonth[1] > 3 || (result.RecentCountMonth[1]-result.RecentCountMonth[2])/result.RecentCountMonth[1] > 3
+			//ytufangjuliang = (result.RecentCountMonth[0]-result.RecentCountMonth[1])/result.RecentCountMonth[1] > 3 || (result.RecentCountMonth[1]-result.RecentCountMonth[2])/result.RecentCountMonth[1] > 3
 			yliangnengtupo1 = result.AveCountMonth1[0] < result.RecentCountMonth[0] && result.AveCountMonth1[1] > result.RecentCountMonth[1] && result.AveCountMonth1[2] > result.RecentCountMonth[2] && result.AveCountMonth1[3] > result.RecentCountMonth[3] && result.AveCountMonth1[4] > result.RecentCountMonth[4] && result.AveCountMonth1[5] > result.RecentCountMonth[5]
 			yliangnengtupo2 = result.AveCountMonth2[0] < result.RecentCountMonth[0] && result.AveCountMonth2[1] > result.RecentCountMonth[1] && result.AveCountMonth2[2] > result.RecentCountMonth[2] && result.AveCountMonth2[3] > result.RecentCountMonth[3] && result.AveCountMonth2[4] > result.RecentCountMonth[4] && result.AveCountMonth2[5] > result.RecentCountMonth[5]
 		}
@@ -693,384 +690,366 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	}
 
 	if jincha11 {
-		score += 1
+		score += 2
 		cond_str += "(量能金叉)10日上穿40日均线; "
 		cond_str_ += "(量能金叉)10日上穿40日均线; "
 	}
 	if jincha1 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)5日上穿10日均线; "
 		cond_str_ += "(金叉)5日上穿10日均线; "
 	}
 	if jincha2 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)5日上穿30日均线; "
 		cond_str_ += "(金叉)5日上穿30日均线; "
 	}
 	if jincha3 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)5日上穿60日均线; "
 		cond_str_ += "(金叉)5日上穿60日均线; "
 	}
 	if jincha5 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)10日上穿30日均线; "
 		cond_str_ += "(金叉)10日上穿30日均线; "
 	}
 	if jincha6 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)10日上穿60日均线; "
 		cond_str_ += "(金叉)10日上穿60日均线; "
 	}
 	if jincha8 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)30日上穿60日均线; "
 		cond_str_ += "(金叉)30日上穿60日均线; "
 	}
 
 	if wjincha11 {
-		score += 1
+		score += 2
 		cond_str += "(量能金叉)10周上穿40周均线; "
 		cond_str_ += "(量能金叉)10周上穿40周均线; "
 	}
 	if wjincha1 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)5周上穿10周均线; "
 		cond_str_ += "(金叉)5周上穿10周均线; "
 	}
 	if wjincha2 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)5周上穿30周均线; "
 		cond_str_ += "(金叉)5周上穿30周均线; "
 	}
 	if wjincha3 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)5周上穿60周均线; "
 		cond_str_ += "(金叉)5周上穿60周均线; "
 	}
 	if wjincha5 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)10周上穿30周均线; "
 		cond_str_ += "(金叉)10周上穿30周均线; "
 	}
 	if wjincha6 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)10周上穿60周均线; "
 		cond_str_ += "(金叉)10周上穿60周均线; "
 	}
 	if wjincha8 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)30周上穿60周均线; "
 		cond_str_ += "(金叉)30周上穿60周均线; "
 	}
 
 	if yjincha11 {
-		score += 1
+		score += 2
 		cond_str += "(量能金叉)10月上穿40月均线; "
 		cond_str_ += "(量能金叉)10月上穿40月均线; "
 	}
 	if yjincha1 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)5月上穿10月均线; "
 		cond_str_ += "(金叉)5月上穿10月均线; "
 	}
 	if yjincha2 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)5月上穿30月均线; "
 		cond_str_ += "(金叉)5月上穿30月均线; "
 	}
 	if yjincha3 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)5月上穿60月均线; "
 		cond_str_ += "(金叉)5月上穿60月均线; "
 	}
 	if yjincha5 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)10月上穿30月均线; "
 		cond_str_ += "(金叉)10月上穿30月均线; "
 	}
 	if yjincha6 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)10月上穿60月均线; "
 		cond_str_ += "(金叉)10月上穿60月均线; "
 	}
 	if yjincha8 {
-		score += 1
+		score += 2
 		cond_str += "(金叉)30月上穿60月均线; "
 		cond_str_ += "(金叉)30月上穿60月均线; "
 	}
 
 	if sicha11 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(量能死叉)10日下穿40日均线; "
 		bad_cond_str_ += "(量能死叉)10日下穿40日均线; "
 	}
 	if sicha1 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)5日下穿10日均线; "
 		bad_cond_str_ += "(死叉)5日下穿10日均线; "
 	}
 	if sicha2 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)5日下穿30日均线; "
 		bad_cond_str_ += "(死叉)5日下穿30日均线; "
 	}
 	if sicha3 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)5日下穿60日均线; "
 		bad_cond_str_ += "(死叉)5日下穿60日均线; "
 	}
 	if sicha5 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)10日下穿30日均线; "
 		bad_cond_str_ += "(死叉)10日下穿30日均线; "
 	}
 	if sicha6 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)10日下穿60日均线; "
 		bad_cond_str_ += "(死叉)10日下穿60日均线; "
 	}
 	if sicha8 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)30下穿60日均线; "
 		bad_cond_str_ += "(死叉)30下穿60日均线; "
 	}
 
 	if wsicha11 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(量能死叉)10周下穿40周均线; "
 		bad_cond_str_ += "(量能死叉)10周下穿40周均线; "
 	}
 	if wsicha1 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)5周下穿10周均线; "
 		bad_cond_str_ += "(死叉)5周下穿10周均线; "
 	}
 	if wsicha2 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)5周下穿30周均线; "
 		bad_cond_str_ += "(死叉)5周下穿30周均线; "
 	}
 	if wsicha3 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)5周下穿60周均线; "
 		bad_cond_str_ += "(死叉)5周下穿60周均线; "
 	}
 	if wsicha5 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)10周下穿30周均线; "
 		bad_cond_str_ += "(死叉)10周下穿30周均线; "
 	}
 	if wsicha6 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)10周下穿60周均线; "
 		bad_cond_str_ += "(死叉)10周下穿60周均线; "
 	}
 	if wsicha8 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)30周下穿60周均线; "
 		bad_cond_str_ += "(死叉)30周下穿60周均线; "
 	}
 
 	if ysicha11 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(量能死叉)10月下穿40月均线; "
 		bad_cond_str_ += "(量能死叉)10月下穿40月均线; "
 	}
 	if ysicha1 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)5月下穿10月均线; "
 		bad_cond_str_ += "(死叉)5月下穿10月均线; "
 	}
 	if ysicha2 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)5月下穿30月均线; "
 		bad_cond_str_ += "(死叉)5月下穿30月均线; "
 	}
 	if ysicha3 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)5月下穿60月均线; "
 		bad_cond_str_ += "(死叉)5月下穿60月均线; "
 	}
 	if ysicha5 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)10月下穿30月均线; "
 		bad_cond_str_ += "(死叉)10月下穿30月均线; "
 	}
 	if ysicha6 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)10月下穿60月均线; "
 		bad_cond_str_ += "(死叉)10月下穿60月均线; "
 	}
 	if ysicha8 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "(死叉)30月下穿60月均线; "
 		bad_cond_str_ += "(死叉)30月下穿60月均线; "
 	}
 
 	if yiziban {
-		score += 1
 		cond_str += "一字板; "
 		cond_str_ += "一字板; "
 	}
 	if tziban {
-		score += 1
 		cond_str += "T字板; "
 		cond_str_ += "T字板; "
 	}
 	if zhangting {
-		score += 1
+		score += 2
 		cond_str += "涨停股; "
 		cond_str_ += "涨停股; "
 	}
 	if dietingban {
-		score -= 1
 		bad_cond_str += "一字跌停； "
 		bad_cond_str_ += "一字跌停； "
 	}
 	if daotban {
-		score -= 1
 		bad_cond_str += "倒T跌停； "
 		bad_cond_str_ += "倒T跌停； "
 	}
 
 	if dikaigaozou {
-		score += 1
 		cond_str += "低开高走; "
 		cond_str_ += "低开高走; "
 	}
 	if gaokaigaozou {
-		score += 1
 		cond_str += "高开高走; "
 		cond_str_ += "高开高走; "
 	}
 	if gaokaidizou {
-		score -= 1
 		bad_cond_str += "高开低走; "
 		bad_cond_str_ += "高开低走; "
 	}
 	if dikaidizou {
-		score -= 1
 		bad_cond_str += "低开低走; "
 		bad_cond_str_ += "低开低走; "
 	}
 	if wulianyang {
-		score += 1
 		cond_str += "五连阳; "
 		cond_str_ += "五连阳; "
 	}
 	if silianyang {
-		score += 1
 		cond_str += "四连阳; "
 		cond_str_ += "四连阳; "
 	}
 	if sanlianyang {
-		score += 1
 		cond_str += "三连阳; "
 		cond_str_ += "三连阳; "
 	}
 
 	if wulianyin {
-		score -= 1
 		bad_cond_str += "五连阴; "
 		bad_cond_str_ += "五连阴; "
 	}
 
 	if silianyin {
-		score -= 1
 		bad_cond_str += "四连阴; "
 		bad_cond_str_ += "四连阴; "
 	}
 
 	if sanlianyin {
-		score -= 1
 		bad_cond_str += "三连阴; "
 		bad_cond_str_ += "三连阴; "
 	}
 
 	if changshangying {
-		score += 1
 		cond_str += "长上影; "
 		cond_str_ += "长上影; "
 	}
 	if changxiaying {
-		score += 1
 		cond_str += "长下影; "
 		cond_str_ += "长下影; "
 	}
 
 	if changshangying_week {
-		score += 1
 		cond_str += "周线长上影; "
 		cond_str_ += "周线长上影; "
 	}
 
 	if changxiaying_week {
-		score += 1
 		cond_str += "周线长下影; "
 		cond_str_ += "周线长下影; "
 	}
 
 	var tupo string
 	if tupo1 {
-		score += 1
+		score += 2
 		cond_str += "收盘突破5日压力位; "
 		tupo += "5日,"
 	}
 	if tupo2 {
-		score += 1
+		score += 2
 		cond_str += "收盘突破10日压力位; "
 		tupo += "10日,"
 	}
 	if tupo3 {
-		score += 1
+		score += 2
 		cond_str += "收盘突破30日压力位; "
 		tupo += "30日,"
 	}
 
 	if tupo4 {
-		score += 1
+		score += 2
 		cond_str += "收盘突破60日压力位; "
 		tupo += "60日,"
 	}
 
 	if tupo5 {
-		score += 1
+		score += 2
 		cond_str += "收盘突破5周压力位; "
 		tupo += "5周,"
 	}
 	if tupo6 {
-		score += 1
+		score += 2
 		cond_str += "收盘突破10周压力位; "
 		tupo += "10周,"
 	}
 	if tupo7 {
-		score += 1
+		score += 2
 		cond_str += "收盘突破30周压力位; "
 		tupo += "30周,"
 	}
 	if tupo8 {
-		score += 1
+		score += 2
 		cond_str += "收盘突破60周压力位; "
 		tupo += "60周,"
 	}
 	if tupo9 {
-		score += 1
+		score += 2
 		cond_str += "收盘突破5月压力位; "
 		tupo += "5月,"
 	}
 	if tupo10 {
-		score += 1
+		score += 2
 		cond_str += "收盘突破10月压力位; "
 		tupo += "10月,"
 	}
 	if tupo11 {
-		score += 1
+		score += 2
 		cond_str += "收盘突破30月压力位; "
 		tupo += "30月,"
 	}
 	if tupo12 {
-		score += 1
+		score += 2
 		cond_str += "收盘突破60月压力位; "
 		tupo += "60月,"
 	}
@@ -1081,63 +1060,63 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 
 	var jichuang string
 	if jichuang1 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "收盘击穿5日支撑位; "
 		jichuang += "5日,"
 	}
 	if jichuang2 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "收盘击穿10日支撑位; "
 		jichuang += "10日,"
 	}
 	if jichuang3 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "收盘击穿30日支撑位; "
 		jichuang += "30日,"
 	}
 	if jichuang4 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "收盘击穿60日支撑位; "
 		jichuang += "60日,"
 	}
 
 	if jichuang5 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "收盘击穿5周支撑位; "
 		jichuang += "5周,"
 	}
 	if jichuang6 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "收盘击穿10周支撑位; "
 		jichuang += "10周,"
 	}
 	if jichuang7 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "收盘击穿30周支撑位; "
 		jichuang += "30周,"
 	}
 	if jichuang8 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "收盘击穿60周支撑位; "
 		jichuang += "60周,"
 	}
 	if jichuang9 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "收盘击穿5月支撑位; "
 		jichuang += "5月,"
 	}
 	if jichuang10 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "收盘击穿10月支撑位; "
 		jichuang += "10月,"
 	}
 	if jichuang11 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "收盘击穿30月支撑位; "
 		jichuang += "30月,"
 	}
 	if jichuang12 {
-		score -= 1
+		score -= 2
 		bad_cond_str += "收盘击穿60月支撑位; "
 		jichuang += "60月,"
 	}
@@ -1149,64 +1128,52 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 
 	var shangshengtongdao string
 	if priceshangyang1 {
-		score += 1
 		cond_str += "5日均线处于上升通道; "
 		shangshengtongdao += "5日,"
 	}
 	if priceshangyang2 {
-		score += 1
 		cond_str += "10日均线处于上升通道; "
 		shangshengtongdao += "10日,"
 	}
 	if priceshangyang3 {
-		score += 1
 		cond_str += "30日均线处于上升通道; "
 		shangshengtongdao += "30日,"
 	}
 	if priceshangyang4 {
-		score += 1
 		cond_str += "60日均线处于上升通道; "
 		shangshengtongdao += "60日,"
 	}
 
 	if wpriceshangyang1 {
-		score += 1
 		cond_str += "5周均线处于上升通道; "
 		shangshengtongdao += "5周,"
 	}
 	if wpriceshangyang2 {
-		score += 1
 		cond_str += "10周均线处于上升通道; "
 		shangshengtongdao += "10周,"
 	}
 	if wpriceshangyang3 {
-		score += 1
 		cond_str += "30周均线处于上升通道; "
 		shangshengtongdao += "30周,"
 	}
 	if wpriceshangyang4 {
-		score += 1
 		cond_str += "60周均线处于上升通道; "
 		shangshengtongdao += "60周,"
 	}
 
 	if ypriceshangyang1 {
-		score += 1
 		cond_str += "5月均线处于上升通道; "
 		shangshengtongdao += "5月,"
 	}
 	if ypriceshangyang2 {
-		score += 1
 		cond_str += "10月均线处于上升通道; "
 		shangshengtongdao += "10月,"
 	}
 	if ypriceshangyang3 {
-		score += 1
 		cond_str += "30月均线处于上升通道; "
 		shangshengtongdao += "30月,"
 	}
 	if ypriceshangyang4 {
-		score += 1
 		cond_str += "60月均线处于上升通道; "
 		shangshengtongdao += "60月,"
 	}
@@ -1217,64 +1184,52 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 
 	var xiajiangtongdao string
 	if pricexiajiang1 {
-		score -= 1
 		bad_cond_str += "5日均线处于下降通道; "
 		xiajiangtongdao += "5日,"
 	}
 	if pricexiajiang2 {
-		score -= 1
 		bad_cond_str += "10日均线处于下降通道; "
 		xiajiangtongdao += "10日,"
 	}
 	if pricexiajiang3 {
-		score -= 1
 		bad_cond_str += "30日均线处于下降通道; "
 		xiajiangtongdao += "30日,"
 	}
 	if pricexiajiang4 {
-		score -= 1
 		bad_cond_str += "60日均线处于下降通道; "
 		xiajiangtongdao += "60日,"
 	}
 
 	if wpricexiajiang1 {
-		score -= 1
 		bad_cond_str += "5周均线处于下降通道; "
 		xiajiangtongdao += "5周,"
 	}
 	if wpricexiajiang2 {
-		score -= 1
 		bad_cond_str += "10周均线处于下降通道; "
 		xiajiangtongdao += "10周,"
 	}
 	if wpricexiajiang3 {
-		score -= 1
 		bad_cond_str += "30周均线处于下降通道; "
 		xiajiangtongdao += "30周,"
 	}
 	if wpricexiajiang4 {
-		score -= 1
 		bad_cond_str += "60周均线处于下降通道; "
 		xiajiangtongdao += "60周,"
 	}
 
 	if ypricexiajiang1 {
-		score -= 1
 		bad_cond_str += "5月均线处于下降通道; "
 		xiajiangtongdao += "5月,"
 	}
 	if ypricexiajiang2 {
-		score -= 1
 		bad_cond_str += "10月均线处于下降通道; "
 		xiajiangtongdao += "10月,"
 	}
 	if ypricexiajiang3 {
-		score -= 1
 		bad_cond_str += "30月均线处于下降通道; "
 		xiajiangtongdao += "30月,"
 	}
 	if ypricexiajiang4 {
-		score -= 1
 		bad_cond_str += "60月均线处于下降通道; "
 		xiajiangtongdao += "60月,"
 	}
@@ -1285,64 +1240,52 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 
 	var shangfang string
 	if priceaboveave1 {
-		score += 1
 		cond_str += "当前价位在5日均线上方; "
 		shangfang += "5日,"
 	}
 	if priceaboveave2 {
-		score += 1
 		cond_str += "当前价位在10日均线上方; "
 		shangfang += "10日,"
 	}
 	if priceaboveave3 {
-		score += 1
 		cond_str += "当前价位在30日均线上方; "
 		shangfang += "30日,"
 	}
 	if priceaboveave4 {
-		score += 1
 		cond_str += "当前价位在60日均线上方; "
 		shangfang += "60日,"
 	}
 
 	if wpriceaboveave1 {
-		score += 1
 		cond_str += "当前价位在5周均线上方; "
 		shangfang += "5周,"
 	}
 	if wpriceaboveave2 {
-		score += 1
 		cond_str += "当前价位在10周均线上方; "
 		shangfang += "10周,"
 	}
 	if wpriceaboveave3 {
-		score += 1
 		cond_str += "当前价位在30周均线上方; "
 		shangfang += "30周,"
 	}
 	if wpriceaboveave4 {
-		score += 1
 		cond_str += "当前价位在60周均线上方; "
 		shangfang += "60周,"
 	}
 
 	if ypriceaboveave1 {
-		score += 1
 		cond_str += "当前价位在5月均线上方; "
 		shangfang += "5月,"
 	}
 	if ypriceaboveave2 {
-		score += 1
 		cond_str += "当前价位在10月均线上方; "
 		shangfang += "10月,"
 	}
 	if ypriceaboveave3 {
-		score += 1
 		cond_str += "当前价位在30月均线上方; "
 		shangfang += "30月,"
 	}
 	if ypriceaboveave4 {
-		score += 1
 		cond_str += "当前价位在60月均线上方; "
 		shangfang += "60月,"
 	}
@@ -1353,64 +1296,52 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 
 	var xiafang string
 	if !priceaboveave1 {
-		score -= 1
 		bad_cond_str += "当前价位在5日均线下方; "
 		xiafang += "5日,"
 	}
 	if !priceaboveave2 {
-		score -= 1
 		bad_cond_str += "当前价位在10日均线下方; "
 		xiafang += "10日,"
 	}
 	if !priceaboveave3 {
-		score -= 1
 		bad_cond_str += "当前价位在30日均线下方; "
 		xiafang += "30日,"
 	}
 	if !priceaboveave4 {
-		score -= 1
 		bad_cond_str += "当前价位在60日均线下方; "
 		xiafang += "60日,"
 	}
 
 	if !wpriceaboveave1 {
-		score -= 1
 		bad_cond_str += "当前价位在5周均线下方; "
 		xiafang += "5周,"
 	}
 	if !wpriceaboveave2 {
-		score -= 1
 		bad_cond_str += "当前价位在10周均线下方; "
 		xiafang += "10周,"
 	}
 	if !wpriceaboveave3 && result.AveWeeklyPrice3 != nil {
-		score -= 1
 		bad_cond_str += "当前价位在30周均线下方; "
 		xiafang += "30周,"
 	}
 	if !wpriceaboveave4 && result.AveWeeklyPrice4 != nil {
-		score -= 1
 		bad_cond_str += "当前价位在60周均线下方; "
 		xiafang += "60周,"
 	}
 
 	if !ypriceaboveave1 && result.AveMonthPrice1 != nil {
-		score -= 1
 		bad_cond_str += "当前价位在5月均线下方; "
 		xiafang += "5月,"
 	}
 	if !ypriceaboveave2 && result.AveMonthPrice2 != nil {
-		score -= 1
 		bad_cond_str += "当前价位在10月均线下方; "
 		xiafang += "10月,"
 	}
 	if !ypriceaboveave3 && result.AveMonthPrice3 != nil {
-		score -= 1
 		bad_cond_str += "当前价位在30月均线下方; "
 		xiafang += "30月,"
 	}
 	if !ypriceaboveave4 && result.AveMonthPrice4 != nil {
-		score -= 1
 		bad_cond_str += "当前价位在60月均线下方; "
 		xiafang += "60月,"
 	}
@@ -1420,163 +1351,127 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		bad_cond_str_ += fmt.Sprintf("收盘价位在%s均线下方; ", xiafang)
 	}
 
-	//if junjialianhe1 {
-	//	cond_str += "近期5日均线与收盘价黏合; "
-	//}
-	//if junjialianhe2 {
-	//	cond_str += "近期10日均线与收盘价黏合; "
-	//}
-	//if junjialianhe3 {
-	//	cond_str += "近期30日均线与收盘价黏合; "
-	//}
-	//if junjialianhe4 {
-	//	cond_str += "近期60日均线与收盘价黏合; "
-	//}
-
 	// 量价
 	if liangshangyang1 {
-		score += 1
+		score += 3
 		cond_str += "量能10日均线处于上升通道; "
 		cond_str_ += "量能10日均线处于上升通道; "
 	}
 	if liangshangyang2 {
-		score += 1
+		score += 3
 		cond_str += "量能40日均线处于上升通道; "
 		cond_str_ += "量能40日均线处于上升通道; "
 	}
-	if liangnengbigger1 || liangnengbigger2 {
-		score += 1
-		cond_str += "近期量能相对活跃; "
-		cond_str_ += "近期量能相对活跃; "
+	if liangnengbigger1 {
+		score += 3
+		cond_str += "连续3日量能站上10日均线; "
+		cond_str_ += "连续3日量能站上10日均线; "
+	}
+	if liangnengbigger2 {
+		score += 3
+		cond_str += "连续3日量能站上40日均线; "
+		cond_str_ += "连续3日量能站上40日均线; "
 	}
 	if liangnengsmaller1 || liangnengsmaller2 {
-		score -= 1
-		bad_cond_str += "近期量能相对萎靡; "
-		bad_cond_str_ += "近期量能相对萎靡; "
+		score -= 5
 	}
 	if liangnengbuduanbigger {
-		score += 1
-		cond_str += "量能不断放大; "
-		cond_str_ += "量能不断放大; "
-	}
-	if tufangjuliang {
-		score += 1
-		cond_str += "突放巨量; "
-		cond_str_ += "突放巨量; "
+		score += 2
+		cond_str += "日线量能不断放大; "
+		cond_str_ += "日线量能不断放大; "
 	}
 	if liangnengtupo1 {
-		score += 1
+		score += 2
 		cond_str += "量能突破10日均线; "
 		cond_str_ += "量能突破10日均线; "
-
 	}
 	if liangnengtupo2 {
-		score += 1
+		score += 2
 		cond_str += "量能突破40日均线; "
 		cond_str_ += "量能突破40日均线; "
 	}
 
 	// 周量价
 	if wliangshangyang1 {
-		score += 1
+		score += 2
 		cond_str += "量能10周均线处于上升通道; "
 		cond_str_ += "量能10周均线处于上升通道; "
 	}
 	if wliangshangyang2 {
-		score += 1
+		score += 2
 		cond_str += "量能40周均线处于上升通道; "
 		cond_str_ += "量能40周均线处于上升通道; "
 	}
 	if wliangnengbuduanbigger {
-		score += 1
-		cond_str += "量能周线不断放大; "
-		cond_str_ += "量能周线不断放大; "
-	}
-	if wtufangjuliang {
-		score += 1
-		cond_str += "量能周线突放巨量; "
-		cond_str_ += "量能周线突放巨量; "
+		score += 2
+		cond_str += "周线量能不断放大; "
+		cond_str_ += "周线量能不断放大; "
 	}
 	if wliangnengtupo1 {
-		score += 1
+		score += 2
 		cond_str += "量能突破10周均线; "
 		cond_str_ += "量能突破10周均线; "
 	}
 	if wliangnengtupo2 {
-		score += 1
+		score += 2
 		cond_str += "量能突破40周均线; "
 		cond_str_ += "量能突破40周均线; "
 	}
 
 	// 月量价
 	if yliangshangyang1 {
-		score += 1
+		score += 3
 		cond_str += "量能10月均线处于上升通道; "
 		cond_str_ += "量能10月均线处于上升通道; "
 	}
 	if yliangshangyang2 {
-		score += 1
+		score += 3
 		cond_str += "量能40月均线处于上升通道; "
 		cond_str_ += "量能40月均线处于上升通道; "
 	}
 	if yliangnengbuduanbigger {
-		score += 1
+		score += 3
 		cond_str += "量能月线不断放大; "
 		cond_str_ += "量能月线不断放大; "
 	}
-	if ytufangjuliang {
-		score += 1
-		cond_str += "量能月线突放巨量; "
-		cond_str_ += "量能月线突放巨量; "
-	}
 	if yliangnengtupo1 {
-		score += 1
+		score += 3
 		cond_str += "量能突破10月均线; "
 		cond_str_ += "量能突破10月均线; "
 	}
 	if yliangnengtupo2 {
-		score += 1
+		score += 3
 		cond_str += "量能突破40月均线; "
 		cond_str_ += "量能突破40月均线; "
 	}
 
-	if guoyi {
-		cond_str += "当日成交总额上亿; "
-		cond_str_ += "当日成交总额上亿; "
-	}
-
 	if simuchicangcount > 0 {
-		score += 1
+		score += 2
 		cond_str += fmt.Sprintf("%d个私募持仓; ", simuchicangcount)
 		cond_str_ += fmt.Sprintf("%d个私募持仓; ", simuchicangcount)
 	}
 	if jigouchicangcount > 0 {
-		score += 1
+		score += 2
 		cond_str += fmt.Sprintf("%d个基金持仓; ", jigouchicangcount)
 		cond_str_ += fmt.Sprintf("%d个基金持仓; ", jigouchicangcount)
 	}
 	if fenhong > 0 {
-		score += 1
 		cond_str += fmt.Sprintf("%d次分红; ", fenhong)
 		cond_str_ += fmt.Sprintf("%d次分红; ", fenhong)
 	}
 	if songgu > 0 {
-		score += 1
 		cond_str += fmt.Sprintf("%d次送股; ", songgu)
 		cond_str_ += fmt.Sprintf("%d次送股; ", songgu)
 	}
 	if zhuangzeng > 0 {
-		score += 1
 		cond_str += fmt.Sprintf("%d次转增; ", zhuangzeng)
 		cond_str_ += fmt.Sprintf("%d次转增; ", zhuangzeng)
 	}
 	if pergu > 0 {
-		score -= 1
 		bad_cond_str += fmt.Sprintf("%d次配股; ", pergu)
 		bad_cond_str_ += fmt.Sprintf("%d次配股; ", pergu)
 	}
 	if zengfa > 0 {
-		score -= 1
 		bad_cond_str += fmt.Sprintf("%d次增发; ", zengfa)
 		bad_cond_str_ += fmt.Sprintf("%d次增发; ", zengfa)
 	}
@@ -1588,87 +1483,84 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		bad_cond_str += fmt.Sprintf("历史更名%d次; ", changename)
 		bad_cond_str_ += fmt.Sprintf("历史更名%d次; ", changename)
 		if has_st {
-			score -= 1
+			score -= 2
 			bad_cond_str += "曾ST带帽; "
 			bad_cond_str_ += "曾ST带帽; "
 		}
 	}
 	// 基本面 现金流量表
 	if up1 {
-		score += 1
+		score += 2
 		cond_str += "经营现金流量净额非负; "
 		cond_str_ += "经营现金流量净额非负; "
 	}
 	if up2 {
-		score += 1
+		score += 2
 		cond_str += "投资现金流量净额非负; "
 		cond_str_ += "投资现金流量净额非负; "
 	}
 	if up3 {
-		score += 1
+		score += 2
 		cond_str += "筹资现金流量净额非负; "
 		cond_str_ += "筹资现金流量净额非负; "
 	}
 	if up4 {
-		score += 1
+		score += 2
 		cond_str += "期末现金及现金等价物余额非负; "
 		cond_str_ += "期末现金及现金等价物余额非负; "
 	}
 	// 基本面 利润表
 	if pup1 {
-		score += 1
+		score += 2
 		cond_str += "营业总收入非负; "
 		cond_str_ += "营业总收入非负; "
 	}
 	if pup2 {
-		score += 1
+		score += 2
 		cond_str += "净利润非负; "
 		cond_str_ += "净利润非负; "
 	}
 	// 基本面 资产负债表
 	if lup1 {
-		score += 1
+		score += 2
 		cond_str += "总资产不断增加; "
 		cond_str_ += "总资产不断增加; "
 	}
 	if done1 {
-		score += 1
+		score += 2
 		cond_str += "总负债不断减小; "
 		cond_str_ += "总负债不断减小; "
 	}
 
 	if !up1 {
-		score -= 1
+		score -= 3
 		bad_cond_str += "(亏损可能)经营现金流量净额出现负值; "
 		bad_cond_str_ += "(亏损可能)经营现金流量净额出现负值; "
 	}
 	if !up2 {
-		score -= 1
+		score -= 3
 		bad_cond_str += "(亏损可能)投资现金流量净额出现负值; "
 		bad_cond_str_ += "(亏损可能)投资现金流量净额出现负值; "
 	}
 	if !up3 {
-		score -= 1
+		score -= 3
 		bad_cond_str += "(亏损可能)筹资现金流量净额出现负值; "
 		bad_cond_str_ += "(亏损可能)筹资现金流量净额出现负值; "
 	}
 	if !up4 {
-		score -= 1
+		score -= 3
 		bad_cond_str += "(亏损可能)期末现金及现金等价物余额出现负值; "
 		bad_cond_str_ += "(亏损可能)期末现金及现金等价物余额出现负值; "
-
 	}
 	if !pup1 {
-		score -= 1
+		score -= 3
 		bad_cond_str += "营业总收入亏损; "
 		bad_cond_str_ += "营业总收入亏损; "
-
 	}
 	if !pup2 {
-		score -= 1
+		score -= 3
 		bad_cond_str += "净利润亏损; "
 		bad_cond_str_ += "净利润亏损; "
-
 	}
 	var per dal.StockPerTicket
 	err := store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Where("code = ?", code).Find(&per).Error
@@ -1682,10 +1574,10 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	middle := strings.Count(finance, "一般")
 	low := strings.Count(finance, "偏低")
 	bad := strings.Count(finance, "较差")
-	score += (high+high2)*5 + middle*4 + low*-3 + bad*-2
+	score += (high+high2)*5 + middle*4 + low*-3 + bad*-4
 
 	if score < 0 {
-		score = 1
+		score = 5
 	}
 
 	if score >= 95 {

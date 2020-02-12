@@ -42,6 +42,7 @@ type UserIF interface {
 	// 提需求
 	SubmitDemand(c *gin.Context)
 	AddStock(c *gin.Context)
+	DelStock(c *gin.Context)
 	MySelect(c *gin.Context)
 	Response(c *gin.Context, data interface{}, err error)
 }
@@ -273,9 +274,28 @@ func (d *UserControl) AddStock(c *gin.Context) {
 		d.Response(c, nil, err)
 		return
 	}
-	s := dal.UserSelect{UserId: authentication.Uid, Code: post.Code, Name: post.Name, Price: post.Price}
+	var count int
+	store.MysqlClient.GetDB().Model(&dal.UserSelect{}).Where("code = ? and user_id = ?", post.Code, authentication.Uid).Count(&count)
+	if count > 0 {
+		d.Response(c, "已添加", nil)
+		return
+	}
+	s := dal.UserSelect{UserId: authentication.Uid, Code: post.Code, Name: post.Name, CreatedTime: time.Now()}
 	store.MysqlClient.GetDB().Save(&s)
 	d.Response(c, "添加成功", nil)
+}
+
+func (d *UserControl) DelStock(c *gin.Context) {
+	_auth, _ := c.Get("auth")
+	authentication := _auth.(*model.AuthResult)
+	var post model.DelStock
+	err := c.BindJSON(&post)
+	if err != nil {
+		d.Response(c, nil, err)
+		return
+	}
+	store.MysqlClient.GetDB().Delete(&dal.UserSelect{}, "id = ? and user_id = ?", post.Id, authentication.Uid)
+	d.Response(c, "删除成功", nil)
 }
 
 func (d *UserControl) MySelect(c *gin.Context) {
@@ -287,7 +307,7 @@ func (d *UserControl) MySelect(c *gin.Context) {
 		d.Response(c, nil, err)
 		return
 	}
-	s := dal.UserSelect{UserId: authentication.Uid, Code: post.Code, Name: post.Name, Price: post.Price}
-	store.MysqlClient.GetDB().Save(&s)
-	d.Response(c, "添加成功", nil)
+	var selected []dal.UserSelect
+	store.MysqlClient.GetDB().Model(&dal.UserSelect{}).Where("user_id = ?", authentication.Uid).Find(&selected)
+	d.Response(c, selected, nil)
 }

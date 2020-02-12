@@ -50,11 +50,14 @@ func (r *Router) addRouters() {
 		router.GET("/is_member", control.UserControlGlobal.JudgeIsMember)
 		router.POST("/jsapi_pay", control.UserControlGlobal.PayByWeChatJsApi)
 		router.POST("/make_comment", control.UserControlGlobal.SubmitDemand)
-		router.POST("/add_stock", control.UserControlGlobal.AddStock)
 		router.GET("/my_conditions", control.UserControlGlobal.GetConditions)
 		router.GET("/my_invites", control.UserControlGlobal.GetInvite)
 		router.GET("/my_comments", control.UserControlGlobal.GetDemands)
+		// 加自选股
+		router.POST("/add_stock", control.UserControlGlobal.AddStock)
+		router.POST("/del_stock", control.UserControlGlobal.DelStock)
 		router.GET("/my_select", control.UserControlGlobal.MySelect)
+
 		router.POST("/edit_condition", control.UserControlGlobal.EditUserConditions)
 		router.POST("/delete_condition", control.UserControlGlobal.DeleteUserConditions)
 		router.POST("/predicts_list", control.PredictControlGlobal.PredictList)
@@ -62,6 +65,5 @@ func (r *Router) addRouters() {
 		router.GET("/stock/detail", control.PredictControlGlobal.GetDetail)
 		router.GET("/stock/k/detail", control.PredictControlGlobal.GetWeekDetail)
 		router.GET("/stock/fund", control.PredictControlGlobal.GetFunds)
-
 	}
 }

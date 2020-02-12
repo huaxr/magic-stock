@@ -105,6 +105,15 @@ func (d *PredictControl) getMinMax(da map[string]float64) (min, max float64, is_
 	return min, max, false
 }
 
+func (d *PredictControl) getCodeNumber(code_or_name string) (string, error) {
+	var coder_obj dal.Code
+	err := store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ? or name = ?", code_or_name, code_or_name).Find(&coder_obj).Error
+	if err != nil {
+		return "", errors.New("证券代码不存在")
+	} else {
+		return coder_obj.Code, nil
+	}
+}
 func (d *PredictControl) ParseStockPerTicket(param map[string]float64, field string) set.Interface {
 	tmp := set.New(set.ThreadSafe)
 	min, max, is_nil := d.getMinMax(param)
@@ -479,15 +488,11 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 func (d *PredictControl) GetWeekDetail(c *gin.Context) {
 	code := c.DefaultQuery("code", "")
 	code = string([]rune(code))
-	var coder_obj dal.Code
-	err := store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ? or name = ?", code, code).Find(&coder_obj).Error
+	code, err := d.getCodeNumber(code)
 	if err != nil {
-		d.Response(c, nil, errors.New("证券代码不存在"))
+		d.Response(c, nil, err)
 		return
-	} else {
-		code = coder_obj.Code
 	}
-
 	typ := c.DefaultQuery("type", "")
 	date := d.getDate()
 	switch typ {
@@ -516,15 +521,11 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 		d.Response(c, nil, errors.New("证券代码空"))
 		return
 	}
-	var coder_obj dal.Code
-	err := store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ? or name = ?", code, code).Find(&coder_obj).Error
+	code, err := d.getCodeNumber(code)
 	if err != nil {
-		d.Response(c, nil, errors.New("证券代码不存在"))
+		d.Response(c, nil, err)
 		return
-	} else {
-		code = coder_obj.Code
 	}
-
 	date := d.getDate()
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
@@ -606,8 +607,10 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 func (d *PredictControl) GetFunds(c *gin.Context) {
 	offset, limit := check.ParamParse.GetPagination(c)
 	code := c.DefaultQuery("code", "")
-	if code == "" {
-		d.Response(c, nil, errors.New("证券代码为空"))
+	code = string([]rune(code))
+	code, err := d.getCodeNumber(code)
+	if err != nil {
+		d.Response(c, nil, err)
 		return
 	}
 	var StockFund []dal.StockFund
@@ -709,8 +712,13 @@ func (d *PredictControl) GetFenHong(c *gin.Context) {
 		d.Response(c, nil, errors.New("code/type 为空"))
 		return
 	}
+	code = string([]rune(code))
+	code, err := d.getCodeNumber(code)
+	if err != nil {
+		d.Response(c, nil, err)
+		return
+	}
 	var response []FindRes
-	var err error
 	switch typ {
 	case "fh":
 		err = store.MysqlClient.GetDB().Model(&dal.StockFengHong{}).Select("pai_xi as count, date").Where("code = ? and pai_xi > 0", code).Scan(&response).Error
@@ -728,6 +736,12 @@ func (d *PredictControl) GetPeiGuZhuangZeng(c *gin.Context) {
 	code := c.DefaultQuery("code", "")
 	if code == "" || typ == "" {
 		d.Response(c, nil, errors.New("code/type 为空"))
+		return
+	}
+	code = string([]rune(code))
+	code, err := d.getCodeNumber(code)
+	if err != nil {
+		d.Response(c, nil, err)
 		return
 	}
 	switch typ {
@@ -752,6 +766,12 @@ func (d *PredictControl) GetSubComp(c *gin.Context) {
 	offset, limit := check.ParamParse.GetPagination(c)
 	if code == "" {
 		d.Response(c, nil, errors.New("code 为空"))
+		return
+	}
+	code = string([]rune(code))
+	code, err := d.getCodeNumber(code)
+	if err != nil {
+		d.Response(c, nil, err)
 		return
 	}
 	var subs []dal.StockSubCompany

@@ -2,15 +2,15 @@
 
 package dal
 
-import "github.com/jinzhu/gorm"
+import "time"
 
-// 用户的需求
+// 用户的自选
 type UserSelect struct {
-	gorm.Model
-	UserId int     `json:"user_id"`
-	Code   string  `json:"code"`
-	Name   string  `json:"name"`
-	Price  float64 `json:"price"`
+	ID          uint      `gorm:"primary_key"`
+	UserId      int       `json:"user_id"`
+	Code        string    `json:"code"`
+	Name        string    `json:"name"`
+	CreatedTime time.Time `json:"created_time"`
 }
 
 func (UserSelect) TableName() string {
