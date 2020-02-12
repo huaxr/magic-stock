@@ -301,12 +301,6 @@ func (d *UserControl) DelStock(c *gin.Context) {
 func (d *UserControl) MySelect(c *gin.Context) {
 	_auth, _ := c.Get("auth")
 	authentication := _auth.(*model.AuthResult)
-	var post model.AddStock
-	err := c.BindJSON(&post)
-	if err != nil {
-		d.Response(c, nil, err)
-		return
-	}
 	var selected []dal.UserSelect
 	store.MysqlClient.GetDB().Model(&dal.UserSelect{}).Where("user_id = ?", authentication.Uid).Find(&selected)
 	d.Response(c, selected, nil)
