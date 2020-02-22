@@ -138,8 +138,9 @@ type PredictListResponse struct {
 	SubcompCount    int     `json:"subcomp_count"`    // 控股数量
 	Conditions      string  `json:"conditions"`       // 优点
 	BadConditions   string  `json:"bad_conditions"`   // 缺点
-	Finance         string  `json:"finance"`          // 财务指标
-	Date            string  `json:"date"`
-	Score           int     `json:"score"` // 得分
-	Tape            string  `json:"tape"`  // 盘口
+	//Finance         string  `json:"finance"`          // 财务指标
+	Business string `json:"business"` // 业务
+	Score    int    `json:"score"`    // 得分
+	Tape     string `json:"tape"`     // 盘口
+	Date     string `json:"date"`
 }

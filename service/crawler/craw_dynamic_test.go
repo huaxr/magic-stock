@@ -16,13 +16,13 @@ import (
 var wg, wg2 sync.WaitGroup //定义一个同步等待的组
 
 var (
-	today_str    = "2020-02-12"
-	last_day_str = "2020-02-11" // 上一个交易日数据 可以计算量比用
+	today_str    = "2020-02-21"
+	last_day_str = "2020-02-20" // 上一个交易日数据 可以计算量比用
 
-	delete_day_week  = "2020-02-11" // 要删除的周线日线 当为周一的时候置空
-	delete_day_month = "2020-02-11" // 当为一月的开始时候置空
+	delete_day_week  = "2020-02-20" // 要删除的周线日线 当为周一的时候置空
+	delete_day_month = "2020-02-20" // 当为一月的开始时候置空
 
-	week_begin  = "2020-02-10" // 本周的开始 周一
+	week_begin  = "2020-02-17" // 本周的开始 周一
 	month_begin = "2020-02-03" // 本月的开始 一号 基本可不变
 )
 
@@ -148,4 +148,9 @@ func GetMouthDay(wg sync.WaitGroup) {
 		CrawlerGlobal.GetMonthDay(i, month_begin, today_str)
 	}
 	defer wg.Done()
+}
+
+// 获取融资融券数据
+func TestGetSecuritiesMarginTrading(T *testing.T) {
+
 }

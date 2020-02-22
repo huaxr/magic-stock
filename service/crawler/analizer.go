@@ -369,7 +369,6 @@ func JudgeNumber(n float64, numbers []float64, typ string) bool {
 func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	score := 0
 	cond_str, bad_cond_str, finance := "", "", ""
-	cond_str_, bad_cond_str_ := "", ""
 	// 5 10 金叉  并且 今日10 均大于昨日 10均
 	jincha1 := result.AveDailyPrice1[0] > result.AveDailyPrice2[0] && result.AveDailyPrice1[1] < result.AveDailyPrice2[1] && result.AveDailyPrice2[0] >= result.AveDailyPrice2[1]
 	// 5 30 金叉
@@ -463,10 +462,10 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	liangshangyang1 := result.AveCount1[0] > result.AveCount1[1] && result.AveCount1[1] > result.AveCount1[2] && result.AveCount1[2] > result.AveCount1[3] && result.AveCount1[3] > result.AveCount1[4] && result.AveCount1[4] > result.AveCount1[5]
 	// 连续5日量能40均线上扬
 	liangshangyang2 := result.AveCount2[0] > result.AveCount2[1] && result.AveCount2[1] > result.AveCount2[2] && result.AveCount2[2] > result.AveCount2[3] && result.AveCount2[3] > result.AveCount2[4] && result.AveCount2[4] > result.AveCount2[5]
-	// 连续3日量能站上10均线
-	liangnengbigger1 := result.AveCount1[0] < result.RecentCount[0] && result.AveCount1[1] < result.RecentCount[1] && result.AveCount1[2] < result.RecentCount[2] //&& result.AveCount1[3] < result.RecentCount[3] && result.AveCount1[4] < result.RecentCount[4]
-	// 连续3日量能站上40均线
-	liangnengbigger2 := result.AveCount2[0] < result.RecentCount[0] && result.AveCount2[1] < result.RecentCount[1] && result.AveCount2[2] < result.RecentCount[2] //&& result.AveCount2[3] < result.RecentCount[3] && result.AveCount2[4] < result.RecentCount[4]
+	// 连续5日量能站上10均线
+	liangnengbigger1 := result.AveCount1[0] < result.RecentCount[0] && result.AveCount1[1] < result.RecentCount[1] && result.AveCount1[2] < result.RecentCount[2] && result.AveCount1[3] < result.RecentCount[3] && result.AveCount1[4] < result.RecentCount[4]
+	// 连续5日量能站上40均线
+	liangnengbigger2 := result.AveCount2[0] < result.RecentCount[0] && result.AveCount2[1] < result.RecentCount[1] && result.AveCount2[2] < result.RecentCount[2] && result.AveCount2[3] < result.RecentCount[3] && result.AveCount2[4] < result.RecentCount[4]
 	// 连续3日量能低于10均线
 	liangnengsmaller1 := result.AveCount1[0] > result.RecentCount[0] && result.AveCount1[1] > result.RecentCount[1] && result.AveCount1[2] > result.RecentCount[2] // && result.AveCount1[3] > result.RecentCount[3] && result.AveCount1[4] > result.RecentCount[4]
 	// 连续3日量能低于40均线
@@ -495,7 +494,10 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	pergu, zengfa := GetPeiGuByCode(code)
 	subcomp := GetSubCompByCode(code)
 	// 历史更名次数
-	changename, has_st := GetHistoryNameByCode(code)
+	_, has_st := GetHistoryNameByCode(code)
+
+	// 最近3天换手率大于 3%
+	//to1 := result.RecentDailyData.RecentTurnoverRate[0] > 5
 
 	// 周线数据如下
 	// 周线金叉
@@ -649,728 +651,618 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	if len(result.RecentLowMonth) >= 3 {
 		if JudgeNumber(current_low, result.RecentLowMonth[0:3], "low") {
 			bad_cond_str += "三月新低; "
-			bad_cond_str_ += "三月新低; "
 		}
 
 		if JudgeNumber(current_high, result.RecentHighMonth[0:3], "high") {
 			cond_str += "三月新高; "
-			cond_str_ += "三月新高; "
 		}
 	}
 	if len(result.RecentLowMonth) >= 6 {
 		if JudgeNumber(current_low, result.RecentLowMonth[0:6], "low") {
 			bad_cond_str += "六月新低; "
-			bad_cond_str_ += "六月新低; "
 		}
 		if JudgeNumber(current_high, result.RecentHighMonth[0:6], "high") {
 			cond_str += "六月新高; "
-			cond_str_ += "六月新高; "
 		}
 	}
 	if len(result.RecentLowMonth) >= 9 {
 		if JudgeNumber(current_low, result.RecentLowMonth[0:9], "low") {
 			bad_cond_str += "九月新低; "
-			bad_cond_str_ += "九月新低; "
 		}
 		if JudgeNumber(current_high, result.RecentHighMonth[0:9], "high") {
 			cond_str += "九月新高; "
-			cond_str_ += "九月新高; "
 		}
 	}
 
 	if len(result.RecentLowMonth) >= 12 {
 		if JudgeNumber(current_low, result.RecentLowMonth[0:12], "low") {
 			bad_cond_str += "十二月新低; "
-			bad_cond_str_ += "十二月新低; "
 		}
 		if JudgeNumber(current_high, result.RecentHighMonth[0:12], "high") {
 			cond_str += "十二月新高; "
-			cond_str_ += "十二月新高; "
+		}
+	}
+
+	// 周线新低
+	if len(result.RecentLow) >= 5 {
+		if JudgeNumber(current_low, result.RecentLow[0:5], "low") {
+			bad_cond_str += "五日新低; "
+		}
+
+		if JudgeNumber(current_high, result.RecentLow[0:5], "high") {
+			cond_str += "五日新高; "
+		}
+	}
+	if len(result.RecentLow) >= 10 {
+		if JudgeNumber(current_low, result.RecentLow[0:10], "low") {
+			bad_cond_str += "十日新低; "
+		}
+		if JudgeNumber(current_high, result.RecentLow[0:6], "high") {
+			cond_str += "十日新高; "
 		}
 	}
 
 	if jincha11 {
 		score += 2
 		cond_str += "(量能金叉)10日上穿40日均线; "
-		cond_str_ += "(量能金叉)10日上穿40日均线; "
 	}
 	if jincha1 {
 		score += 2
 		cond_str += "(金叉)5日上穿10日均线; "
-		cond_str_ += "(金叉)5日上穿10日均线; "
 	}
 	if jincha2 {
 		score += 2
 		cond_str += "(金叉)5日上穿30日均线; "
-		cond_str_ += "(金叉)5日上穿30日均线; "
 	}
 	if jincha3 {
 		score += 2
 		cond_str += "(金叉)5日上穿60日均线; "
-		cond_str_ += "(金叉)5日上穿60日均线; "
 	}
 	if jincha5 {
 		score += 2
 		cond_str += "(金叉)10日上穿30日均线; "
-		cond_str_ += "(金叉)10日上穿30日均线; "
 	}
 	if jincha6 {
 		score += 2
 		cond_str += "(金叉)10日上穿60日均线; "
-		cond_str_ += "(金叉)10日上穿60日均线; "
 	}
 	if jincha8 {
 		score += 2
 		cond_str += "(金叉)30日上穿60日均线; "
-		cond_str_ += "(金叉)30日上穿60日均线; "
 	}
 
 	if wjincha11 {
 		score += 2
 		cond_str += "(量能金叉)10周上穿40周均线; "
-		cond_str_ += "(量能金叉)10周上穿40周均线; "
 	}
 	if wjincha1 {
 		score += 2
 		cond_str += "(金叉)5周上穿10周均线; "
-		cond_str_ += "(金叉)5周上穿10周均线; "
 	}
 	if wjincha2 {
 		score += 2
 		cond_str += "(金叉)5周上穿30周均线; "
-		cond_str_ += "(金叉)5周上穿30周均线; "
 	}
 	if wjincha3 {
 		score += 2
 		cond_str += "(金叉)5周上穿60周均线; "
-		cond_str_ += "(金叉)5周上穿60周均线; "
 	}
 	if wjincha5 {
 		score += 2
 		cond_str += "(金叉)10周上穿30周均线; "
-		cond_str_ += "(金叉)10周上穿30周均线; "
 	}
 	if wjincha6 {
 		score += 2
 		cond_str += "(金叉)10周上穿60周均线; "
-		cond_str_ += "(金叉)10周上穿60周均线; "
 	}
 	if wjincha8 {
 		score += 2
 		cond_str += "(金叉)30周上穿60周均线; "
-		cond_str_ += "(金叉)30周上穿60周均线; "
 	}
 
 	if yjincha11 {
 		score += 2
 		cond_str += "(量能金叉)10月上穿40月均线; "
-		cond_str_ += "(量能金叉)10月上穿40月均线; "
 	}
 	if yjincha1 {
 		score += 2
 		cond_str += "(金叉)5月上穿10月均线; "
-		cond_str_ += "(金叉)5月上穿10月均线; "
 	}
 	if yjincha2 {
 		score += 2
 		cond_str += "(金叉)5月上穿30月均线; "
-		cond_str_ += "(金叉)5月上穿30月均线; "
 	}
 	if yjincha3 {
 		score += 2
 		cond_str += "(金叉)5月上穿60月均线; "
-		cond_str_ += "(金叉)5月上穿60月均线; "
 	}
 	if yjincha5 {
 		score += 2
 		cond_str += "(金叉)10月上穿30月均线; "
-		cond_str_ += "(金叉)10月上穿30月均线; "
 	}
 	if yjincha6 {
 		score += 2
 		cond_str += "(金叉)10月上穿60月均线; "
-		cond_str_ += "(金叉)10月上穿60月均线; "
 	}
 	if yjincha8 {
 		score += 2
 		cond_str += "(金叉)30月上穿60月均线; "
-		cond_str_ += "(金叉)30月上穿60月均线; "
 	}
 
 	if sicha11 {
 		score -= 2
 		bad_cond_str += "(量能死叉)10日下穿40日均线; "
-		bad_cond_str_ += "(量能死叉)10日下穿40日均线; "
 	}
 	if sicha1 {
 		score -= 2
 		bad_cond_str += "(死叉)5日下穿10日均线; "
-		bad_cond_str_ += "(死叉)5日下穿10日均线; "
 	}
 	if sicha2 {
 		score -= 2
 		bad_cond_str += "(死叉)5日下穿30日均线; "
-		bad_cond_str_ += "(死叉)5日下穿30日均线; "
 	}
 	if sicha3 {
 		score -= 2
 		bad_cond_str += "(死叉)5日下穿60日均线; "
-		bad_cond_str_ += "(死叉)5日下穿60日均线; "
 	}
 	if sicha5 {
 		score -= 2
 		bad_cond_str += "(死叉)10日下穿30日均线; "
-		bad_cond_str_ += "(死叉)10日下穿30日均线; "
 	}
 	if sicha6 {
 		score -= 2
 		bad_cond_str += "(死叉)10日下穿60日均线; "
-		bad_cond_str_ += "(死叉)10日下穿60日均线; "
 	}
 	if sicha8 {
 		score -= 2
 		bad_cond_str += "(死叉)30下穿60日均线; "
-		bad_cond_str_ += "(死叉)30下穿60日均线; "
 	}
-
 	if wsicha11 {
 		score -= 2
 		bad_cond_str += "(量能死叉)10周下穿40周均线; "
-		bad_cond_str_ += "(量能死叉)10周下穿40周均线; "
 	}
 	if wsicha1 {
 		score -= 2
 		bad_cond_str += "(死叉)5周下穿10周均线; "
-		bad_cond_str_ += "(死叉)5周下穿10周均线; "
 	}
 	if wsicha2 {
 		score -= 2
 		bad_cond_str += "(死叉)5周下穿30周均线; "
-		bad_cond_str_ += "(死叉)5周下穿30周均线; "
 	}
 	if wsicha3 {
 		score -= 2
 		bad_cond_str += "(死叉)5周下穿60周均线; "
-		bad_cond_str_ += "(死叉)5周下穿60周均线; "
 	}
 	if wsicha5 {
 		score -= 2
 		bad_cond_str += "(死叉)10周下穿30周均线; "
-		bad_cond_str_ += "(死叉)10周下穿30周均线; "
 	}
 	if wsicha6 {
 		score -= 2
 		bad_cond_str += "(死叉)10周下穿60周均线; "
-		bad_cond_str_ += "(死叉)10周下穿60周均线; "
 	}
 	if wsicha8 {
 		score -= 2
 		bad_cond_str += "(死叉)30周下穿60周均线; "
-		bad_cond_str_ += "(死叉)30周下穿60周均线; "
 	}
 
 	if ysicha11 {
 		score -= 2
 		bad_cond_str += "(量能死叉)10月下穿40月均线; "
-		bad_cond_str_ += "(量能死叉)10月下穿40月均线; "
 	}
 	if ysicha1 {
 		score -= 2
 		bad_cond_str += "(死叉)5月下穿10月均线; "
-		bad_cond_str_ += "(死叉)5月下穿10月均线; "
 	}
 	if ysicha2 {
 		score -= 2
 		bad_cond_str += "(死叉)5月下穿30月均线; "
-		bad_cond_str_ += "(死叉)5月下穿30月均线; "
 	}
 	if ysicha3 {
 		score -= 2
 		bad_cond_str += "(死叉)5月下穿60月均线; "
-		bad_cond_str_ += "(死叉)5月下穿60月均线; "
 	}
 	if ysicha5 {
 		score -= 2
 		bad_cond_str += "(死叉)10月下穿30月均线; "
-		bad_cond_str_ += "(死叉)10月下穿30月均线; "
 	}
 	if ysicha6 {
 		score -= 2
 		bad_cond_str += "(死叉)10月下穿60月均线; "
-		bad_cond_str_ += "(死叉)10月下穿60月均线; "
 	}
 	if ysicha8 {
 		score -= 2
 		bad_cond_str += "(死叉)30月下穿60月均线; "
-		bad_cond_str_ += "(死叉)30月下穿60月均线; "
 	}
 
 	if yiziban {
+		score += 1
 		cond_str += "一字板; "
-		cond_str_ += "一字板; "
 	}
 	if tziban {
 		cond_str += "T字板; "
-		cond_str_ += "T字板; "
 	}
 	if zhangting {
 		score += 2
 		cond_str += "涨停股; "
-		cond_str_ += "涨停股; "
 	}
 	if dietingban {
 		bad_cond_str += "一字跌停； "
-		bad_cond_str_ += "一字跌停； "
 	}
 	if daotban {
 		bad_cond_str += "倒T跌停； "
-		bad_cond_str_ += "倒T跌停； "
 	}
 
 	if dikaigaozou {
 		cond_str += "低开高走; "
-		cond_str_ += "低开高走; "
 	}
 	if gaokaigaozou {
 		cond_str += "高开高走; "
-		cond_str_ += "高开高走; "
 	}
 	if gaokaidizou {
 		bad_cond_str += "高开低走; "
-		bad_cond_str_ += "高开低走; "
 	}
 	if dikaidizou {
 		bad_cond_str += "低开低走; "
-		bad_cond_str_ += "低开低走; "
 	}
 	if wulianyang {
 		cond_str += "五连阳; "
-		cond_str_ += "五连阳; "
 	}
 	if silianyang {
 		cond_str += "四连阳; "
-		cond_str_ += "四连阳; "
 	}
 	if sanlianyang {
 		cond_str += "三连阳; "
-		cond_str_ += "三连阳; "
 	}
 
 	if wulianyin {
 		bad_cond_str += "五连阴; "
-		bad_cond_str_ += "五连阴; "
 	}
 
 	if silianyin {
 		bad_cond_str += "四连阴; "
-		bad_cond_str_ += "四连阴; "
 	}
 
 	if sanlianyin {
 		bad_cond_str += "三连阴; "
-		bad_cond_str_ += "三连阴; "
 	}
 
 	if changshangying {
 		cond_str += "长上影; "
-		cond_str_ += "长上影; "
 	}
 	if changxiaying {
 		cond_str += "长下影; "
-		cond_str_ += "长下影; "
 	}
 
 	if changshangying_week {
 		cond_str += "周线长上影; "
-		cond_str_ += "周线长上影; "
 	}
 
 	if changxiaying_week {
 		cond_str += "周线长下影; "
-		cond_str_ += "周线长下影; "
 	}
 
-	var tupo string
 	if tupo1 {
 		score += 2
-		cond_str += "收盘突破5日压力位; "
-		tupo += "5日,"
+		cond_str += "突破5日压力位; "
 	}
 	if tupo2 {
 		score += 2
-		cond_str += "收盘突破10日压力位; "
-		tupo += "10日,"
+		cond_str += "突破10日压力位; "
 	}
 	if tupo3 {
 		score += 2
-		cond_str += "收盘突破30日压力位; "
-		tupo += "30日,"
+		cond_str += "突破30日压力位; "
 	}
 
 	if tupo4 {
 		score += 2
-		cond_str += "收盘突破60日压力位; "
-		tupo += "60日,"
+		cond_str += "突破60日压力位; "
 	}
 
 	if tupo5 {
 		score += 2
-		cond_str += "收盘突破5周压力位; "
-		tupo += "5周,"
+		cond_str += "突破5周压力位; "
 	}
 	if tupo6 {
 		score += 2
-		cond_str += "收盘突破10周压力位; "
-		tupo += "10周,"
+		cond_str += "突破10周压力位; "
 	}
 	if tupo7 {
 		score += 2
-		cond_str += "收盘突破30周压力位; "
-		tupo += "30周,"
+		cond_str += "突破30周压力位; "
 	}
 	if tupo8 {
 		score += 2
-		cond_str += "收盘突破60周压力位; "
-		tupo += "60周,"
+		cond_str += "突破60周压力位; "
 	}
 	if tupo9 {
 		score += 2
-		cond_str += "收盘突破5月压力位; "
-		tupo += "5月,"
+		cond_str += "突破5月压力位; "
 	}
 	if tupo10 {
 		score += 2
-		cond_str += "收盘突破10月压力位; "
-		tupo += "10月,"
+		cond_str += "突破10月压力位; "
 	}
 	if tupo11 {
 		score += 2
-		cond_str += "收盘突破30月压力位; "
-		tupo += "30月,"
+		cond_str += "突破30月压力位; "
 	}
 	if tupo12 {
 		score += 2
-		cond_str += "收盘突破60月压力位; "
-		tupo += "60月,"
-	}
-	if tupo != "" {
-		tupo = strings.TrimRight(tupo, ",")
-		cond_str_ += fmt.Sprintf("收盘价突破%s均线压力位; ", tupo)
+		cond_str += "突破60月压力位; "
 	}
 
-	var jichuang string
 	if jichuang1 {
 		score -= 2
-		bad_cond_str += "收盘击穿5日支撑位; "
-		jichuang += "5日,"
+		bad_cond_str += "击穿5日支撑位; "
 	}
 	if jichuang2 {
 		score -= 2
-		bad_cond_str += "收盘击穿10日支撑位; "
-		jichuang += "10日,"
+		bad_cond_str += "击穿10日支撑位; "
 	}
 	if jichuang3 {
 		score -= 2
-		bad_cond_str += "收盘击穿30日支撑位; "
-		jichuang += "30日,"
+		bad_cond_str += "击穿30日支撑位; "
 	}
 	if jichuang4 {
 		score -= 2
-		bad_cond_str += "收盘击穿60日支撑位; "
-		jichuang += "60日,"
+		bad_cond_str += "击穿60日支撑位; "
 	}
 
 	if jichuang5 {
 		score -= 2
-		bad_cond_str += "收盘击穿5周支撑位; "
-		jichuang += "5周,"
+		bad_cond_str += "击穿5周支撑位; "
 	}
 	if jichuang6 {
 		score -= 2
-		bad_cond_str += "收盘击穿10周支撑位; "
-		jichuang += "10周,"
+		bad_cond_str += "击穿10周支撑位; "
 	}
 	if jichuang7 {
 		score -= 2
-		bad_cond_str += "收盘击穿30周支撑位; "
-		jichuang += "30周,"
+		bad_cond_str += "击穿30周支撑位; "
 	}
 	if jichuang8 {
 		score -= 2
-		bad_cond_str += "收盘击穿60周支撑位; "
-		jichuang += "60周,"
+		bad_cond_str += "击穿60周支撑位; "
 	}
 	if jichuang9 {
 		score -= 2
-		bad_cond_str += "收盘击穿5月支撑位; "
-		jichuang += "5月,"
+		bad_cond_str += "击穿5月支撑位; "
 	}
 	if jichuang10 {
 		score -= 2
-		bad_cond_str += "收盘击穿10月支撑位; "
-		jichuang += "10月,"
+		bad_cond_str += "击穿10月支撑位; "
 	}
 	if jichuang11 {
 		score -= 2
-		bad_cond_str += "收盘击穿30月支撑位; "
-		jichuang += "30月,"
+		bad_cond_str += "击穿30月支撑位; "
 	}
 	if jichuang12 {
 		score -= 2
-		bad_cond_str += "收盘击穿60月支撑位; "
-		jichuang += "60月,"
+		bad_cond_str += "击穿60月支撑位; "
 	}
 
-	if jichuang != "" {
-		jichuang = strings.TrimRight(jichuang, ",")
-		bad_cond_str_ += fmt.Sprintf("收盘价击穿%s均线支撑位; ", jichuang)
-	}
-
-	var shangshengtongdao string
 	if priceshangyang1 {
-		cond_str += "5日均线处于上升通道; "
-		shangshengtongdao += "5日,"
+		score += 1
+		cond_str += "5日均线上扬; "
 	}
 	if priceshangyang2 {
-		cond_str += "10日均线处于上升通道; "
-		shangshengtongdao += "10日,"
+		score += 1
+		cond_str += "10日均线上扬; "
 	}
 	if priceshangyang3 {
-		cond_str += "30日均线处于上升通道; "
-		shangshengtongdao += "30日,"
+		score += 1
+		cond_str += "30日均线上扬; "
 	}
 	if priceshangyang4 {
-		cond_str += "60日均线处于上升通道; "
-		shangshengtongdao += "60日,"
+		score += 1
+		cond_str += "60日均线上扬; "
 	}
 
 	if wpriceshangyang1 {
-		cond_str += "5周均线处于上升通道; "
-		shangshengtongdao += "5周,"
+		score += 1
+		cond_str += "5周均线上扬; "
 	}
 	if wpriceshangyang2 {
-		cond_str += "10周均线处于上升通道; "
-		shangshengtongdao += "10周,"
+		score += 1
+		cond_str += "10周均线上扬; "
 	}
 	if wpriceshangyang3 {
-		cond_str += "30周均线处于上升通道; "
-		shangshengtongdao += "30周,"
+		score += 1
+		cond_str += "30周均线上扬; "
 	}
 	if wpriceshangyang4 {
-		cond_str += "60周均线处于上升通道; "
-		shangshengtongdao += "60周,"
+		cond_str += "60周均线上扬; "
 	}
 
 	if ypriceshangyang1 {
-		cond_str += "5月均线处于上升通道; "
-		shangshengtongdao += "5月,"
+		score += 1
+		cond_str += "5月均线处上扬; "
 	}
 	if ypriceshangyang2 {
-		cond_str += "10月均线处于上升通道; "
-		shangshengtongdao += "10月,"
+		score += 1
+		cond_str += "10月均线上扬; "
 	}
 	if ypriceshangyang3 {
-		cond_str += "30月均线处于上升通道; "
-		shangshengtongdao += "30月,"
+		score += 1
+		cond_str += "30月均线上扬; "
 	}
 	if ypriceshangyang4 {
-		cond_str += "60月均线处于上升通道; "
-		shangshengtongdao += "60月,"
-	}
-	if shangshengtongdao != "" {
-		shangshengtongdao = strings.TrimRight(shangshengtongdao, ",") + "均线处于上升通道; "
-		cond_str_ += shangshengtongdao
+		score += 1
+		cond_str += "60月均线上扬; "
 	}
 
-	var xiajiangtongdao string
 	if pricexiajiang1 {
-		bad_cond_str += "5日均线处于下降通道; "
-		xiajiangtongdao += "5日,"
+		score -= 1
+		bad_cond_str += "5日均线下降; "
 	}
 	if pricexiajiang2 {
-		bad_cond_str += "10日均线处于下降通道; "
-		xiajiangtongdao += "10日,"
+		score -= 1
+		bad_cond_str += "10日均线下降; "
 	}
 	if pricexiajiang3 {
-		bad_cond_str += "30日均线处于下降通道; "
-		xiajiangtongdao += "30日,"
+		score -= 1
+		bad_cond_str += "30日均线下降; "
 	}
 	if pricexiajiang4 {
-		bad_cond_str += "60日均线处于下降通道; "
-		xiajiangtongdao += "60日,"
+		score -= 1
+		bad_cond_str += "60日均线下降; "
 	}
 
 	if wpricexiajiang1 {
-		bad_cond_str += "5周均线处于下降通道; "
-		xiajiangtongdao += "5周,"
+		score -= 1
+		bad_cond_str += "5周均线下降; "
 	}
 	if wpricexiajiang2 {
-		bad_cond_str += "10周均线处于下降通道; "
-		xiajiangtongdao += "10周,"
+		score -= 1
+		bad_cond_str += "10周均线下降; "
 	}
 	if wpricexiajiang3 {
-		bad_cond_str += "30周均线处于下降通道; "
-		xiajiangtongdao += "30周,"
+		score -= 1
+		bad_cond_str += "30周均线下降; "
 	}
 	if wpricexiajiang4 {
-		bad_cond_str += "60周均线处于下降通道; "
-		xiajiangtongdao += "60周,"
+		score -= 1
+		bad_cond_str += "60周均线下降; "
 	}
 
 	if ypricexiajiang1 {
-		bad_cond_str += "5月均线处于下降通道; "
-		xiajiangtongdao += "5月,"
+		score -= 1
+		bad_cond_str += "5月均线下降; "
 	}
 	if ypricexiajiang2 {
-		bad_cond_str += "10月均线处于下降通道; "
-		xiajiangtongdao += "10月,"
+		score -= 1
+		bad_cond_str += "10月均线下降; "
 	}
 	if ypricexiajiang3 {
-		bad_cond_str += "30月均线处于下降通道; "
-		xiajiangtongdao += "30月,"
+		score -= 1
+		bad_cond_str += "30月均线下降; "
 	}
 	if ypricexiajiang4 {
-		bad_cond_str += "60月均线处于下降通道; "
-		xiajiangtongdao += "60月,"
-	}
-	if xiajiangtongdao != "" {
-		xiajiangtongdao = strings.TrimRight(xiajiangtongdao, ",") + "均线处于下降通道; "
-		bad_cond_str_ += xiajiangtongdao
+		score -= 1
+		bad_cond_str += "60月均线下降; "
 	}
 
-	var shangfang string
 	if priceaboveave1 {
-		cond_str += "当前价位在5日均线上方; "
-		shangfang += "5日,"
+		score += 1
+		cond_str += "收盘高于5日均价; "
 	}
 	if priceaboveave2 {
-		cond_str += "当前价位在10日均线上方; "
-		shangfang += "10日,"
+		score += 1
+		cond_str += "收盘高于10日均价; "
 	}
 	if priceaboveave3 {
-		cond_str += "当前价位在30日均线上方; "
-		shangfang += "30日,"
+		score += 1
+		cond_str += "收盘高于30日均价; "
 	}
 	if priceaboveave4 {
-		cond_str += "当前价位在60日均线上方; "
-		shangfang += "60日,"
+		score += 1
+		cond_str += "收盘高于60日均价; "
 	}
 
 	if wpriceaboveave1 {
-		cond_str += "当前价位在5周均线上方; "
-		shangfang += "5周,"
+		score += 1
+		cond_str += "收盘高于5周均价; "
 	}
 	if wpriceaboveave2 {
-		cond_str += "当前价位在10周均线上方; "
-		shangfang += "10周,"
+		score += 1
+		cond_str += "收盘高于10周均价; "
 	}
 	if wpriceaboveave3 {
-		cond_str += "当前价位在30周均线上方; "
-		shangfang += "30周,"
+		score += 1
+		cond_str += "收盘高于30周均价; "
 	}
 	if wpriceaboveave4 {
-		cond_str += "当前价位在60周均线上方; "
-		shangfang += "60周,"
+		score += 1
+		cond_str += "收盘高于60周均价; "
 	}
 
 	if ypriceaboveave1 {
-		cond_str += "当前价位在5月均线上方; "
-		shangfang += "5月,"
+		score += 1
+		cond_str += "收盘高于5月均价; "
 	}
 	if ypriceaboveave2 {
-		cond_str += "当前价位在10月均线上方; "
-		shangfang += "10月,"
+		score += 1
+		cond_str += "收盘高于10月均价; "
 	}
 	if ypriceaboveave3 {
-		cond_str += "当前价位在30月均线上方; "
-		shangfang += "30月,"
+		score += 1
+		cond_str += "收盘高于30月均价; "
 	}
 	if ypriceaboveave4 {
-		cond_str += "当前价位在60月均线上方; "
-		shangfang += "60月,"
-	}
-	if shangfang != "" {
-		shangfang = strings.TrimRight(shangfang, ",")
-		cond_str_ += fmt.Sprintf("收盘价位在%s均线上方; ", shangfang)
+		score += 1
+		cond_str += "收盘高于60月均价; "
 	}
 
-	var xiafang string
 	if !priceaboveave1 {
-		bad_cond_str += "当前价位在5日均线下方; "
-		xiafang += "5日,"
+		score -= 1
+		bad_cond_str += "收盘低于5日均价; "
 	}
 	if !priceaboveave2 {
-		bad_cond_str += "当前价位在10日均线下方; "
-		xiafang += "10日,"
+		score -= 1
+		bad_cond_str += "收盘低于10日均价; "
 	}
 	if !priceaboveave3 {
-		bad_cond_str += "当前价位在30日均线下方; "
-		xiafang += "30日,"
+		score -= 1
+		bad_cond_str += "收盘低于30日均价; "
 	}
 	if !priceaboveave4 {
-		bad_cond_str += "当前价位在60日均线下方; "
-		xiafang += "60日,"
+		score -= 1
+		bad_cond_str += "收盘低于60日均价; "
 	}
 
 	if !wpriceaboveave1 {
-		bad_cond_str += "当前价位在5周均线下方; "
-		xiafang += "5周,"
+		score -= 1
+		bad_cond_str += "收盘低于5周均价; "
 	}
 	if !wpriceaboveave2 {
-		bad_cond_str += "当前价位在10周均线下方; "
-		xiafang += "10周,"
+		score -= 1
+		bad_cond_str += "收盘低于10周均价; "
 	}
 	if !wpriceaboveave3 && result.AveWeeklyPrice3 != nil {
-		bad_cond_str += "当前价位在30周均线下方; "
-		xiafang += "30周,"
+		score -= 1
+		bad_cond_str += "收盘低于30周均价; "
 	}
 	if !wpriceaboveave4 && result.AveWeeklyPrice4 != nil {
-		bad_cond_str += "当前价位在60周均线下方; "
-		xiafang += "60周,"
+		score -= 1
+		bad_cond_str += "收盘低于60周均价; "
 	}
 
 	if !ypriceaboveave1 && result.AveMonthPrice1 != nil {
-		bad_cond_str += "当前价位在5月均线下方; "
-		xiafang += "5月,"
+		score -= 1
+		bad_cond_str += "收盘低于5月均价; "
 	}
 	if !ypriceaboveave2 && result.AveMonthPrice2 != nil {
-		bad_cond_str += "当前价位在10月均线下方; "
-		xiafang += "10月,"
+		score -= 1
+		bad_cond_str += "收盘低于10月均价; "
 	}
 	if !ypriceaboveave3 && result.AveMonthPrice3 != nil {
-		bad_cond_str += "当前价位在30月均线下方; "
-		xiafang += "30月,"
+		score -= 1
+		bad_cond_str += "收盘低于30月均价; "
 	}
 	if !ypriceaboveave4 && result.AveMonthPrice4 != nil {
-		bad_cond_str += "当前价位在60月均线下方; "
-		xiafang += "60月,"
-	}
-
-	if xiafang != "" {
-		xiafang = strings.TrimRight(xiafang, ",")
-		bad_cond_str_ += fmt.Sprintf("收盘价位在%s均线下方; ", xiafang)
+		score -= 1
+		bad_cond_str += "收盘低于60月均价; "
 	}
 
 	// 量价
 	if liangshangyang1 {
 		score += 3
 		cond_str += "量能10日均线处于上升通道; "
-		cond_str_ += "量能10日均线处于上升通道; "
 	}
+
 	if liangshangyang2 {
 		score += 3
 		cond_str += "量能40日均线处于上升通道; "
-		cond_str_ += "量能40日均线处于上升通道; "
 	}
 	if liangnengbigger1 {
 		score += 3
-		cond_str += "连续3日量能站上10日均线; "
-		cond_str_ += "连续3日量能站上10日均线; "
+		cond_str += "连续5日量能站上10日均线; "
 	}
 	if liangnengbigger2 {
 		score += 3
-		cond_str += "连续3日量能站上40日均线; "
-		cond_str_ += "连续3日量能站上40日均线; "
+		cond_str += "连续5日量能站上40日均线; "
 	}
 	if liangnengsmaller1 || liangnengsmaller2 {
 		score -= 5
@@ -1378,189 +1270,156 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	if liangnengbuduanbigger {
 		score += 2
 		cond_str += "日线量能不断放大; "
-		cond_str_ += "日线量能不断放大; "
 	}
 	if liangnengtupo1 {
 		score += 2
 		cond_str += "量能突破10日均线; "
-		cond_str_ += "量能突破10日均线; "
 	}
 	if liangnengtupo2 {
 		score += 2
 		cond_str += "量能突破40日均线; "
-		cond_str_ += "量能突破40日均线; "
 	}
 
 	// 周量价
 	if wliangshangyang1 {
 		score += 2
 		cond_str += "量能10周均线处于上升通道; "
-		cond_str_ += "量能10周均线处于上升通道; "
 	}
 	if wliangshangyang2 {
 		score += 2
 		cond_str += "量能40周均线处于上升通道; "
-		cond_str_ += "量能40周均线处于上升通道; "
 	}
 	if wliangnengbuduanbigger {
 		score += 2
 		cond_str += "周线量能不断放大; "
-		cond_str_ += "周线量能不断放大; "
 	}
 	if wliangnengtupo1 {
 		score += 2
 		cond_str += "量能突破10周均线; "
-		cond_str_ += "量能突破10周均线; "
 	}
 	if wliangnengtupo2 {
 		score += 2
 		cond_str += "量能突破40周均线; "
-		cond_str_ += "量能突破40周均线; "
 	}
 
 	// 月量价
 	if yliangshangyang1 {
 		score += 3
 		cond_str += "量能10月均线处于上升通道; "
-		cond_str_ += "量能10月均线处于上升通道; "
 	}
 	if yliangshangyang2 {
 		score += 3
 		cond_str += "量能40月均线处于上升通道; "
-		cond_str_ += "量能40月均线处于上升通道; "
 	}
 	if yliangnengbuduanbigger {
 		score += 3
 		cond_str += "量能月线不断放大; "
-		cond_str_ += "量能月线不断放大; "
 	}
 	if yliangnengtupo1 {
 		score += 3
 		cond_str += "量能突破10月均线; "
-		cond_str_ += "量能突破10月均线; "
 	}
 	if yliangnengtupo2 {
 		score += 3
 		cond_str += "量能突破40月均线; "
-		cond_str_ += "量能突破40月均线; "
 	}
 
 	if simuchicangcount > 0 {
 		score += 2
 		cond_str += fmt.Sprintf("%d个私募持仓; ", simuchicangcount)
-		cond_str_ += fmt.Sprintf("%d个私募持仓; ", simuchicangcount)
 	}
 	if jigouchicangcount > 0 {
 		score += 2
 		cond_str += fmt.Sprintf("%d个基金持仓; ", jigouchicangcount)
-		cond_str_ += fmt.Sprintf("%d个基金持仓; ", jigouchicangcount)
 	}
-	if fenhong > 0 {
-		cond_str += fmt.Sprintf("%d次分红; ", fenhong)
-		cond_str_ += fmt.Sprintf("%d次分红; ", fenhong)
-	}
-	if songgu > 0 {
-		cond_str += fmt.Sprintf("%d次送股; ", songgu)
-		cond_str_ += fmt.Sprintf("%d次送股; ", songgu)
-	}
-	if zhuangzeng > 0 {
-		cond_str += fmt.Sprintf("%d次转增; ", zhuangzeng)
-		cond_str_ += fmt.Sprintf("%d次转增; ", zhuangzeng)
-	}
-	if pergu > 0 {
-		bad_cond_str += fmt.Sprintf("%d次配股; ", pergu)
-		bad_cond_str_ += fmt.Sprintf("%d次配股; ", pergu)
-	}
-	if zengfa > 0 {
-		bad_cond_str += fmt.Sprintf("%d次增发; ", zengfa)
-		bad_cond_str_ += fmt.Sprintf("%d次增发; ", zengfa)
-	}
-	if subcomp > 0 {
-		cond_str += fmt.Sprintf("%d个参股公司; ", subcomp)
-		cond_str_ += fmt.Sprintf("%d个参股公司; ", subcomp)
-	}
-	if changename > 0 {
-		bad_cond_str += fmt.Sprintf("历史更名%d次; ", changename)
-		bad_cond_str_ += fmt.Sprintf("历史更名%d次; ", changename)
-		if has_st {
-			score -= 2
-			bad_cond_str += "曾ST带帽; "
-			bad_cond_str_ += "曾ST带帽; "
-		}
+	//if fenhong > 0 {
+	//	cond_str += fmt.Sprintf("%d次分红; ", fenhong)
+	//}
+	//if songgu > 0 {
+	//	cond_str += fmt.Sprintf("%d次送股; ", songgu)
+	//}
+	//if zhuangzeng > 0 {
+	//	cond_str += fmt.Sprintf("%d次转增; ", zhuangzeng)
+	//}
+	//if pergu > 0 {
+	//	bad_cond_str += fmt.Sprintf("%d次配股; ", pergu)
+	//}
+	//if zengfa > 0 {
+	//	bad_cond_str += fmt.Sprintf("%d次增发; ", zengfa)
+	//}
+	//if subcomp > 0 {
+	//	cond_str += fmt.Sprintf("%d个参股公司; ", subcomp)
+	//}
+	//if changename > 0 {
+	//	bad_cond_str += fmt.Sprintf("历史更名%d次; ", changename)
+	//	if has_st {
+	//		score -= 1
+	//		bad_cond_str += "曾ST带帽; "
+	//	}
+	//}
+	if has_st {
+		score -= 1
+		bad_cond_str += "曾ST带帽; "
 	}
 	// 基本面 现金流量表
 	if up1 {
-		score += 2
+		score += 1
 		cond_str += "经营现金流量净额非负; "
-		cond_str_ += "经营现金流量净额非负; "
 	}
 	if up2 {
-		score += 2
+		score += 1
 		cond_str += "投资现金流量净额非负; "
-		cond_str_ += "投资现金流量净额非负; "
 	}
 	if up3 {
-		score += 2
+		score += 1
 		cond_str += "筹资现金流量净额非负; "
-		cond_str_ += "筹资现金流量净额非负; "
 	}
 	if up4 {
-		score += 2
+		score += 1
 		cond_str += "期末现金及现金等价物余额非负; "
-		cond_str_ += "期末现金及现金等价物余额非负; "
 	}
 	// 基本面 利润表
 	if pup1 {
-		score += 2
+		score += 1
 		cond_str += "营业总收入非负; "
-		cond_str_ += "营业总收入非负; "
 	}
 	if pup2 {
-		score += 2
+		score += 1
 		cond_str += "净利润非负; "
-		cond_str_ += "净利润非负; "
 	}
 	// 基本面 资产负债表
 	if lup1 {
-		score += 2
+		score += 1
 		cond_str += "总资产不断增加; "
-		cond_str_ += "总资产不断增加; "
 	}
 	if done1 {
-		score += 2
+		score += 1
 		cond_str += "总负债不断减小; "
-		cond_str_ += "总负债不断减小; "
 	}
 
 	if !up1 {
-		score -= 3
+		score -= 1
 		bad_cond_str += "(亏损可能)经营现金流量净额出现负值; "
-		bad_cond_str_ += "(亏损可能)经营现金流量净额出现负值; "
 	}
 	if !up2 {
-		score -= 3
+		score -= 1
 		bad_cond_str += "(亏损可能)投资现金流量净额出现负值; "
-		bad_cond_str_ += "(亏损可能)投资现金流量净额出现负值; "
 	}
 	if !up3 {
-		score -= 3
+		score -= 1
 		bad_cond_str += "(亏损可能)筹资现金流量净额出现负值; "
-		bad_cond_str_ += "(亏损可能)筹资现金流量净额出现负值; "
 	}
 	if !up4 {
-		score -= 3
+		score -= 1
 		bad_cond_str += "(亏损可能)期末现金及现金等价物余额出现负值; "
-		bad_cond_str_ += "(亏损可能)期末现金及现金等价物余额出现负值; "
 	}
 	if !pup1 {
-		score -= 3
+		score -= 1
 		bad_cond_str += "营业总收入亏损; "
-		bad_cond_str_ += "营业总收入亏损; "
 	}
 	if !pup2 {
-		score -= 3
+		score -= 1
 		bad_cond_str += "净利润亏损; "
-		bad_cond_str_ += "净利润亏损; "
 	}
 	var per dal.StockPerTicket
 	err := store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Where("code = ?", code).Find(&per).Error
@@ -1574,7 +1433,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	middle := strings.Count(finance, "一般")
 	low := strings.Count(finance, "偏低")
 	bad := strings.Count(finance, "较差")
-	score += (high+high2)*5 + middle*4 + low*-3 + bad*-4
+	score += (high+high2)*3 + middle*2 + low*1 + bad*0
 
 	if score < 0 {
 		score = 5
@@ -1584,12 +1443,12 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		score = 95
 	}
 
-	fmt.Println(code, name, cond_str, bad_cond_str, finance, cond_str_, bad_cond_str_)
+	fmt.Println(code, name, cond_str, bad_cond_str, finance)
 	seed := []int{1, 2, 3, 4, 5}
 	rand.Seed(time.Now().Unix())
 	n := rand.Int() % len(seed)
 
-	p := dal.Predict{Code: code, Name: name, Condition: cond_str_, BadCondition: bad_cond_str_, Condition_: cond_str, BadCondition_: bad_cond_str, Finance: finance,
+	p := dal.Predict{Code: code, Name: name, Condition: cond_str, BadCondition: bad_cond_str, Finance: finance,
 		Date: result.CurrDate, Score: score + seed[n], Price: result.RecentClose[0], Percent: result.RecentPercent[0],
 		FundCount: jigouchicangcount, SMCount: simuchicangcount, FenghongCount: fenhong, PeiguCount: pergu, ZhuangzengCount: zhuangzeng,
 		SongguCount: songgu, ZengfaCount: zengfa, SubcompCount: subcomp}

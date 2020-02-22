@@ -463,21 +463,18 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 	for _, i := range predicts {
 		var str1 = []rune(i.Condition)
 		var str2 = []rune(i.BadCondition)
-		var str3 = []rune(i.Finance)
 		if len(str1) > 70 {
 			str1 = str1[:70]
 		}
 		if len(str2) > 60 {
 			str2 = str2[:60]
 		}
-		if len(str3) > 60 {
-			str3 = str3[:60]
-		}
 		var coder dal.Code
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", i.Code).Find(&coder)
+
 		x := model.PredictListResponse{Name: i.Name, Code: i.Code, Price: i.Price, Percent: i.Percent, Location: coder.Location,
 			Form: coder.OrganizationalForm, Belong: coder.Belong, FundCount: i.FundCount, SimuCount: i.SMCount, Conditions: string(str1) + "...",
-			BadConditions: string(str2) + "...", Finance: string(str3) + "...", Date: i.Date, Score: i.Score,
+			BadConditions: string(str2) + "...", Business: coder.MajorBusinesses, Date: i.Date, Score: i.Score,
 			FenghongCount: i.FenghongCount, SongguCount: i.SongguCount, ZhuangzengCount: i.ZhuangzengCount,
 			PeiguCount: i.PeiguCount, ZengfaCount: i.ZengfaCount, SubcompCount: i.SubcompCount, Tape: coder.Tape}
 		response = append(response, x)
@@ -798,8 +795,10 @@ func (d *PredictControl) GetTop3(c *gin.Context) {
 func (d *PredictControl) GetPublic(c *gin.Context) {
 	code := c.DefaultQuery("code", "")
 	typ := c.DefaultQuery("type", "news")
-	if code == "" {
-		d.Response(c, nil, errors.New("code 为空"))
+	code = string([]rune(code))
+	code, err := d.getCodeNumber(code)
+	if err != nil {
+		d.Response(c, nil, err)
 		return
 	}
 	if typ == "news" {

@@ -13,17 +13,17 @@ import (
 // 获取每只股票的最新公告
 func TestGetPublicNews(t *testing.T) {
 	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 894").Find(&code)
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 0").Find(&code)
 	for _, i := range code {
 		CrawlerGlobal.GetPublicNews(i, false)
 		log.Println(i.ID, i.Code, i.Name)
 	}
 }
 
-// 获取季度报告 一般一个季度执行一次即可 (2.10 更新)
+// 获取季度报告 一般一个季度执行一次即可 (2.19 更新)
 func TestGetPublicReports(t *testing.T) {
 	var code []dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 1876").Find(&code)
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 0").Find(&code)
 	for _, i := range code {
 		CrawlerGlobal.GetPublicReports(i, false)
 		log.Println(i.ID, i.Code, i.Name)

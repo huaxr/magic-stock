@@ -47,7 +47,7 @@ func init() {
 	db.DB().SetMaxOpenConns(30)
 
 	if utils.TellEnv() == "loc" {
-		e.dbonline, err = gorm.Open("mysql", "root:Icode_787518771@tcp(154.8.228.39:3306)/stock?charset=utf8mb4&parseTime=True&loc=Local")
+		e.dbonline, err = gorm.Open("mysql", "root:Stock#787518771@tcp(62.234.65.214:3306)/stock?charset=utf8mb4&parseTime=True&loc=Local")
 		if err != nil {
 			panic(err)
 		}

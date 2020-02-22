@@ -4,6 +4,7 @@ package crawler
 
 import (
 	"fmt"
+	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
 	"strings"
@@ -199,16 +200,36 @@ func CalcCaiWuForPreTicket(code string) {
 
 func TestMultiQuery(t *testing.T) {
 	var c []dal.Predict
-	err := store.MysqlClient.GetDB().Model(&dal.Predict{}).
-		Where("date = ?", "2020-01-03").
-		//Where("`condition` regexp ?", "高位回调").
-		//Where("`condition` regexp ?", "金叉").
-		Where("`condition` regexp ?", "近期60日均线与收盘价黏合").
-		Find(&c).Error
-	fmt.Println(err)
+	store.MysqlClient.GetDB().Model(&dal.Predict{}).
+		Where("date = ?", "2020-02-12").
+		Where("`condition` regexp ?", "涨停股").
+		Find(&c)
+
+	mpp := map[string]int{}
 	for _, i := range c {
-		fmt.Println(i.Code)
+		var code dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", i.Code).Find(&code)
+		x := strings.Split(code.Concept, ",")
+		for _, xx := range x {
+			mpp[xx] += 1
+		}
 	}
+	for k, v := range mpp {
+		log.Println(k, v)
+	}
+
+	mpp = map[string]int{}
+	for _, i := range c {
+		var code dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", i.Code).Find(&code)
+
+		mpp[code.Belong] += 1
+
+	}
+	for k, v := range mpp {
+		log.Println(k, v)
+	}
+
 }
 
 // 从concepts中拿出盘口信息
