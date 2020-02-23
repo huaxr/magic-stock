@@ -38,6 +38,9 @@ func (r *Router) addCommon() {
 	router.GET("/stock/fhsgzz", control.PredictControlGlobal.GetFenHong)
 	router.GET("/stock/pgzf", control.PredictControlGlobal.GetPeiGuZhuangZeng)
 	router.GET("/stock/subcomp", control.PredictControlGlobal.GetSubComp)
+	// 获取轮播图
+	router.GET("/stock/pics", control.PredictControlGlobal.GetPics)
+
 }
 
 func (r *Router) addRouters() {

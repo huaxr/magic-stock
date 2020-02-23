@@ -57,7 +57,7 @@ func init() {
 			&dal.Predict{}, &dal.TicketHistoryWeekly{}, dal.TicketHistory{}, &dal.User{}, &dal.Pay{},
 			&dal.StockCashFlow{}, &dal.StockProfit{}, &dal.StockLiabilities{}, &dal.Conditions{}, &dal.UserConditions{},
 			&dal.StockConcept{}, &dal.StockLabels{}, &dal.StockPerTicket{}, &dal.StockFund{}, &dal.StockFengHong{}, &dal.StockPeiGu{},
-			&dal.StockZengFa{}, &dal.Price{}, &dal.UserShare{}, &dal.HighConditions{}, &dal.UserDemands{}, &dal.StockSubCompany{}, &dal.HistoryALL1{}, &dal.HistoryALL2{},
+			&dal.StockZengFa{}, &dal.Price{}, &dal.UserShare{}, &dal.HighConditions{}, &dal.UserDemands{}, &dal.StockSubCompany{}, &dal.HistoryALL1{}, &dal.HistoryALL2{}, &dal.LunBoTu{},
 			&dal.TicketHistoryWeeklyALL{}, &dal.TicketHistoryMonth{}, &dal.TicketHistoryMonthAll{}, &dal.StockPublicNews{}, &dal.StockPublicReports{}, &dal.UserSelect{}, &dal.RzRq{})
 	}
 
@@ -75,7 +75,7 @@ func init() {
 		&dal.Predict{}, &dal.TicketHistoryWeekly{}, dal.TicketHistory{}, &dal.User{}, &dal.Pay{},
 		&dal.StockCashFlow{}, &dal.StockProfit{}, &dal.StockLiabilities{}, &dal.Conditions{}, &dal.UserConditions{},
 		&dal.StockConcept{}, &dal.StockLabels{}, &dal.StockPerTicket{}, &dal.StockFund{}, &dal.StockFengHong{}, &dal.StockPeiGu{},
-		&dal.StockZengFa{}, &dal.Price{}, &dal.UserShare{}, &dal.HighConditions{}, &dal.UserDemands{}, &dal.StockSubCompany{}, &dal.HistoryALL1{}, &dal.HistoryALL2{},
+		&dal.StockZengFa{}, &dal.Price{}, &dal.UserShare{}, &dal.HighConditions{}, &dal.UserDemands{}, &dal.StockSubCompany{}, &dal.HistoryALL1{}, &dal.HistoryALL2{}, &dal.LunBoTu{},
 		&dal.TicketHistoryWeeklyALL{}, &dal.TicketHistoryMonth{}, &dal.TicketHistoryMonthAll{}, &dal.StockPublicNews{}, &dal.StockPublicReports{}, &dal.UserSelect{}, &dal.RzRq{})
 	MysqlClient = e
 }

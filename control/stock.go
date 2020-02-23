@@ -43,6 +43,8 @@ type PredictIF interface {
 	GetPeiGuZhuangZeng(c *gin.Context)
 	// 获取所有子公司
 	GetSubComp(c *gin.Context)
+	// 获取轮播图
+	GetPics(c *gin.Context)
 	// 获取公告新闻
 	GetPublic(c *gin.Context)
 	Response(c *gin.Context, data interface{}, err error, param ...int)
@@ -549,7 +551,7 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 
 	// 获取融资融券20条数据
 	var Rzrq2, Rzrq []dal.RzRq
-	store.MysqlClient.GetDB().Model(&dal.RzRq{}).Where("code = ? and date <= ?", code, date).Order("date desc").Limit(20).Find(&Rzrq2)
+	store.MysqlClient.GetDB().Model(&dal.RzRq{}).Where("code = ? and date <= ?", code, date).Order("date desc").Limit(30).Find(&Rzrq2)
 	for i := len(Rzrq2) - 1; i >= 0; i-- {
 		Rzrq = append(Rzrq, Rzrq2[i])
 	}
@@ -814,4 +816,10 @@ func (d *PredictControl) GetPublic(c *gin.Context) {
 		d.Response(c, subs, nil)
 		return
 	}
+}
+
+func (d *PredictControl) GetPics(c *gin.Context) {
+	var xx []dal.LunBoTu
+	store.MysqlClient.GetDB().Model(&dal.LunBoTu{}).Where("disable = ?", false).Find(&xx)
+	d.Response(c, xx, nil)
 }
