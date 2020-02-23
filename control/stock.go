@@ -588,6 +588,9 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	_response.Stock = Stock
 	_response.Predict = Predict
 	_response.Rzrq = Rzrq
+	_response.StockCashFlow = nil
+	_response.StockProfit = nil
+	_response.StockLiabilities = nil
 	_response.PerTicket = response
 
 	d.Response(c, _response, nil)
