@@ -548,8 +548,11 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("code = ? and date = ?", code, date).Find(&Predict)
 
 	// 获取融资融券20条数据
-	var Rzrq []dal.RzRq
-	store.MysqlClient.GetDB().Model(&dal.RzRq{}).Where("code = ? and date <= ?", code, date).Order("date desc").Limit(20).Find(&Rzrq)
+	var Rzrq2, Rzrq []dal.RzRq
+	store.MysqlClient.GetDB().Model(&dal.RzRq{}).Where("code = ? and date <= ?", code, date).Order("date desc").Limit(20).Find(&Rzrq2)
+	for i := len(Rzrq2) - 1; i >= 0; i-- {
+		Rzrq = append(Rzrq, Rzrq2[i])
+	}
 
 	var PerTickets dal.StockPerTicket
 	store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Where("code = ?", code).Find(&PerTickets)
