@@ -72,6 +72,9 @@ type CrawlerIF interface {
 	// 只把今日的周线月线加入
 	GetWeekDay(code dal.Code, week_begin, today string)
 	GetMonthDay(code dal.Code, month_begin string, today string)
+
+	// 更新有融资融券的股票 标志位
+	GetRongStock(date string, proxy bool)
 }
 
 var CrawlerGlobal CrawlerIF

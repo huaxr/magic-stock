@@ -295,3 +295,47 @@ func (craw *Crawler) GetStockAllFund(code string, proxy bool) {
 //	store.MysqlClient.GetDB().Create(&th)
 //	return true
 //}
+
+// 获取融资融券
+func (craw *Crawler) GetRongStock(date string, proxy bool) {
+	var doc *goquery.Document
+	if !proxy {
+		doc, _ = craw.NewDocument(fmt.Sprintf("http://vip.stock.finance.sina.com.cn/q/go.php/vInvestConsult/kind/rzrq/index.phtml?tradedate=%s", date))
+	} else {
+		doc, _ = craw.NewDocumentWithProxy(fmt.Sprintf("http://vip.stock.finance.sina.com.cn/q/go.php/vInvestConsult/kind/rzrq/index.phtml?tradedate=%s", date))
+	}
+	// 1 #dataTable > tbody > tr:nth-child(4) > td:nth-child(2) > a
+	// 1 #dataTable > tbody > tr:nth-child(4) > td:nth-child(3)
+
+	// #dataTable > tbody > tr:nth-child(155) > td:nth-child(2) > a
+	// #dataTable > tbody > tr:nth-child(4) > td:nth-child(11)
+
+	for i := 4; i <= 2000; i++ {
+		codes := doc.Find(fmt.Sprintf("#dataTable > tbody > tr:nth-child(%d) > td:nth-child(2) > a", i)).Text()
+		if len(codes) == 0 || codes == "--" {
+			break
+		}
+		name := doc.Find(fmt.Sprintf("#dataTable > tbody > tr:nth-child(%d) > td:nth-child(3) > a", i)).Text()
+		name = utils.ConvertToString(name, "gbk", "utf-8")
+		yue := doc.Find(fmt.Sprintf("#dataTable > tbody > tr:nth-child(%d) > td:nth-child(4)", i)).Text()
+		buy := doc.Find(fmt.Sprintf("#dataTable > tbody > tr:nth-child(%d) > td:nth-child(5)", i)).Text()
+		payback := doc.Find(fmt.Sprintf("#dataTable > tbody > tr:nth-child(%d) > td:nth-child(6)", i)).Text()
+		ylye := doc.Find(fmt.Sprintf("#dataTable > tbody > tr:nth-child(%d) > td:nth-child(7)", i)).Text()
+		yl := doc.Find(fmt.Sprintf("#dataTable > tbody > tr:nth-child(%d) > td:nth-child(8)", i)).Text()
+		salecount := doc.Find(fmt.Sprintf("#dataTable > tbody > tr:nth-child(%d) > td:nth-child(9)", i)).Text()
+		paybackcount := doc.Find(fmt.Sprintf("#dataTable > tbody > tr:nth-child(%d) > td:nth-child(10)", i)).Text()
+		rqye := doc.Find(fmt.Sprintf("#dataTable > tbody > tr:nth-child(%d) > td:nth-child(11)", i)).Text()
+
+		log.Println(codes, name, yue, genFloat(yue), date)
+		rzrq := dal.RzRq{Code: codes, Name: name, Balance: genFloat(yue), Buy: genFloat(buy), PayBack: genFloat(payback), YlYe: genFloat(ylye),
+			AllCount: genFloat(yl), SaleCount: genFloat(salecount), PayBackCount: genFloat(paybackcount), RqYe: genFloat(rqye), Date: date}
+		store.MysqlClient.GetDB().Save(&rzrq)
+
+		//if utils.TellEnv() == "loc" {
+		//	err := store.MysqlClient.GetOnlineDB().Save(&rzrq).Error
+		//	if err != nil {
+		//		fmt.Println("写入线上错误")
+		//	}
+		//}
+	}
+}

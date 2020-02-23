@@ -547,14 +547,9 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	var Predict dal.Predict
 	store.MysqlClient.GetDB().Model(&dal.Predict{}).Where("code = ? and date = ?", code, date).Find(&Predict)
 
-	var StockCashFlow []dal.StockCashFlow
-	store.MysqlClient.GetDB().Model(&dal.StockCashFlow{}).Where("code = ?", code).Order("date asc").Find(&StockCashFlow)
-
-	var StockLiabilities []dal.StockLiabilities
-	store.MysqlClient.GetDB().Model(&dal.StockLiabilities{}).Where("code = ?", code).Order("date asc").Find(&StockLiabilities)
-
-	var StockProfit []dal.StockProfit
-	store.MysqlClient.GetDB().Model(&dal.StockProfit{}).Where("code = ?", code).Order("date asc").Find(&StockProfit)
+	// 获取融资融券20条数据
+	var Rzrq []dal.RzRq
+	store.MysqlClient.GetDB().Model(&dal.RzRq{}).Where("code = ? and date <= ?", code, date).Order("date desc").Limit(20).Find(&Rzrq)
 
 	var PerTickets dal.StockPerTicket
 	store.MysqlClient.GetDB().Model(&dal.StockPerTicket{}).Where("code = ?", code).Find(&PerTickets)
@@ -592,10 +587,7 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	_response.Stockholder = Stockholder
 	_response.Stock = Stock
 	_response.Predict = Predict
-	_response.StockCashFlow = StockCashFlow
-	_response.StockLiabilities = StockLiabilities
-	_response.StockProfit = StockProfit
-	//response.TicketHistoryWeekly = TicketHistoryWeekly
+	_response.Rzrq = Rzrq
 	_response.PerTicket = response
 
 	d.Response(c, _response, nil)

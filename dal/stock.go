@@ -21,6 +21,7 @@ type Code struct {
 	ListingDate        string `json:"listing_date"`                   // 上市日期
 	HistoryNames       string `json:"history_names"`                  // 历史用名
 	Tape               string `json:"tape"`                           // 盘口 是从 concept 拿到: 小盘,中盘,大盘,超大盘
+	Rong               bool   `json:"rong"`                           // 是否有融资盘
 }
 
 func (Code) TableName() string {

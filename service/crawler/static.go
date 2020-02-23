@@ -966,3 +966,15 @@ func (craw *Crawler) GetPublicReports(code dal.Code, proxy bool) {
 		store.MysqlClient.GetDB().Save(&news)
 	}
 }
+
+func genFloat(str string) float64 {
+	if str == "--" {
+		return 0
+	}
+	str = strings.Replace(str, ",", "", -1)
+	float, err := strconv.ParseFloat(str, 64)
+	if err != nil {
+		float = 0
+	}
+	return float
+}

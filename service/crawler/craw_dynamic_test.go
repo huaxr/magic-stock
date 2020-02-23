@@ -151,6 +151,11 @@ func GetMouthDay(wg sync.WaitGroup) {
 }
 
 // 获取融资融券数据
-func TestGetSecuritiesMarginTrading(T *testing.T) {
-
+func TestGetSecuritiesMarginTrading(t *testing.T) {
+	dates := []string{"2020-02-21", "2020-02-20", "2020-02-19", "2020-02-18", "2020-02-17", "2020-02-14", "2020-02-13",
+		"2020-02-12", "2020-02-11", "2020-02-10", "2020-02-07", "2020-02-06", "2020-02-05", "2020-02-04", "2020-02-03",
+		"2020-01-23", "2020-01-22", "2020-01-21", "2020-01-20", "2020-01-17"}
+	for _, i := range dates {
+		CrawlerGlobal.GetRongStock(i, false)
+	}
 }
