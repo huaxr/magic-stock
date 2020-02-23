@@ -142,5 +142,6 @@ type PredictListResponse struct {
 	Business string `json:"business"` // 业务
 	Score    int    `json:"score"`    // 得分
 	Tape     string `json:"tape"`     // 盘口
+	Rong     bool   `json:"rong"`     // 是否融资融券股
 	Date     string `json:"date"`
 }

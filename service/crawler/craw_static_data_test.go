@@ -248,13 +248,18 @@ func TestGetTape(t *testing.T) {
 
 }
 
-// 更新历史数据存在 low=0的情况
+type res struct {
+	Code string
+}
+
+// 更新code表中的融资融券标志位
 func TestUpdateLow(t *testing.T) {
-	var history []dal.TicketHistoryMonth
-	store.MysqlClient.GetDB().Model(&dal.TicketHistoryMonth{}).Where("low = ?", 0).Find(&history)
-	for _, i := range history {
-		i.Low = i.Shou
-		i.High = i.Shou
-		store.MysqlClient.GetDB().Save(&i)
+	var code []res
+	store.MysqlClient.GetDB().Model(&dal.RzRq{}).Select("code").Group("code").Scan(&code)
+	for _, i := range code {
+		var c dal.Code
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", i.Code).Find(&c)
+		c.Rong = true
+		store.MysqlClient.GetDB().Save(&c)
 	}
 }

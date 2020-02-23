@@ -476,7 +476,7 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 			Form: coder.OrganizationalForm, Belong: coder.Belong, FundCount: i.FundCount, SimuCount: i.SMCount, Conditions: string(str1) + "...",
 			BadConditions: string(str2) + "...", Business: coder.MajorBusinesses, Date: i.Date, Score: i.Score,
 			FenghongCount: i.FenghongCount, SongguCount: i.SongguCount, ZhuangzengCount: i.ZhuangzengCount,
-			PeiguCount: i.PeiguCount, ZengfaCount: i.ZengfaCount, SubcompCount: i.SubcompCount, Tape: coder.Tape}
+			PeiguCount: i.PeiguCount, ZengfaCount: i.ZengfaCount, SubcompCount: i.SubcompCount, Tape: coder.Tape, Rong: coder.Rong}
 		response = append(response, x)
 	}
 	d.Response(c, map[string]interface{}{"result": response, "total": total}, nil)
@@ -582,6 +582,9 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	response["yl"] = append(response["yl"], model.Signal{" 主营业务利润率(%)", PerTickets.YlZhuyingyewulirunlv})
 	response["yl"] = append(response["yl"], model.Signal{"总资产利润率(%)", PerTickets.YlZongzichanlirunlv})
 
+	var coder_obj dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ? or name = ?", code).Find(&coder_obj)
+
 	var _response model.StockDetail
 	_response.TicketHistory = TicketHistory
 	_response.Stockholder = Stockholder
@@ -592,7 +595,7 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	_response.StockProfit = nil
 	_response.StockLiabilities = nil
 	_response.PerTicket = response
-
+	_response.Rong = coder_obj.Rong
 	d.Response(c, _response, nil)
 }
 

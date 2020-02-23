@@ -142,6 +142,7 @@ type StockDetail struct {
 	StockLiabilities []dal.StockLiabilities `json:"stock_liabilities"`
 	StockProfit      []dal.StockProfit      `json:"stock_profit"`
 	Rzrq             []dal.RzRq             `json:"rzrq"`
+	Rong             bool                   `json:"rong"`       // 是否融资融券
 	PerTicket        map[string][]Signal    `json:"per_ticket"` // 每股指标
 }
 
