@@ -260,6 +260,6 @@ func TestUpdateLow(t *testing.T) {
 		var c dal.Code
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", i.Code).Find(&c)
 		c.Rong = true
-		store.MysqlClient.GetDB().Save(&c)
+		store.MysqlClient.GetOnlineDB().Save(&c)
 	}
 }

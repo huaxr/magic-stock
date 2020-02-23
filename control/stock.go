@@ -582,8 +582,8 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	response["yl"] = append(response["yl"], model.Signal{" 主营业务利润率(%)", PerTickets.YlZhuyingyewulirunlv})
 	response["yl"] = append(response["yl"], model.Signal{"总资产利润率(%)", PerTickets.YlZongzichanlirunlv})
 
-	var coder_obj dal.Code
-	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ? or name = ?", code).Find(&coder_obj)
+	var coder dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", code).Find(&coder)
 
 	var _response model.StockDetail
 	_response.TicketHistory = TicketHistory
@@ -595,7 +595,7 @@ func (d *PredictControl) GetDetail(c *gin.Context) {
 	_response.StockProfit = nil
 	_response.StockLiabilities = nil
 	_response.PerTicket = response
-	_response.Rong = coder_obj.Rong
+	_response.Rong = coder.Rong
 	d.Response(c, _response, nil)
 }
 
