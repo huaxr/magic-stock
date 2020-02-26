@@ -1078,7 +1078,7 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 
 	if ypriceshangyang1 {
 		score += 1
-		cond_str += "5月均线处上扬; "
+		cond_str += "5月均线上扬; "
 	}
 	if ypriceshangyang2 {
 		score += 1

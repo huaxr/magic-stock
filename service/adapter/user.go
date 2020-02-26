@@ -85,7 +85,7 @@ func (u *UserService) CreateUserIfNotExist(user *dal.User, token string) (us *da
 		if token != "" {
 			user_obj2, err := u.Query("share_token = ?", []interface{}{token})
 			if err == nil {
-				user_obj2.QueryLeft += 20
+				user_obj2.QueryLeft += 200
 				store.MysqlClient.GetDB().Save(user_obj2)
 				// 保存拉新记录
 				share_record := dal.UserShare{ShareUserId: int(user_obj.ID), BeShareId: int(user_obj2.ID)}

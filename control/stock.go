@@ -474,11 +474,15 @@ func (d *PredictControl) PredictList(c *gin.Context) {
 		var coder dal.Code
 		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", i.Code).Find(&coder)
 
+		var history dal.TicketHistory
+		store.MysqlClient.GetDB().Model(&dal.TicketHistory{}).Where("code = ? and date = ?", i.Code, post.Date).Find(&history)
+
 		x := model.PredictListResponse{Name: i.Name, Code: i.Code, Price: i.Price, Percent: i.Percent, Location: coder.Location,
 			Form: coder.OrganizationalForm, Belong: coder.Belong, FundCount: i.FundCount, SimuCount: i.SMCount, Conditions: string(str1) + "...",
 			BadConditions: string(str2) + "...", Business: coder.MajorBusinesses, Date: i.Date, Score: i.Score,
 			FenghongCount: i.FenghongCount, SongguCount: i.SongguCount, ZhuangzengCount: i.ZhuangzengCount,
-			PeiguCount: i.PeiguCount, ZengfaCount: i.ZengfaCount, SubcompCount: i.SubcompCount, Tape: coder.Tape, Rong: coder.Rong}
+			PeiguCount: i.PeiguCount, ZengfaCount: i.ZengfaCount, SubcompCount: i.SubcompCount, Tape: coder.Tape, Rong: coder.Rong,
+			Kai: history.Kai, High: history.High, Low: history.Low, Amplitude: history.Amplitude, TurnoverRate: history.TurnoverRate, NumberRate: history.NumberRate}
 		response = append(response, x)
 	}
 	d.Response(c, map[string]interface{}{"result": response, "total": total}, nil)

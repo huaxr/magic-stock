@@ -139,6 +139,13 @@ type PredictListResponse struct {
 	Conditions      string  `json:"conditions"`       // 优点
 	BadConditions   string  `json:"bad_conditions"`   // 缺点
 	//Finance         string  `json:"finance"`          // 财务指标
+	Kai          float64 `json:"kai"`
+	High         float64 `json:"high"`
+	Low          float64 `json:"low"`
+	Amplitude    float64 `json:"amplitude"`     // 振幅
+	TurnoverRate float64 `json:"turnover_rate"` // 换手率
+	NumberRate   float64 `json:"number_rate"`   // 对昨量比
+
 	Business string `json:"business"` // 业务
 	Score    int    `json:"score"`    // 得分
 	Tape     string `json:"tape"`     // 盘口
