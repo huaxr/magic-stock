@@ -40,6 +40,9 @@ func (r *Router) addCommon() {
 	router.GET("/stock/subcomp", control.PredictControlGlobal.GetSubComp)
 	// 获取轮播图
 	router.GET("/stock/pics", control.PredictControlGlobal.GetPics)
+	// 模糊查询股票
+	router.GET("/stock/name_like", control.PredictControlGlobal.GetNameLike)
+
 }
 
 func (r *Router) addRouters() {

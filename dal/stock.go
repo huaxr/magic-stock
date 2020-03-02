@@ -6,6 +6,8 @@ type Code struct {
 	ID      uint   `gorm:"primary_key" json:"id"`
 	Code    string `gorm:"not null;unique" json:"code"`
 	Name    string `json:"name"`
+	Pinyin string `json:"pinyin"`
+
 	Belong  string `json:"belong"`  // 所属行业板块
 	Concept string `json:"concept"` // 所属概念板块
 

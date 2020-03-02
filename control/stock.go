@@ -45,6 +45,7 @@ type PredictIF interface {
 	GetSubComp(c *gin.Context)
 	// 获取轮播图
 	GetPics(c *gin.Context)
+	GetNameLike(c *gin.Context)
 	// 获取公告新闻
 	GetPublic(c *gin.Context)
 	Response(c *gin.Context, data interface{}, err error, param ...int)
@@ -826,4 +827,22 @@ func (d *PredictControl) GetPics(c *gin.Context) {
 	var xx []dal.LunBoTu
 	store.MysqlClient.GetDB().Model(&dal.LunBoTu{}).Where("disable = ?", false).Find(&xx)
 	d.Response(c, xx, nil)
+}
+
+type Coder struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
+	Pinyin string `json:"pinyin"`
+}
+
+func (d *PredictControl) GetNameLike(c *gin.Context) {
+	query := c.DefaultQuery("query", "")
+	if query == "" {
+		d.Response(c, nil, errors.New("查询参数错误"))
+		return
+	}
+	query = strings.TrimSpace(query)
+	var codes []Coder
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code like ? OR name like ? OR pinyin like ?", query+"%",query+"%",query+"%" ).Limit(10).Scan(&codes)
+	d.Response(c, codes, nil)
 }

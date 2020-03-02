@@ -3,9 +3,11 @@
 package crawler
 
 import (
+	"github.com/chain-zhang/pinyin"
 	"log"
 	"magic/stock/core/store"
 	"magic/stock/dal"
+	"strings"
 	"testing"
 	"time"
 )
@@ -274,4 +276,32 @@ func TestGetMouthDays(t *testing.T) {
 // 获取所有股票证券代码
 func TestCrawler(t *testing.T) {
 	CrawlerGlobal.GetAllTicketCode()
+}
+
+
+// 提取首字母
+func TestGeneratePinYinForStock(t *testing.T) {
+	var code []dal.Code
+	store.MysqlClient.GetDB().Model(&dal.Code{}).Find(&code)
+	for _, i := range code {
+		str, err := pinyin.New(i.Name).Split(" ").Mode(pinyin.WithoutTone).Convert()
+		if err != nil {
+			// 错误处理
+		}else{
+			var pinyin string
+			chars := strings.Split(str, " ")
+			for pos := range chars {
+				if (chars[pos] == "*ST" || chars[pos] == "ST"){
+					pinyin += strings.ToLower(chars[pos])
+				} else if chars[pos] == "Ａ" || chars[pos] == "A"{
+					pinyin += "a"
+				}  else {
+					pinyin += string(chars[pos][0])
+				}
+			}
+
+			i.Pinyin = pinyin
+			store.MysqlClient.GetDB().Save(&i)
+		}
+	}
 }
