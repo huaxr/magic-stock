@@ -46,6 +46,11 @@ func (d *CommonControl) PaymentList(c *gin.Context) {
 		store.MysqlClient.GetDB().Model(&dal.Price{}).Where("type = ?", "data").Find(&res)
 		d.Response(c, res, nil)
 		return
+	} else if typ == "mask" {
+		var res []dal.Price
+		store.MysqlClient.GetDB().Model(&dal.Price{}).Where("type = ?", "mask").Find(&res)
+		d.Response(c, res, nil)
+		return
 	} else {
 		var res []dal.Price
 		store.MysqlClient.GetDB().Model(&dal.Price{}).Where("type = ? OR type = ?", "member", "query").Find(&res)
