@@ -34,6 +34,7 @@ func (w *WeChat) JSApiPay(openid string, money string) (*anypay.WeResJsApi, stri
 	}
 	payment := anypay.NewWePay(config)               //创建实例
 	res := payment.UnifiedOrder(anypay.WeOrderParam{ //创建订单
+	    Detail: "鉴股查询",
 		Attach: "知修数据",
 		Body:           "知修科技",
 		OutTradeNo:     nonce_str,
