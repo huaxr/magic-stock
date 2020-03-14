@@ -16,11 +16,11 @@ import (
 var wg, wg2 sync.WaitGroup //定义一个同步等待的组
 
 var (
-	today_str    = "2020-03-09"
-	last_day_str = "2020-03-06" // 上一个交易日数据 可以计算量比用
+	today_str    = "2020-03-13"
+	last_day_str = "2020-03-12" // 上一个交易日数据 可以计算量比用
 
-	delete_day_week  = "" // 要删除的周线日线 当为周一的时候置空
-	delete_day_month = "2020-03-06" // 当为一月的开始时候置空
+	delete_day_week  = "2020-03-12" // 要删除的周线日线 当为周一的时候置空
+	delete_day_month = "2020-03-12" // 当为一月的开始时候置空
 
 	week_begin  = "2020-03-09" // 本周的开始 周一
 	month_begin = "2020-03-02" // 本月的开始 一号 基本可不变

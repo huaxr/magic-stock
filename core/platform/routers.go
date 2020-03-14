@@ -14,6 +14,8 @@ import (
 func (r *Router) bindRouters() {
 	r.addCommon()
 	r.addRouters()
+
+
 }
 
 func (r *Router) addCommon() {
@@ -72,3 +74,4 @@ func (r *Router) addRouters() {
 		router.GET("/stock/fund", control.PredictControlGlobal.GetFunds)
 	}
 }
+

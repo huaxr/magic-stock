@@ -34,7 +34,8 @@ func (w *WeChat) JSApiPay(openid string, money string) (*anypay.WeResJsApi, stri
 	}
 	payment := anypay.NewWePay(config)               //创建实例
 	res := payment.UnifiedOrder(anypay.WeOrderParam{ //创建订单
-		Body:           PAY_BODY,
+		Attach: "知修数据",
+		Body:           "知修科技",
 		OutTradeNo:     nonce_str,
 		TotalFee:       money, // 单位分 字符串
 		SpbillCreateIp: IP,    //务必替换成获取的真实IP
