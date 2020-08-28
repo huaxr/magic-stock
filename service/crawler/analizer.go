@@ -478,6 +478,11 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 	liangnengtupo1 := result.AveCount1[0] < result.RecentCount[0] && result.AveCount1[1] > result.RecentCount[1] && result.AveCount1[2] > result.RecentCount[2] && result.AveCount1[3] > result.RecentCount[3] && result.AveCount1[4] > result.RecentCount[4] && result.AveCount1[5] > result.RecentCount[5]
 	liangnengtupo2 := result.AveCount2[0] < result.RecentCount[0] && result.AveCount2[1] > result.RecentCount[1] && result.AveCount2[2] > result.RecentCount[2] && result.AveCount2[3] > result.RecentCount[3] && result.AveCount2[4] > result.RecentCount[4] && result.AveCount2[5] > result.RecentCount[5]
 
+	// 连续2天放巨量 今天和昨天都是前天或大前天的两倍以上
+	tufangjuliang1 := (result.RecentCount[0]-result.RecentCount[2])/result.RecentCount[2] > 2.5 && (result.RecentCount[1]-result.RecentCount[2])/result.RecentCount[2] > 2.5
+	tufangjuliang2 := (result.RecentCount[0]-result.RecentCount[3])/result.RecentCount[3] > 2.5 && (result.RecentCount[1]-result.RecentCount[3])/result.RecentCount[3] > 2.5
+
+
 	// 私募持仓
 	simuchicangcount := GetHolderByCode(code, "私募")
 	// 基金持仓
@@ -1280,6 +1285,10 @@ func (craw *Crawler) Analyze(result *model.CalcResult, code, name string) {
 		cond_str += "量能突破40日均线; "
 	}
 
+	if tufangjuliang1 || tufangjuliang2 {
+		score += 2
+		cond_str += "近两日突放巨量; "
+	}
 	// 周量价
 	if wliangshangyang1 {
 		score += 2

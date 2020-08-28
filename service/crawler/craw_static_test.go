@@ -123,35 +123,15 @@ func TestCrawler_GetTopStockholder(t *testing.T) {
 func TestGetSignalTicket(T *testing.T) {
 	go func() {
 		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 978 and id <= 1500").Find(&code)
+		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 0 and id <= 2000").Find(&code)
 		for _, i := range code {
 			log.Println("正在爬取", i.ID, i.Code, i.Name)
 			CrawlerGlobal.GetSignalTicket(i, false)
 		}
 	}()
-	//go func() {
-	//	var code []dal.Code
-	//	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 1651 and id <= 2000").Find(&code)  // 1651 600280 中央商场
-	//	for _, i := range code {
-	//		log.Println("正在爬取", i.ID, i.Code, i.Name)
-	//		CrawlerGlobal.GetSignalTicket(i, false)
-	//	}
-	//}()
 	select {}
 }
 
-// 获取股票历史记录
-func TestGetSignalTicket2(T *testing.T) {
-	go func() {
-		var code []dal.Code
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("id > 1651 and id <= 2000").Find(&code) // 1651 600280 中央商场
-		for _, i := range code {
-			log.Println("正在爬取", i.ID, i.Code, i.Name)
-			CrawlerGlobal.GetSignalTicket(i, false)
-		}
-	}()
-	select {}
-}
 
 // 获取基本面信息
 func TestGetStockProfit(t *testing.T) {

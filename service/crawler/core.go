@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	PROXY = "http://bj-rd-proxy.byted.org:3128"
+	PROXY = "http://bj-rd-proxy..org:3128"
 )
 
 func (c *Crawler) NewDocumentWithProxy(uri string) (*goquery.Document, error) {

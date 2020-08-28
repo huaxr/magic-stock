@@ -236,7 +236,6 @@ func TestMultiQuery(t *testing.T) {
 func TestGetTape(t *testing.T) {
 	//store.MysqlClient.GetDB().Model(&dal.Code{}).Where("concept like ?", "%大盘%").Update("tape", "大盘")
 	//store.MysqlClient.GetOnlineDB().Model(&dal.Code{}).Where("concept like ?", "%超大%").Update("tape", "超大盘")
-
 	//store.MysqlClient.GetDB().Model(&dal.Code{}).Where("concept like ?", "%中盘%").Update("tape", "中盘")
 	//store.MysqlClient.GetDB().Model(&dal.Code{}).Where("concept like ?", "%小盘%").Update("tape", "小盘")
 	var conds []dal.Conditions
@@ -245,7 +244,6 @@ func TestGetTape(t *testing.T) {
 		c := dal.Conditions{Type: i.Type, Name: i.Name}
 		store.MysqlClient.GetDB().Save(&c)
 	}
-
 }
 
 type res struct {

@@ -67,59 +67,59 @@ func (craw *Crawler) GetAllTicketCode() {
 		fmt.Println(x[0][len(x[0])-6:], name)
 	}
 
-	for i := 688001; i <= 688050; i++ {
-		// 科创板
-		_, body, _ := gorequest.New().Get("http://qt.gtimg.cn/q=sh" + strconv.Itoa(i)).End()
-		if len(body) == 0 {
-			continue
-		}
-		x := strings.Split(string(body), "~")
-		if len(x) == 1 {
-			continue
-		}
-		name := utils.ConvertToString(x[1], "gbk", "utf-8")
-		if name == "" {
-			continue
-		}
-		var count int
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", x[2]).Count(&count)
-		if count == 1 {
-			continue
-		}
-		dh := dal.Code{Code: x[2], Name: name}
-		store.MysqlClient.GetDB().Save(&dh)
-		fmt.Println(x[2], name)
-	}
+	//for i := 688001; i <= 688050; i++ {
+	//	// 科创板
+	//	_, body, _ := gorequest.New().Get("http://qt.gtimg.cn/q=sh" + strconv.Itoa(i)).End()
+	//	if len(body) == 0 {
+	//		continue
+	//	}
+	//	x := strings.Split(string(body), "~")
+	//	if len(x) == 1 {
+	//		continue
+	//	}
+	//	name := utils.ConvertToString(x[1], "gbk", "utf-8")
+	//	if name == "" {
+	//		continue
+	//	}
+	//	var count int
+	//	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", x[2]).Count(&count)
+	//	if count == 1 {
+	//		continue
+	//	}
+	//	dh := dal.Code{Code: x[2], Name: name}
+	//	store.MysqlClient.GetDB().Save(&dh)
+	//	fmt.Println(x[2], name)
+	//}
 
-	for i := 300001; i <= 300900; i++ { // 创业板
-		_, body, _ := gorequest.New().Get("http://qt.gtimg.cn/q=ff_sz" + strconv.Itoa(i)).End()
-		if len(body) == 0 {
-			continue
-		}
-		x := strings.Split(string(body), "~")
-		if len(x) == 1 {
-			continue
-		}
-		name := utils.ConvertToString(x[12], "gbk", "utf-8")
-		if name == "" {
-			continue
-		}
-		var count int
-		store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", x[0][len(x[0])-6:]).Count(&count)
-		if count == 1 {
-			continue
-		}
-		dh := dal.Code{Code: x[0][len(x[0])-6:], Name: name}
-		store.MysqlClient.GetDB().Save(&dh)
-		fmt.Println(x[0][len(x[0])-6:], name)
-	}
+	//for i := 300001; i <= 300900; i++ { // 创业板
+	//	_, body, _ := gorequest.New().Get("http://qt.gtimg.cn/q=ff_sz" + strconv.Itoa(i)).End()
+	//	if len(body) == 0 {
+	//		continue
+	//	}
+	//	x := strings.Split(string(body), "~")
+	//	if len(x) == 1 {
+	//		continue
+	//	}
+	//	name := utils.ConvertToString(x[12], "gbk", "utf-8")
+	//	if name == "" {
+	//		continue
+	//	}
+	//	var count int
+	//	store.MysqlClient.GetDB().Model(&dal.Code{}).Where("code = ?", x[0][len(x[0])-6:]).Count(&count)
+	//	if count == 1 {
+	//		continue
+	//	}
+	//	dh := dal.Code{Code: x[0][len(x[0])-6:], Name: name}
+	//	store.MysqlClient.GetDB().Save(&dh)
+	//	fmt.Println(x[0][len(x[0])-6:], name)
+	//}
 }
 
 // 获取单个股票的历史记录
 // 我要得出 60 季度线的所有数据 则需要从 2004 年开始拿所有数据
 func (craw *Crawler) GetSignalTicket(code dal.Code, proxy bool) error {
 	var doc *goquery.Document
-	for year := 1991; year <= 2020; year++ { // 1992 2019
+	for year := 2020; year <= 2020; year++ { // 1992 2019
 		for ji := 1; ji <= 4; ji++ { // 1 4
 			if !proxy {
 				doc, _ = craw.NewDocument(fmt.Sprintf("http://quotes.money.163.com/trade/lsjysj_%s.html?year=%d&season=%d", code.Code, year, ji))

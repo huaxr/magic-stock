@@ -1,6 +1,6 @@
 {
   "session_secret" : "zhixiutec_secret",
-  "store": "root:root@tcp(127.0.0.1:3316)/stock?charset=utf8mb4&parseTime=True&loc=Local",
+  "store": "root:root@tcp(127.0.0.1:3316)/analyzer?charset=utf8mb4&parseTime=True&loc=Local",
   "host": "http://127.0.0.1:8881",
   "wx_redirect": ""
 }
